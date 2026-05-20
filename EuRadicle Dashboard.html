@@ -84,14 +84,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
   <div class="ob">
     <div class="ob-logo">ER</div>
     <h1>EuRadicle Dashboard</h1>
-    <p>Connect <strong>Dashboard Report Data.xlsx</strong> from your OneDrive to load all 4 department KPIs live.</p>
+    <p id="ob-msg">Connect <strong>Dashboard Report Data.xlsx</strong> from your computer to load all 4 department KPIs live.</p>
     <button class="ob-btn" onclick="connectExcel()">&#128194; Select Excel File</button>
-    <div class="ob-note">Works in Chrome &amp; Edge &middot; File stays on your computer</div>
+    <div class="ob-note" id="ob-note">Works in Chrome &amp; Edge &middot; File remembered after first upload</div>
     <div class="ob-steps">
       <h3>How it works</h3>
-      <div class="step"><div class="sn">1</div><div class="st">Select <strong>Dashboard Report Data.xlsx</strong> from OneDrive &rarr; EuRadicle Dashboard</div></div>
+      <div class="step"><div class="sn">1</div><div class="st">Select <strong>Dashboard Report Data.xlsx</strong> — browser remembers it automatically</div></div>
       <div class="step"><div class="sn">2</div><div class="st">Edit any value in Excel and press <strong>Ctrl+S</strong></div></div>
-      <div class="step"><div class="sn">3</div><div class="st">Dashboard auto-refreshes every <strong>3 seconds</strong></div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Dashboard auto-refreshes every <strong>3 seconds</strong> — no reload needed</div></div>
     </div>
   </div>
 </div>
@@ -117,7 +117,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 
 <!-- OPERATIONS -->
 <div class="page active" id="page-ops">
-  <div class="pg-hdr"><h2>Operations</h2><p>Project delivery, client pipeline &amp; consultant engagement</p><span class="wk">8 May 2026</span></div>
+  <div class="pg-hdr"><h2>Operations</h2><p>Project delivery, client pipeline &amp; consultant engagement</p><span class="wk">FY 2026-27</span></div>
   <div class="kg g4">
     <div class="kpi tl"><div class="lb">FY 26-27 Delivered</div><div class="vl" id="ok1">--</div><div class="sb">Projects completed YTD</div></div>
     <div class="kpi gd"><div class="lb">FY 26-27 Upcoming</div><div class="vl" id="ok2">--</div><div class="sb">Projects in pipeline</div></div>
@@ -138,19 +138,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 
 <!-- FINANCE -->
 <div class="page" id="page-fin">
-  <div class="pg-hdr"><h2>Finance</h2><p>Revenue, invoices &amp; outstanding collections</p><span class="wk">7 May 2026</span></div>
+  <div class="pg-hdr"><h2>Finance</h2><p>Revenue, invoices &amp; outstanding collections</p><span class="wk">FY 2026-27</span></div>
   <div class="kg g4">
     <div class="kpi tl"><div class="lb">FY 26-27 Revenue YTD</div><div class="vl" id="fk1">--</div><div class="sb">Apr + May combined</div></div>
-    <div class="kpi rd"><div class="lb">Total Payments Due</div><div class="vl">Rs.16.67L</div><div class="sb">Across all clients</div><span class="tg bad">Pending collection</span></div>
-    <div class="kpi gd"><div class="lb">Invoice on Hold</div><div class="vl">1</div><div class="sb">Rs.2,46,346 &middot; Awaiting vendor</div><span class="tg warn">Action needed</span></div>
-    <div class="kpi pu"><div class="lb">Vouchers on Hold</div><div class="vl">3</div><div class="sb">Rs.14,244 &middot; LUT pending</div><span class="tg warn">Action needed</span></div>
+    <div class="kpi rd"><div class="lb">Total Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Across all clients</div><span class="tg bad">Pending collection</span></div>
+    <div class="kpi gd"><div class="lb">Invoices This Year</div><div class="vl" id="fk3">--</div><div class="sb">FY 2026-27 count</div></div>
+    <div class="kpi pu"><div class="lb">Revenue Growth</div><div class="vl" id="fk4">--</div><div class="sb">vs prior year</div></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">April vs May revenue per financial year</div><canvas id="fin-rev" height="200"></canvas></div>
     <div class="card"><h3>Invoices Raised in April</h3><div class="cs">Count of invoices per financial year</div><canvas id="fin-inv" height="200"></canvas></div>
   </div>
   <div class="cg c1">
-    <div class="card"><h3>Outstanding Payments Due</h3><div class="cs">Total due: Rs.16.67 Lakhs &mdash; edit amounts in Excel to update</div>
+    <div class="card"><h3>Outstanding Payments Due</h3><div class="cs">Edit amounts in Excel to update this table live</div>
       <table class="mt" id="fin-due-tbl"><thead><tr><th>Client / Description</th><th class="nr">Amount (Rs. L)</th><th>Due Period</th><th>Type</th></tr></thead><tbody></tbody></table>
     </div>
   </div>
@@ -158,10 +158,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 
 <!-- SOLUTIONING -->
 <div class="page" id="page-sol">
-  <div class="pg-hdr"><h2>Solutioning</h2><p>Proposals, industry traction &amp; engagement mix</p><span class="wk">5 May 2026</span></div>
+  <div class="pg-hdr"><h2>Solutioning</h2><p>Proposals, industry traction &amp; engagement mix</p><span class="wk">FY 2026-27</span></div>
   <div class="kg g4">
     <div class="kpi tl"><div class="lb">Proposals Shared (FY)</div><div class="vl" id="sk1">--</div><div class="sb">Total this financial year</div></div>
-    <div class="kpi gn"><div class="lb">Journey-Based</div><div class="vl" id="sk2">--</div><div class="sb" id="sk2s">of total engagements</div><span class="tg up">Demand shift</span></div>
+    <div class="kpi gn"><div class="lb">Total Won</div><div class="vl" id="sk2">--</div><div class="sb" id="sk2s">proposals won</div><span class="tg up">Closed</span></div>
     <div class="kpi gd"><div class="lb">Top Industry</div><div class="vl" id="sk3">--</div><div class="sb" id="sk3s">leads in traction</div></div>
     <div class="kpi nv"><div class="lb">Customization Rate</div><div class="vl">100%</div><div class="sb">All clients want bespoke</div><span class="tg info">Fully custom</span></div>
   </div>
@@ -170,19 +170,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
     <div class="card"><h3>Industry Traction</h3><div class="cs">Opportunities by sector</div><canvas id="sol-ind" height="200"></canvas></div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Engagement Type Mix</h3><div class="cs">Journeys vs Standalone vs Others</div><canvas id="sol-eng" height="170"></canvas></div>
+    <div class="card"><h3>Engagement Type Mix</h3><div class="cs">Breakdown by engagement format</div><canvas id="sol-eng" height="170"></canvas></div>
     <div class="card"><h3>Upcoming Priorities</h3><div class="cs">Focus items this week</div><ul class="pl" id="sol-prio"></ul></div>
   </div>
 </div>
 
 <!-- SALES -->
 <div class="page" id="page-sal">
-  <div class="pg-hdr"><h2>Sales</h2><p>Proposal funnel, order book &amp; annual target tracking</p><span class="wk">4 May 2026</span></div>
+  <div class="pg-hdr"><h2>Sales</h2><p>Proposal funnel, order book &amp; annual target tracking</p><span class="wk">FY 2026-27</span></div>
   <div class="kg g4">
     <div class="kpi tl"><div class="lb">Total Proposals (Apr)</div><div class="vl" id="slk1">--</div><div class="sb">April 2026</div></div>
     <div class="kpi gn"><div class="lb">Won Value</div><div class="vl" id="slk2">--</div><div class="sb" id="slk2s">proposals closed</div><span class="tg up">Closed</span></div>
     <div class="kpi gd"><div class="lb">In-Process Value</div><div class="vl" id="slk3">--</div><div class="sb" id="slk3s">proposals active</div><span class="tg info">In negotiation</span></div>
-    <div class="kpi nv"><div class="lb">Annual Target Achieved</div><div class="vl" id="slk4">--</div><div class="sb">of Rs.4.10 Cr target</div></div>
+    <div class="kpi nv"><div class="lb">Annual Target Achieved</div><div class="vl" id="slk4">--</div><div class="sb">of annual target</div></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>April Proposal Funnel</h3><div class="cs">Won / Lost / In-Process by value</div><canvas id="sal-funnel" height="200"></canvas></div>
@@ -221,15 +221,19 @@ function dOpts(){
     plugins:{legend:{position:'right',labels:{padding:12,font:{size:10}}}}};
 }
 
+// ── Section-aware row helpers ──────────────────────────────────────────────
 function neCols(r){return r.filter(function(c){return c!==null&&c!==undefined&&String(c).trim()!=='';}).length;}
+
+// findHdr: skip single-column section-title rows (merged cells), require >=2 non-empty cols
 function findHdr(rows,marker){
-  // Skip section-title rows (only 1 non-empty cell — they are merged cells spanning full width)
   for(var i=0;i<rows.length;i++){
     var r=rows[i];
     if(neCols(r)>=2&&r.some(function(c){return String(c).indexOf(marker)>=0;}))return i;
   }
   return -1;
 }
+
+// getSection: auto-stops at section-title rows (1 non-empty col) and explicit stop markers
 function getSection(rows,hi,stops){
   if(hi<0)return[];
   var hdrs=rows[hi].map(function(h){return String(h).trim();});
@@ -237,8 +241,7 @@ function getSection(rows,hi,stops){
   for(var i=hi+1;i<rows.length;i++){
     var r=rows[i];
     if(!r[0]||String(r[0]).trim()==='')continue;
-    // Stop at section-title rows (merged single-col rows) — auto section boundary detection
-    if(neCols(r)<=1)break;
+    if(neCols(r)<=1)break;  // section title row — auto boundary
     if(stops&&stops.some(function(s){return String(r[0]).indexOf(s)>=0;}))break;
     var obj={};hdrs.forEach(function(h,j){obj[h]=r[j]!==undefined?r[j]:'';});
     out.push(obj);
@@ -246,7 +249,7 @@ function getSection(rows,hi,stops){
   return out;
 }
 
-// OPERATIONS
+// ── Department parsers ─────────────────────────────────────────────────────
 function doOps(wb){
   var ws=wb.Sheets['Operations'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
@@ -254,11 +257,11 @@ function doOps(wb){
   var chi=findHdr(rows,'Client');
   var tri=findHdr(rows,'Trainer');
   if(phi>=0){
-    var pd=getSection(rows,phi,['Client']);
-    var tots=pd.map(function(r){return num(r['Delivered (In-Person)'])+num(r['Delivered (Virtual)']);});
+    var pd=getSection(rows,phi,[]);
+    var tots=pd.map(function(r){return num(r['Total Delivered'])||num(r['Delivered (In-Person)'])+num(r['Delivered (Virtual)']);});
     var best=Math.max.apply(null,tots);
     var fy27=pd.find(function(r){return String(r['Financial Year']).indexOf('2026')>=0;})||{};
-    set('ok1',num(fy27['Delivered (In-Person)'])+num(fy27['Delivered (Virtual)']));
+    set('ok1',num(fy27['Total Delivered'])||num(fy27['Delivered (In-Person)'])+num(fy27['Delivered (Virtual)']));
     set('ok2',num(fy27['Upcoming']));
     set('ok3',best);
     set('ok3s','FY '+(pd[tots.indexOf(best)]||{})['Financial Year']);
@@ -269,7 +272,7 @@ function doOps(wb){
                 {label:'Virtual',data:pd.map(function(r){return num(r['Delivered (Virtual)']);}),backgroundColor:TL,borderRadius:4}]},options:bOpts(false,false)});
   }
   if(chi>=0){
-    var cd=getSection(rows,chi,['Trainer']);
+    var cd=getSection(rows,chi,[]);
     var sorted=cd.slice().sort(function(a,b){return num(b['Upcoming'])-num(a['Upcoming']);});
     var top=sorted[0]||{};
     set('ok4',top['Client']||'--');set('ok4s',num(top['Upcoming'])+' upcoming projects');
@@ -287,7 +290,6 @@ function doOps(wb){
   }
 }
 
-// FINANCE
 function doFin(wb){
   var ws=wb.Sheets['Finance'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
@@ -295,20 +297,29 @@ function doFin(wb){
   var ii=findHdr(rows,'Invoices Raised');
   var di=findHdr(rows,'Amount Due');
   if(ri>=0){
-    var rd=getSection(rows,ri,['Invoices']);
+    var rd=getSection(rows,ri,[]);
     var fy27=rd.find(function(r){return String(r['Financial Year']).indexOf('2026-27')>=0;})||{};
-    set('fk1','Rs.'+(num(fy27['April Revenue (L)'])+num(fy27['May Revenue (L)'])).toFixed(2)+'L');
+    var ytd=num(fy27['April Revenue (L)'])+num(fy27['May Revenue (L)']);
+    set('fk1','Rs.'+ytd.toFixed(1)+'L');
+    var prev=rd.find(function(r){return String(r['Financial Year']).indexOf('2025-26')>=0;})||{};
+    var prevTot=num(prev['April Revenue (L)'])+num(prev['May Revenue (L)']);
+    var growth=prevTot>0?Math.round((ytd-prevTot)/prevTot*100):0;
+    set('fk4',(growth>=0?'+':'')+growth+'%');
     mk('fin-rev',{type:'bar',data:{labels:rd.map(function(r){return r['Financial Year'];}),
       datasets:[{label:'April (L)',data:rd.map(function(r){return num(r['April Revenue (L)']);}),backgroundColor:TL,borderRadius:4},
                 {label:'May (L)',data:rd.map(function(r){return num(r['May Revenue (L)']);}),backgroundColor:GD,borderRadius:4}]},options:bOpts(false,false)});
   }
   if(ii>=0){
-    var id=getSection(rows,ii,['Client','Amount']);
+    var id=getSection(rows,ii,[]);
+    var fy27inv=id.find(function(r){return String(r['Financial Year']).indexOf('2026-27')>=0;})||{};
+    set('fk3',num(fy27inv['Invoices Raised']));
     mk('fin-inv',{type:'bar',data:{labels:id.map(function(r){return r['Financial Year'];}),
       datasets:[{label:'Invoices',data:id.map(function(r){return num(r['Invoices Raised']);}),backgroundColor:[TL,TL,TL,GD],borderRadius:4}]},options:bOpts(false,false)});
   }
   if(di>=0){
     var dd=getSection(rows,di,[]);
+    var total=dd.reduce(function(s,r){return s+num(Object.values(r)[1]);},0);
+    set('fk2','Rs.'+total.toFixed(1)+'L');
     var tb=document.querySelector('#fin-due-tbl tbody');
     if(tb)tb.innerHTML=dd.map(function(r){
       var v=Object.values(r);
@@ -317,7 +328,6 @@ function doFin(wb){
   }
 }
 
-// SOLUTIONING
 function doSol(wb){
   var ws=wb.Sheets['Solutioning'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
@@ -326,29 +336,27 @@ function doSol(wb){
   var ei=findHdr(rows,'Engagement Type');
   var pri=findHdr(rows,'Priority Item');
   if(pi>=0){
-    var pd=getSection(rows,pi,['Industry']);
+    var pd=getSection(rows,pi,[]);
     var tot=pd.reduce(function(s,r){return s+num(r['Proposals Shared']);},0);
-    set('sk1',tot);
+    var won=pd.reduce(function(s,r){return s+num(r['Won']);},0);
+    set('sk1',tot);set('sk2',won);set('sk2s',won+' out of '+tot+' proposals');
     mk('sol-props',{type:'bar',data:{labels:pd.map(function(r){return r['Capability'];}),
       datasets:[{label:'Shared',data:pd.map(function(r){return num(r['Proposals Shared']);}),backgroundColor:TL,borderRadius:4},
                 {label:'Won',data:pd.map(function(r){return num(r['Won']);}),backgroundColor:GN,borderRadius:4},
                 {label:'Lost',data:pd.map(function(r){return num(r['Lost']);}),backgroundColor:RD,borderRadius:4}]},options:bOpts(false,false)});
   }
   if(ii>=0){
-    var id=getSection(rows,ii,['Engagement']);
-    var sorted2=id.slice().sort(function(a,b){return num(b['No. of Opportunities'])-num(a['No. of Opportunities']);});
+    var idata=getSection(rows,ii,[]);
+    var sorted2=idata.slice().sort(function(a,b){return num(b['No. of Opportunities'])-num(a['No. of Opportunities']);});
     var top2=sorted2[0]||{};
     set('sk3',top2['Industry']||'--');set('sk3s',num(top2['No. of Opportunities'])+' opportunities');
-    mk('sol-ind',{type:'bar',data:{labels:id.map(function(r){return r['Industry'];}),
-      datasets:[{label:'Opportunities',data:id.map(function(r){return num(r['No. of Opportunities']);}),
+    mk('sol-ind',{type:'bar',data:{labels:idata.map(function(r){return r['Industry'];}),
+      datasets:[{label:'Opportunities',data:idata.map(function(r){return num(r['No. of Opportunities']);}),
                  backgroundColor:[TL,NV,GD,GN,PU],borderRadius:4}]},
       options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false}}})});
   }
   if(ei>=0){
-    var ed=getSection(rows,ei,['Priority']);
-    var jrow=ed.find(function(r){return String(r['Engagement Type']).toLowerCase().indexOf('journey')>=0;})||{};
-    var etot=ed.reduce(function(s,r){return s+num(r['Count']);},0);
-    set('sk2',num(jrow['Count']));set('sk2s',Math.round(num(jrow['Count'])/etot*100)+'% of '+etot+' total');
+    var ed=getSection(rows,ei,[]);
     mk('sol-eng',{type:'doughnut',data:{labels:ed.map(function(r){return r['Engagement Type'];}),
       datasets:[{data:ed.map(function(r){return num(r['Count']);}),backgroundColor:[TL,GD,PU],borderWidth:2,borderColor:'#fff'}]},options:dOpts()});
   }
@@ -362,26 +370,20 @@ function doSol(wb){
   }
 }
 
-// SALES
 function doSal(wb){
   var ws=wb.Sheets['Sales'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  var pi=findHdr(rows,'No. of Proposals');  // unique to proposals header; avoids matching section title
+  var pi=findHdr(rows,'No. of Proposals');
   var oi=findHdr(rows,'Program');
   var ti=findHdr(rows,'Quarter');
   var ppi=findHdr(rows,'Opportunity');
   if(pi>=0){
     var pd=getSection(rows,pi,[]);
-    // Determine which key holds the status (could be 'Status' or 'Proposal Status')
     var stkey=(pd.length>0&&Object.keys(pd[0])[0])||'Status';
-    pd=pd.filter(function(r){
-      var sv=String(r[stkey]||'').toLowerCase();
-      return sv!==''&&sv.indexOf('total')<0;
-    });
+    pd=pd.filter(function(r){var sv=String(r[stkey]||'').toLowerCase();return sv!==''&&sv.indexOf('total')<0;});
     var ptot=pd.reduce(function(s,r){return s+num(r['No. of Proposals']);},0);set('slk1',ptot);
     var won=pd.find(function(r){return String(r[stkey]).toLowerCase().indexOf('won')>=0;})||{};
     var ip=pd.find(function(r){return String(r[stkey]).toLowerCase().indexOf('process')>=0;})||{};
-    // Value is always 3rd column; use key first, fall back to positional
     set('slk2',fmt(num(won['Value (Rs.)']==null?Object.values(won)[2]:won['Value (Rs.)'])));
     set('slk2s',num(won['No. of Proposals'])+' proposals won');
     set('slk3',fmt(num(ip['Value (Rs.)']==null?Object.values(ip)[2]:ip['Value (Rs.)'])));
@@ -390,7 +392,7 @@ function doSal(wb){
       datasets:[{data:pd.map(function(r){return num(r['Value (Rs.)']==null?Object.values(r)[2]:r['Value (Rs.)']);}),backgroundColor:[GN,RD,GD],borderWidth:2,borderColor:'#fff'}]},options:dOpts()});
   }
   if(oi>=0){
-    var od=getSection(rows,oi,['Quarter','Annual','Expected']).filter(function(r){return r['Client'];});
+    var od=getSection(rows,oi,[]).filter(function(r){return r['Client'];});
     var tb=document.querySelector('#sal-ord-tbl tbody');
     if(tb)tb.innerHTML=od.map(function(r){
       var v=Object.values(r);
@@ -398,12 +400,12 @@ function doSal(wb){
     }).join('');
   }
   if(ti>=0){
-    var td=getSection(rows,ti,['Expected']).filter(function(r){return String(r['Quarter']).toLowerCase().indexOf('full')<0;});
-    var full=getSection(rows,ti,['Expected']).find(function(r){return String(r['Quarter']).toLowerCase().indexOf('full')>=0;})||{};
+    var qtd=getSection(rows,ti,[]).filter(function(r){return String(r['Quarter']).toLowerCase().indexOf('full')<0;});
+    var full=getSection(rows,ti,[]).find(function(r){return String(r['Quarter']).toLowerCase().indexOf('full')>=0;})||{};
     var pct=Object.values(full)[3]||0;set('slk4',num(pct).toFixed(1)+'%');
-    mk('sal-target',{type:'bar',data:{labels:td.map(function(r){return r['Quarter'].replace(/\(.*\)/,'').trim();}),
-      datasets:[{label:'Target (Cr)',data:td.map(function(r){return num(Object.values(r)[1])/10000000;}),backgroundColor:'rgba(0,128,140,.15)',borderColor:TL,borderWidth:2,borderRadius:4},
-                {label:'Achieved (Cr)',data:td.map(function(r){return num(Object.values(r)[2])/10000000;}),backgroundColor:GN,borderRadius:4}]},options:bOpts(false,false)});
+    mk('sal-target',{type:'bar',data:{labels:qtd.map(function(r){return r['Quarter'].replace(/\(.*\)/,'').trim();}),
+      datasets:[{label:'Target (Cr)',data:qtd.map(function(r){return num(Object.values(r)[1])/10000000;}),backgroundColor:'rgba(0,128,140,.15)',borderColor:TL,borderWidth:2,borderRadius:4},
+                {label:'Achieved (Cr)',data:qtd.map(function(r){return num(Object.values(r)[2])/10000000;}),backgroundColor:GN,borderRadius:4}]},options:bOpts(false,false)});
   }
   if(ppi>=0){
     var ppd=getSection(rows,ppi,[]);
@@ -414,19 +416,52 @@ function doSal(wb){
 }
 
 function update(wb){
-  try{doOps(wb);doFin(wb);doSol(wb);doSal(wb);
+  try{
+    doOps(wb);doFin(wb);doSol(wb);doSal(wb);
     var t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     set('sync-time','Last sync: '+t);
-    document.getElementById('ldot').classList.remove('off');set('ltxt','Live Sync ON');
-  }catch(e){console.error(e);}
+    document.getElementById('ldot').classList.remove('off');
+    set('ltxt','Live Sync ON');
+  }catch(e){console.error('Dashboard update error:',e);}
 }
 
+// ── IndexedDB file-handle persistence ─────────────────────────────────────
+// Stores the file handle so users only pick the file ONCE — remembered across sessions.
+var DB_NAME='ER-Dashboard-v1', STORE='handles', KEY='excel';
+
+function openDB(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open(DB_NAME,1);
+    r.onupgradeneeded=function(e){e.target.result.createObjectStore(STORE);};
+    r.onsuccess=function(e){res(e.target.result);};
+    r.onerror=function(e){rej(e);};
+  });
+}
+async function saveHandle(h){
+  try{var db=await openDB();var tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(h,KEY);}
+  catch(e){console.warn('Could not save handle:',e);}
+}
+async function loadHandle(){
+  try{
+    var db=await openDB();
+    return new Promise(function(res,rej){
+      var tx=db.transaction(STORE,'readonly');
+      var req=tx.objectStore(STORE).get(KEY);
+      req.onsuccess=function(){res(req.result||null);};
+      req.onerror=function(){res(null);};
+    });
+  }catch(e){return null;}
+}
+
+// ── File connection ────────────────────────────────────────────────────────
 var fh=null,si=null;
+
 async function connectExcel(){
   try{
     if(window.showOpenFilePicker){
       var r=await window.showOpenFilePicker({types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
       fh=r[0];
+      await saveHandle(fh);   // remember for next visit
       document.getElementById('overlay').style.display='none';
       await readFile();
       if(si)clearInterval(si);si=setInterval(readFile,3000);
@@ -436,16 +471,38 @@ async function connectExcel(){
         var f=e.target.files[0];if(!f)return;
         document.getElementById('overlay').style.display='none';
         update(XLSX.read(await f.arrayBuffer(),{type:'array'}));
-        set('ltxt','Manual mode');document.getElementById('ldot').classList.add('off');
+        set('ltxt','Loaded (no live sync)');document.getElementById('ldot').classList.add('off');
       };inp.click();
     }
-  }catch(e){if(e.name!=='AbortError')alert('Please use Chrome or Edge browser.');}
+  }catch(e){if(e.name!=='AbortError')alert('Please use Chrome or Edge for full live-sync support.');}
 }
+
 async function readFile(){
   if(!fh)return;
   try{var f=await fh.getFile();update(XLSX.read(await f.arrayBuffer(),{type:'array'}));}
-  catch(e){console.warn(e);}
+  catch(e){console.warn('Read error:',e);}
 }
+
+// ── Auto-load saved handle on page open ────────────────────────────────────
+window.addEventListener('load',async function(){
+  if(!window.showOpenFilePicker)return;
+  var saved=await loadHandle();
+  if(!saved)return;
+  try{
+    // Check if we already have read permission (no prompt needed)
+    var perm=await saved.queryPermission({mode:'read'});
+    if(perm==='granted'){
+      fh=saved;
+      document.getElementById('overlay').style.display='none';
+      await readFile();
+      if(si)clearInterval(si);si=setInterval(readFile,3000);
+    }else{
+      // Show overlay with a message that the file was previously connected
+      document.getElementById('ob-msg').innerHTML='<strong>Dashboard Report Data.xlsx</strong> was connected before. Click below to reconnect — browser needs one-time permission.';
+      document.getElementById('ob-note').textContent='File will be remembered again after this click.';
+    }
+  }catch(e){console.warn('Auto-load failed:',e);}
+});
 
 function goTab(id,el){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
