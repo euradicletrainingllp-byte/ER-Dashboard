@@ -89,9 +89,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
     <div class="ob-note" id="ob-note">Works in Chrome &amp; Edge &middot; File remembered after first upload</div>
     <div class="ob-steps">
       <h3>How it works</h3>
-      <div class="step"><div class="sn">1</div><div class="st">Select <strong>Dashboard Report Data.xlsx</strong> — browser remembers it automatically</div></div>
+      <div class="step"><div class="sn">1</div><div class="st">Select <strong>Dashboard Report Data.xlsx</strong> &mdash; browser remembers it automatically</div></div>
       <div class="step"><div class="sn">2</div><div class="st">Edit any value in Excel and press <strong>Ctrl+S</strong></div></div>
-      <div class="step"><div class="sn">3</div><div class="st">Dashboard auto-refreshes every <strong>3 seconds</strong> — no reload needed</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Dashboard auto-refreshes every <strong>3 seconds</strong> &mdash; no reload needed</div></div>
     </div>
   </div>
 </div>
@@ -121,7 +121,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
   <div class="kg g4">
     <div class="kpi tl"><div class="lb">FY 26-27 Delivered</div><div class="vl" id="ok1">--</div><div class="sb">Projects completed YTD</div></div>
     <div class="kpi gd"><div class="lb">FY 26-27 Upcoming</div><div class="vl" id="ok2">--</div><div class="sb">Projects in pipeline</div></div>
-    <div class="kpi gn"><div class="lb">Best Year (Delivered)</div><div class="vl" id="ok3">--</div><div class="sb" id="ok3s">Record financial year</div><span class="tg up">&#9650; Record</span></div>
+    <div class="kpi gn"><div class="lb">Best Year Delivered</div><div class="vl" id="ok3">--</div><div class="sb" id="ok3s">Record financial year</div><span class="tg up">&#9650; Record</span></div>
     <div class="kpi nv"><div class="lb">Key Account</div><div class="vl" id="ok4">--</div><div class="sb" id="ok4s">Largest upcoming pipeline</div><span class="tg info">Top Client</span></div>
   </div>
   <div class="cg c11">
@@ -143,15 +143,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
     <div class="kpi tl"><div class="lb">FY 26-27 Revenue YTD</div><div class="vl" id="fk1">--</div><div class="sb">Apr + May combined</div></div>
     <div class="kpi rd"><div class="lb">Total Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Across all clients</div><span class="tg bad">Pending collection</span></div>
     <div class="kpi gd"><div class="lb">Invoices This Year</div><div class="vl" id="fk3">--</div><div class="sb">FY 2026-27 count</div></div>
-    <div class="kpi pu"><div class="lb">Revenue Growth</div><div class="vl" id="fk4">--</div><div class="sb">vs prior year</div></div>
+    <div class="kpi pu"><div class="lb">Credit Notes FY26</div><div class="vl" id="fk4">--</div><div class="sb" id="fk4s">Value in Rs. Lakhs</div><span class="tg warn">Issued this year</span></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">April vs May revenue per financial year</div><canvas id="fin-rev" height="200"></canvas></div>
     <div class="card"><h3>Invoices Raised in April</h3><div class="cs">Count of invoices per financial year</div><canvas id="fin-inv" height="200"></canvas></div>
   </div>
-  <div class="cg c1">
+  <div class="cg c11">
     <div class="card"><h3>Outstanding Payments Due</h3><div class="cs">Edit amounts in Excel to update this table live</div>
       <table class="mt" id="fin-due-tbl"><thead><tr><th>Client / Description</th><th class="nr">Amount (Rs. L)</th><th>Due Period</th><th>Type</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card"><h3>Credit Notes &mdash; FY 2026-27</h3><div class="cs">Add credit note entries in Excel to populate this table</div>
+      <table class="mt" id="fin-cn-tbl"><thead><tr><th>Description</th><th class="nr">Count</th><th class="nr">Value (Rs. L)</th><th>Notes</th></tr></thead><tbody><tr><td colspan="4" style="color:#6B7A99;font-style:italic;padding:14px 10px">No credit notes entered yet &mdash; add rows in Excel under Credit Notes section</td></tr></tbody></table>
     </div>
   </div>
 </div>
@@ -210,21 +213,19 @@ function mk(id,cfg){if(CH[id])CH[id].destroy();var c=document.getElementById(id)
 function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
 function num(v){return isNaN(Number(v))?0:Number(v);}
 function fmt(v){if(v>=10000000)return'Rs.'+(v/10000000).toFixed(2)+'Cr';if(v>=100000)return'Rs.'+(v/100000).toFixed(1)+'L';if(v>=1000)return'Rs.'+(v/1000).toFixed(0)+'K';return'Rs.'+v;}
-
 function bOpts(stacked,horiz){
-  return {responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'top'}},
+  return{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'top'}},
     scales:{x:{stacked:stacked,grid:{display:!!horiz},ticks:{font:{size:10}}},
             y:{stacked:stacked,grid:{color:'#EDF0F5',display:!horiz},ticks:{font:{size:10}}}}};
 }
 function dOpts(){
-  return {responsive:true,maintainAspectRatio:true,cutout:'58%',
+  return{responsive:true,maintainAspectRatio:true,cutout:'58%',
     plugins:{legend:{position:'right',labels:{padding:12,font:{size:10}}}}};
 }
 
-// ── Section-aware row helpers ──────────────────────────────────────────────
+/* ---- Section-aware row helpers ----------------------------------------- */
 function neCols(r){return r.filter(function(c){return c!==null&&c!==undefined&&String(c).trim()!=='';}).length;}
-
-// findHdr: skip single-column section-title rows (merged cells), require >=2 non-empty cols
+/* Skip merged section-title rows (only 1 non-empty cell) */
 function findHdr(rows,marker){
   for(var i=0;i<rows.length;i++){
     var r=rows[i];
@@ -232,8 +233,7 @@ function findHdr(rows,marker){
   }
   return -1;
 }
-
-// getSection: auto-stops at section-title rows (1 non-empty col) and explicit stop markers
+/* Auto-stop at section-title rows (1 non-empty col) AND explicit markers */
 function getSection(rows,hi,stops){
   if(hi<0)return[];
   var hdrs=rows[hi].map(function(h){return String(h).trim();});
@@ -241,7 +241,7 @@ function getSection(rows,hi,stops){
   for(var i=hi+1;i<rows.length;i++){
     var r=rows[i];
     if(!r[0]||String(r[0]).trim()==='')continue;
-    if(neCols(r)<=1)break;  // section title row — auto boundary
+    if(neCols(r)<=1)break;
     if(stops&&stops.some(function(s){return String(r[0]).indexOf(s)>=0;}))break;
     var obj={};hdrs.forEach(function(h,j){obj[h]=r[j]!==undefined?r[j]:'';});
     out.push(obj);
@@ -249,7 +249,7 @@ function getSection(rows,hi,stops){
   return out;
 }
 
-// ── Department parsers ─────────────────────────────────────────────────────
+/* ---- OPERATIONS --------------------------------------------------------- */
 function doOps(wb){
   var ws=wb.Sheets['Operations'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
@@ -285,26 +285,24 @@ function doOps(wb){
     var td=getSection(rows,tri,[]);
     var tb=document.querySelector('#ops-tr-tbl tbody');
     if(tb)tb.innerHTML=td.slice(0,6).map(function(r){
-      return '<tr><td>'+r['Trainer']+'</td><td class="nr">'+num(r['Days Delivered'])+'</td><td class="nr">'+num(r['Days Upcoming'])+'</td></tr>';
+      return'<tr><td>'+r['Trainer']+'</td><td class="nr">'+num(r['Days Delivered'])+'</td><td class="nr">'+num(r['Days Upcoming'])+'</td></tr>';
     }).join('');
   }
 }
 
+/* ---- FINANCE ------------------------------------------------------------ */
 function doFin(wb){
   var ws=wb.Sheets['Finance'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
   var ri=findHdr(rows,'April Revenue');
   var ii=findHdr(rows,'Invoices Raised');
   var di=findHdr(rows,'Amount Due');
+  var ci=findHdr(rows,'Credit Note');   /* Credit Notes section header */
   if(ri>=0){
     var rd=getSection(rows,ri,[]);
     var fy27=rd.find(function(r){return String(r['Financial Year']).indexOf('2026-27')>=0;})||{};
     var ytd=num(fy27['April Revenue (L)'])+num(fy27['May Revenue (L)']);
     set('fk1','Rs.'+ytd.toFixed(1)+'L');
-    var prev=rd.find(function(r){return String(r['Financial Year']).indexOf('2025-26')>=0;})||{};
-    var prevTot=num(prev['April Revenue (L)'])+num(prev['May Revenue (L)']);
-    var growth=prevTot>0?Math.round((ytd-prevTot)/prevTot*100):0;
-    set('fk4',(growth>=0?'+':'')+growth+'%');
     mk('fin-rev',{type:'bar',data:{labels:rd.map(function(r){return r['Financial Year'];}),
       datasets:[{label:'April (L)',data:rd.map(function(r){return num(r['April Revenue (L)']);}),backgroundColor:TL,borderRadius:4},
                 {label:'May (L)',data:rd.map(function(r){return num(r['May Revenue (L)']);}),backgroundColor:GD,borderRadius:4}]},options:bOpts(false,false)});
@@ -323,11 +321,27 @@ function doFin(wb){
     var tb=document.querySelector('#fin-due-tbl tbody');
     if(tb)tb.innerHTML=dd.map(function(r){
       var v=Object.values(r);
-      return '<tr><td>'+v[0]+'</td><td class="nr">'+num(v[1]).toFixed(2)+'</td><td>'+v[2]+'</td><td>'+v[3]+'</td></tr>';
+      return'<tr><td>'+v[0]+'</td><td class="nr">'+num(v[1]).toFixed(2)+'</td><td>'+v[2]+'</td><td>'+v[3]+'</td></tr>';
     }).join('');
+  }
+  /* Credit Notes — reads from Excel "Credit Notes" section */
+  if(ci>=0){
+    var cn=getSection(rows,ci,[]);
+    var totalCNVal=cn.reduce(function(s,r){return s+num(r['Value (L)']||Object.values(r)[2]);},0);
+    var totalCNCount=cn.reduce(function(s,r){return s+num(r['Count']||Object.values(r)[1]);},0);
+    set('fk4',totalCNCount>0?totalCNCount:'--');
+    set('fk4s','Rs.'+totalCNVal.toFixed(2)+'L total value');
+    var tb2=document.querySelector('#fin-cn-tbl tbody');
+    if(tb2&&cn.length>0){
+      tb2.innerHTML=cn.map(function(r){
+        var v=Object.values(r);
+        return'<tr><td>'+v[0]+'</td><td class="nr">'+v[1]+'</td><td class="nr">'+num(v[2]).toFixed(2)+'</td><td>'+v[3]+'</td></tr>';
+      }).join('');
+    }
   }
 }
 
+/* ---- SOLUTIONING -------------------------------------------------------- */
 function doSol(wb){
   var ws=wb.Sheets['Solutioning'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
@@ -365,11 +379,12 @@ function doSol(wb){
     var ul=document.getElementById('sol-prio');
     if(ul)ul.innerHTML=prd.map(function(r,i){
       var v=Object.values(r);
-      return '<li><div class="pn">'+(i+1)+'</div><div class="pt"><strong>'+v[0]+'</strong><span>'+v[1]+'</span></div></li>';
+      return'<li><div class="pn">'+(i+1)+'</div><div class="pt"><strong>'+v[0]+'</strong><span>'+v[1]+'</span></div></li>';
     }).join('');
   }
 }
 
+/* ---- SALES -------------------------------------------------------------- */
 function doSal(wb){
   var ws=wb.Sheets['Sales'];if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
@@ -396,7 +411,7 @@ function doSal(wb){
     var tb=document.querySelector('#sal-ord-tbl tbody');
     if(tb)tb.innerHTML=od.map(function(r){
       var v=Object.values(r);
-      return '<tr><td>'+v[0]+'</td><td style="font-size:10px;color:#6B7A99">'+v[1]+'</td><td class="nr">'+fmt(num(v[2]))+'</td><td class="nr">'+fmt(num(v[4]))+'</td></tr>';
+      return'<tr><td>'+v[0]+'</td><td style="font-size:10px;color:#6B7A99">'+v[1]+'</td><td class="nr">'+fmt(num(v[2]))+'</td><td class="nr">'+fmt(num(v[4]))+'</td></tr>';
     }).join('');
   }
   if(ti>=0){
@@ -425,10 +440,8 @@ function update(wb){
   }catch(e){console.error('Dashboard update error:',e);}
 }
 
-// ── IndexedDB file-handle persistence ─────────────────────────────────────
-// Stores the file handle so users only pick the file ONCE — remembered across sessions.
-var DB_NAME='ER-Dashboard-v1', STORE='handles', KEY='excel';
-
+/* ---- IndexedDB file-handle persistence ---------------------------------- */
+var DB_NAME='ER-Dashboard-v1',STORE='handles',KEY='excel';
 function openDB(){
   return new Promise(function(res,rej){
     var r=indexedDB.open(DB_NAME,1);
@@ -438,30 +451,28 @@ function openDB(){
   });
 }
 async function saveHandle(h){
-  try{var db=await openDB();var tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(h,KEY);}
+  try{var db=await openDB();db.transaction(STORE,'readwrite').objectStore(STORE).put(h,KEY);}
   catch(e){console.warn('Could not save handle:',e);}
 }
 async function loadHandle(){
   try{
     var db=await openDB();
-    return new Promise(function(res,rej){
-      var tx=db.transaction(STORE,'readonly');
-      var req=tx.objectStore(STORE).get(KEY);
+    return new Promise(function(res){
+      var req=db.transaction(STORE,'readonly').objectStore(STORE).get(KEY);
       req.onsuccess=function(){res(req.result||null);};
       req.onerror=function(){res(null);};
     });
   }catch(e){return null;}
 }
 
-// ── File connection ────────────────────────────────────────────────────────
+/* ---- File connection ---------------------------------------------------- */
 var fh=null,si=null;
-
 async function connectExcel(){
   try{
     if(window.showOpenFilePicker){
       var r=await window.showOpenFilePicker({types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
       fh=r[0];
-      await saveHandle(fh);   // remember for next visit
+      await saveHandle(fh);
       document.getElementById('overlay').style.display='none';
       await readFile();
       if(si)clearInterval(si);si=setInterval(readFile,3000);
@@ -476,30 +487,21 @@ async function connectExcel(){
     }
   }catch(e){if(e.name!=='AbortError')alert('Please use Chrome or Edge for full live-sync support.');}
 }
-
 async function readFile(){
   if(!fh)return;
   try{var f=await fh.getFile();update(XLSX.read(await f.arrayBuffer(),{type:'array'}));}
   catch(e){console.warn('Read error:',e);}
 }
-
-// ── Auto-load saved handle on page open ────────────────────────────────────
 window.addEventListener('load',async function(){
   if(!window.showOpenFilePicker)return;
-  var saved=await loadHandle();
-  if(!saved)return;
+  var saved=await loadHandle();if(!saved)return;
   try{
-    // Check if we already have read permission (no prompt needed)
     var perm=await saved.queryPermission({mode:'read'});
     if(perm==='granted'){
-      fh=saved;
-      document.getElementById('overlay').style.display='none';
-      await readFile();
-      if(si)clearInterval(si);si=setInterval(readFile,3000);
+      fh=saved;document.getElementById('overlay').style.display='none';
+      await readFile();if(si)clearInterval(si);si=setInterval(readFile,3000);
     }else{
-      // Show overlay with a message that the file was previously connected
-      document.getElementById('ob-msg').innerHTML='<strong>Dashboard Report Data.xlsx</strong> was connected before. Click below to reconnect — browser needs one-time permission.';
-      document.getElementById('ob-note').textContent='File will be remembered again after this click.';
+      document.getElementById('ob-msg').innerHTML='<strong>Dashboard Report Data.xlsx</strong> was connected before. Click below to reconnect &mdash; one-time permission needed.';
     }
   }catch(e){console.warn('Auto-load failed:',e);}
 });
