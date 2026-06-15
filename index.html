@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>EuRadicle Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4A;font-size:13px}
@@ -38,18 +38,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 .chg-btn:hover{background:rgba(255,255,255,.18)}
 .tabs{background:#fff;border-bottom:2px solid #DDE3ED;padding:0 28px;display:flex;overflow-x:auto}
 .tab{padding:12px 22px;font-size:12px;font-weight:600;color:#6B7A99;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
-.tab:hover{color:#1B2A4A}.tab.active{color:#00808C;border-bottom-color:#00808C}
-.page{display:none;padding:24px 28px 40px;max-width:1300px;margin:0 auto}
+.tab:hover{color:#1B2A4A}
+.tab.active{color:#00808C;border-bottom-color:#00808C}
+.page{display:none;padding:18px 24px 32px;max-width:1440px;margin:0 auto}
 .page.active{display:block}
 .pg-hdr{margin-bottom:20px}
 .pg-hdr h2{font-size:18px;font-weight:800;color:#1B2A4A}
 .pg-hdr p{font-size:12px;color:#6B7A99;margin-top:2px}
-.wk{display:inline-block;background:#E6F4F5;color:#00808C;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:6px}
-.fy-badges{display:flex;gap:8px;margin-top:6px}
-.fy25{display:inline-block;background:rgba(27,42,74,.1);color:#1B2A4A;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
-.fy26{display:inline-block;background:#E6F4F5;color:#00808C;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
-.kg{display:grid;gap:12px;margin-bottom:18px}
-.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+.kg{display:grid;gap:10px;margin-bottom:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
 .kpi{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #DDE3ED;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:10px 0 0 10px}
 .kpi.tl::before{background:#00808C}.kpi.gd::before{background:#E8A020}.kpi.gn::before{background:#2DBD7E}
@@ -57,51 +55,45 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 .kpi .lb{font-size:10px;color:#6B7A99;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
 .kpi .vl{font-size:24px;font-weight:800;color:#1B2A4A;line-height:1.15;margin:4px 0 2px}
 .kpi .sb{font-size:10px;color:#6B7A99}
-.kpi .yoy{font-size:10px;font-weight:700;margin-top:4px}
-.yoy.pos{color:#1D8F5C}.yoy.neg{color:#C03A2B}.yoy.neu{color:#6B7A99}
 .tg{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;margin-top:5px}
 .tg.up{background:#E6F9F0;color:#1D8F5C}.tg.warn{background:#FFF3E0;color:#B45309}
 .tg.info{background:#EAF2FF;color:#1A5FB4}.tg.bad{background:#FEF0EE;color:#C03A2B}
-.cg{display:grid;gap:14px;margin-bottom:14px}
+.cg{display:grid;gap:12px;margin-bottom:12px}
 .c11{grid-template-columns:1fr 1fr}.c21{grid-template-columns:2fr 1fr}.c1{grid-template-columns:1fr}
-.c13{grid-template-columns:1fr 3fr}
 .card{background:#fff;border-radius:10px;border:1px solid #DDE3ED;padding:16px 18px}
 .card h3{font-size:12px;font-weight:700;color:#1B2A4A;margin-bottom:2px}
-.card .cs{font-size:10px;color:#6B7A99;margin-bottom:12px}
+.card .cs{font-size:10px;color:#6B7A99;margin-bottom:10px}
+.ch-wrap{position:relative;height:240px}
+.ch-wrap.sm{position:relative;height:185px}
+.ch-wrap.xs{position:relative;height:150px}
+.ch-wrap canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important}
 .mt{width:100%;border-collapse:collapse;font-size:11px}
 .mt th{background:#F4F7FA;color:#6B7A99;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.3px;padding:7px 10px;text-align:left;border-bottom:1px solid #DDE3ED}
 .mt td{padding:7px 10px;border-bottom:1px solid #F0F2F5;color:#1B2A4A}
 .mt tr:last-child td{border-bottom:none}
 .mt tr:nth-child(even) td{background:#FAFBFC}
 .nr{text-align:right;font-weight:600}
-.pl{list-style:none}
-.pl li{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid #F0F2F5;font-size:12px}
-.pl li:last-child{border-bottom:none}
-.pn{width:20px;height:20px;border-radius:50%;background:#1B2A4A;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.pt strong{display:block;color:#1B2A4A;font-weight:700;font-size:12px}
-.pt span{color:#6B7A99;font-size:10px}
-.stat-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
-.pill-g{background:#D4EDDA;color:#155724}.pill-r{background:#FDECEA;color:#721C24}.pill-y{background:#FFF3CD;color:#856404}
-@media(max-width:900px){.g4,.g3{grid-template-columns:1fr 1fr}.c11,.c21,.c13{grid-template-columns:1fr}.page{padding:16px 14px 32px}}
+@media(max-width:800px){.g4,.g3{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}}
 </style>
 </head>
 <body>
+
 <div id="overlay">
   <div class="ob">
     <div class="ob-logo">ER</div>
     <h1>EuRadicle Dashboard</h1>
-    <p id="ob-msg">Connect <strong>Dashboard Report Data.xlsx</strong> from your computer to load all 4 department KPIs live.</p>
+    <p>Connect <strong>Dashboard Report Data.xlsx</strong> from your OneDrive folder to load all 4 department KPIs live.</p>
     <button class="ob-btn" onclick="connectExcel()">&#128194; Select Excel File</button>
-    <div class="ob-note" id="ob-note">Works in Chrome &amp; Edge &middot; File remembered after first upload</div>
+    <div class="ob-note">Works in Chrome &amp; Edge &middot; File stays on your computer</div>
     <div class="ob-steps">
       <h3>How it works</h3>
-      <div class="step"><div class="sn">1</div><div class="st">Select <strong>Dashboard Report Data.xlsx</strong> &mdash; browser remembers it automatically</div></div>
+      <div class="step"><div class="sn">1</div><div class="st">Select <strong>Dashboard Report Data.xlsx</strong> from your OneDrive folder</div></div>
       <div class="step"><div class="sn">2</div><div class="st">Edit any value in Excel and press <strong>Ctrl+S</strong></div></div>
-      <div class="step"><div class="sn">3</div><div class="st">KPIs refresh every 3 s — click <strong>↻ Refresh Charts</strong> to redraw graphs</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Dashboard auto-refreshes every <strong>3 seconds</strong></div></div>
     </div>
   </div>
 </div>
+
 <div class="topbar">
   <div class="tb-left">
     <div class="tb-logo">ER</div>
@@ -110,680 +102,842 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
   <div class="tb-right">
     <span class="tb-sync" id="sync-time">Not connected</span>
     <div class="live"><div class="dot off" id="ldot"></div><span id="ltxt">Connecting</span></div>
-    <button class="chg-btn" onclick="refreshCharts()">&#8635; Refresh Charts</button>
-    <button class="chg-btn" onclick="connectExcel()">&#128194; Change File</button>
+    <button class="chg-btn" onclick="connectExcel()">&#8635; Change File</button>
   </div>
 </div>
+
 <div class="tabs">
   <div class="tab active" onclick="goTab('ops',this)">&#9881; Operations</div>
   <div class="tab" onclick="goTab('fin',this)">&#128176; Finance</div>
   <div class="tab" onclick="goTab('sol',this)">&#129513; Solutioning</div>
   <div class="tab" onclick="goTab('sal',this)">&#128200; Sales</div>
 </div>
+
 <!-- OPERATIONS -->
 <div class="page active" id="page-ops">
-  <div class="pg-hdr"><h2>Operations</h2><p>Project delivery, client pipeline &amp; consultant engagement</p><span class="wk">FY 2026-27</span></div>
+  <div class="pg-hdr"><h2>Operations</h2><p>Project delivery, client pipeline &amp; consultant engagement</p></div>
   <div class="kg g4">
-    <div class="kpi tl"><div class="lb">FY 26-27 Delivered</div><div class="vl" id="ok1">--</div><div class="sb">Projects completed YTD</div></div>
+    <div class="kpi tl"><div class="lb">FY 26-27 Delivered</div><div class="vl" id="ok1">--</div><div class="sb">Projects completed this FY</div></div>
     <div class="kpi gd"><div class="lb">FY 26-27 Upcoming</div><div class="vl" id="ok2">--</div><div class="sb">Projects in pipeline</div></div>
-   <div class="kpi gn"><div class="lb">Total Engagements Scheduled</div><div class="vl" id="ok3">--</div><div class="sb" id="ok3s">Record financial year</div><span class="tg up">FY 26-27</span></div>
+    <div class="kpi gn"><div class="lb">Best Year (Delivered)</div><div class="vl" id="ok3">--</div><div class="sb" id="ok3s">Record financial year</div><span class="tg up">&#9650; Record</span></div>
     <div class="kpi nv"><div class="lb">Key Account</div><div class="vl" id="ok4">--</div><div class="sb" id="ok4s">Largest upcoming pipeline</div><span class="tg info">Top Client</span></div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Project Trend by FY</h3><div class="cs">Total delivered projects per financial year</div><canvas id="ops-trend" height="185"></canvas></div>
-    <div class="card"><h3>FY 2026-27 &mdash; Client Status</h3><div class="cs">Delivered vs upcoming per client</div><canvas id="ops-clients" height="185"></canvas></div>
+    <div class="card"><h3>Project Trend by FY</h3><div class="cs">Total delivered projects per financial year</div><div class="ch-wrap"><canvas id="ops-trend"></canvas></div></div>
+    <div class="card"><h3>FY 2026-27 &mdash; Client Status</h3><div class="cs">Delivered vs upcoming per client</div><div class="ch-wrap"><canvas id="ops-clients"></canvas></div></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Top Consultants &mdash; FY 2026-27</h3><div class="cs">Days delivered and upcoming</div>
-      <table class="mt" id="ops-tr-tbl"><thead><tr><th>Trainer</th><th class="nr">Delivered</th><th class="nr">Upcoming</th></tr></thead><tbody></tbody></table>
+      <table class="mt" id="ops-tr-tbl"><thead><tr><th>Trainer</th><th class="nr">Delivered (Days)</th><th class="nr">Upcoming (Days)</th></tr></thead><tbody></tbody></table>
     </div>
-    <div class="card"><h3>Delivery Mode</h3><div class="cs">In-Person vs Virtual by financial year</div><canvas id="ops-mode" height="185"></canvas></div>
+    <div class="card"><h3>Delivery Mode</h3><div class="cs">In-Person vs Virtual by financial year</div><div class="ch-wrap"><canvas id="ops-mode"></canvas></div></div>
   </div>
 </div>
+
 <!-- FINANCE -->
 <div class="page" id="page-fin">
-  <div class="pg-hdr"><h2>Finance</h2><p>Revenue, invoices &amp; outstanding collections</p><span class="wk">FY 2026-27</span></div>
+  <div class="pg-hdr"><h2>Finance</h2><p>Revenue, invoices &amp; outstanding collections</p></div>
   <div class="kg g4">
-    <div class="kpi tl"><div class="lb">Invoiced</div><div class="vl" id="fk1">--</div><div class="sb">Billed to clients FY 26-27</div></div>
-    <div class="kpi gd"><div class="lb">To be Invoiced</div><div class="vl" id="fk2">--</div><div class="sb">Delivered, not yet billed</div><span class="tg warn">Pending billing</span></div>
-    <div class="kpi rd"><div class="lb">Amount Dues in Market</div><div class="vl" id="fk3">--</div><div class="sb">Client receivables outstanding</div><span class="tg bad">Receivables</span></div>
-    <div class="kpi nv"><div class="lb">Outstanding Payment Dues</div><div class="vl" id="fk4">--</div><div class="sb">Overdue collections</div><span class="tg bad">Overdue</span></div>
+    <div class="kpi tl"><div class="lb">FY 26-27 Revenue YTD</div><div class="vl" id="fk1">--</div><div class="sb" id="fk1s">Apr + May + Jun combined</div></div>
+    <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Pending collection</div><span class="tg bad">Action needed</span></div>
+    <div class="kpi gd"><div class="lb">Invoiced (FY 26-27)</div><div class="vl" id="fk3">--</div><div class="sb">Total invoiced to date</div></div>
+    <div class="kpi pu"><div class="lb">To be Invoiced</div><div class="vl" id="fk4">--</div><div class="sb">Pending billing</div><span class="tg warn">Pending</span></div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">April vs May revenue per financial year</div><canvas id="fin-rev" height="200"></canvas></div>
-    <div class="card"><h3>Invoices Raised — April &amp; May</h3><div class="cs">Count of invoices per financial year</div><canvas id="fin-inv" height="200"></canvas></div>
+    <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">Monthly revenue per financial year</div><div class="ch-wrap"><canvas id="fin-rev"></canvas></div></div>
+    <div class="card"><h3>Invoices &amp; Vouchers Raised</h3><div class="cs">Count per month by financial year</div><div class="ch-wrap"><canvas id="fin-inv"></canvas></div></div>
   </div>
-  <div class="cg c11">
-    <div class="card"><h3>Outstanding Payments Due</h3><div class="cs">Edit amounts in Excel to update this table live</div>
-      <table class="mt" id="fin-due-tbl"><thead><tr><th>Client / Description</th><th class="nr">Amount (Rs. L)</th><th>Due Period</th><th>Type</th></tr></thead><tbody></tbody></table>
-    </div>
-    <div class="card"><h3>Credit Notes &mdash; FY 2026-27</h3><div class="cs">Add credit note entries in Excel under Credit Notes section</div>
-      <table class="mt" id="fin-cn-tbl"><thead><tr><th>Description</th><th class="nr">Count</th><th class="nr">Value (Rs.)</th><th>Notes</th></tr></thead><tbody><tr><td colspan="4" style="color:#6B7A99;font-style:italic;padding:14px 10px">No credit notes entered yet</td></tr></tbody></table>
+  <div class="cg c1">
+    <div class="card"><h3>Outstanding Payments Due</h3><div class="cs" id="fin-due-cs">Pending collections — update amounts in Excel to refresh</div>
+      <table class="mt" id="fin-due-tbl"><thead><tr><th>Client / Description</th><th class="nr">Amount Due (Rs. L)</th><th>Due Dates</th><th>Type</th></tr></thead><tbody></tbody></table>
     </div>
   </div>
 </div>
+
 <!-- SOLUTIONING -->
 <div class="page" id="page-sol">
-  <div class="pg-hdr">
-    <h2>Solutioning</h2>
-    <p>Proposal pipeline analytics &mdash; Year-on-Year comparison</p>
-    <div class="fy-badges"><span class="fy25">&#9632; FY 2025-26</span><span class="fy26">&#9632; FY 2026-27</span></div>
-  </div>
+  <div class="pg-hdr"><h2>Solutioning</h2><p>Proposals, industry traction &amp; engagement mix</p></div>
   <div class="kg g4">
-    <div class="kpi tl">
-      <div class="lb">Total Proposals</div>
-      <div class="vl" id="sk-tot">--</div>
-      <div class="sb" id="sk-tot-s">FY 2026-27 pipeline</div>
-      <div class="yoy neu" id="sk-tot-yoy">vs -- in FY25-26</div>
-    </div>
-    <div class="kpi gn">
-      <div class="lb">Win Rate</div>
-      <div class="vl" id="sk-wr">--%</div>
-      <div class="sb">Closed / (Closed + Lost)</div>
-      <div class="yoy neu" id="sk-wr-yoy">FY25-26: --%</div>
-    </div>
-    <div class="kpi gd">
-      <div class="lb">Top Industry</div>
-      <div class="vl" id="sk-ind">--</div>
-      <div class="sb" id="sk-ind-s">proposals this year</div>
-      <span class="tg info">Highest volume</span>
-    </div>
-    <div class="kpi pu">
-      <div class="lb">Journey Engagements</div>
-      <div class="vl" id="sk-jrny">--%</div>
-      <div class="sb">of total proposals</div>
-      <div class="yoy neu" id="sk-jrny-yoy">FY25-26: --%</div>
-    </div>
+    <div class="kpi tl"><div class="lb">FY 26-27 Total Proposals</div><div class="vl" id="sk1">--</div><div class="sb">Submitted this financial year</div></div>
+    <div class="kpi gn"><div class="lb">Journey Engagements</div><div class="vl" id="sk2">--</div><div class="sb" id="sk2s">of total FY 26-27</div><span class="tg up">Demand shift</span></div>
+    <div class="kpi gd"><div class="lb">Top Industry</div><div class="vl" id="sk3">--</div><div class="sb" id="sk3s">most active sector</div></div>
+    <div class="kpi nv"><div class="lb">Customization Rate</div><div class="vl" id="sk4">--</div><div class="sb" id="sk4s">bespoke proposals</div><span class="tg info">Fully custom</span></div>
   </div>
   <div class="cg c11">
-    <div class="card">
-      <h3>Proposal Status Split</h3>
-      <div class="cs">Closed vs Lost vs In-Process &mdash; FY25-26 and FY26-27</div>
-      <div class="stat-pills">
-        <span class="pill pill-g">&#10003; Closed FY26: <span id="sp-cl26">--</span> &nbsp;|&nbsp; FY25: <span id="sp-cl25">--</span></span>
-        <span class="pill pill-r">&#10005; Lost FY26: <span id="sp-lo26">--</span> &nbsp;|&nbsp; FY25: <span id="sp-lo25">--</span></span>
-        <span class="pill pill-y">&#9654; In Process FY26: <span id="sp-ip26">--</span> &nbsp;|&nbsp; FY25: <span id="sp-ip25">--</span></span>
-      </div>
-      <canvas id="sol-status" height="180"></canvas>
-    </div>
-    <div class="card">
-      <h3>Top Industries by Volume</h3>
-      <div class="cs">Number of proposals per industry — FY25-26 vs FY26-27</div>
-      <canvas id="sol-ind" height="180"></canvas>
-    </div>
+    <div class="card"><h3>Development Category Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 comparison</div><div class="ch-wrap"><canvas id="sol-dev"></canvas></div></div>
+    <div class="card"><h3>Industry Traction</h3><div class="cs">Opportunities by sector &mdash; current FY</div><div class="ch-wrap"><canvas id="sol-ind"></canvas></div></div>
   </div>
-  <div class="cg c11">
-    <div class="card">
-      <h3>Development Categories</h3>
-      <div class="cs">Proposals by capability focus area</div>
-      <canvas id="sol-cats" height="210"></canvas>
-    </div>
-    <div class="card">
-      <h3>Monthly Proposal Volume</h3>
-      <div class="cs">Tracker entries across the financial year (Apr &rarr; Mar)</div>
-      <canvas id="sol-trend" height="210"></canvas>
-    </div>
+  <div class="cg c21">
+    <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
+    <div class="card"><h3>Type of Engagement</h3><div class="cs">Standalone vs Journey &mdash; current FY</div><div class="ch-wrap sm"><canvas id="sol-eng"></canvas></div></div>
   </div>
-  <div class="cg c11">
-    <div class="card">
-      <h3>Line of Service Mix</h3>
-      <div class="cs">Training vs Coaching vs Talent Management &mdash; FY25-26 vs FY26-27</div>
-      <canvas id="sol-los" height="175"></canvas>
-    </div>
-    <div class="card">
-      <h3>Customization Level</h3>
-      <div class="cs">Customized vs Standard vs New Creation &mdash; FY25-26 vs FY26-27</div>
-      <canvas id="sol-cust" height="175"></canvas>
-    </div>
+  <div class="cg c1">
+    <div class="card"><h3>FY Pipeline Summary</h3><div class="cs">Closed vs Lost vs In Process comparison</div><div class="ch-wrap xs"><canvas id="sol-summ"></canvas></div></div>
   </div>
 </div>
+
 <!-- SALES -->
 <div class="page" id="page-sal">
-  <div class="pg-hdr"><h2>Sales</h2><p>Proposal funnel, order book &amp; annual target tracking</p><span class="wk">FY 2026-27</span></div>
+  <div class="pg-hdr"><h2>Sales</h2><p>Proposal funnel, order book &amp; revenue tracking</p></div>
   <div class="kg g4">
-    <div class="kpi tl"><div class="lb">Total Proposals</div><div class="vl" id="slk1">--</div><div class="sb">FY 2026-27 pipeline</div></div>
-    <div class="kpi gn"><div class="lb">Won Value</div><div class="vl" id="slk2">--</div><div class="sb" id="slk2s">Proposals closed</div><span class="tg up">Won</span></div>
-    <div class="kpi gd"><div class="lb">In Process Value</div><div class="vl" id="slk3">--</div><div class="sb" id="slk3s">Proposals active</div><span class="tg warn">Active</span></div>
-    <div class="kpi nv"><div class="lb">Target % Achieved</div><div class="vl" id="slk4">--</div><div class="sb">Quarterly target tracking</div></div>
+    <div class="kpi tl"><div class="lb">Total Proposals (YTD)</div><div class="vl" id="slk1">--</div><div class="sb" id="slk1s">this financial year</div></div>
+    <div class="kpi gn"><div class="lb">Won Value (YTD)</div><div class="vl" id="slk2">--</div><div class="sb" id="slk2s">proposals won</div><span class="tg up">Closed</span></div>
+    <div class="kpi gd"><div class="lb">In-Process Value</div><div class="vl" id="slk3">--</div><div class="sb" id="slk3s">proposals active</div><span class="tg info">In negotiation</span></div>
+    <div class="kpi nv"><div class="lb">Q1 Target Achieved</div><div class="vl" id="slk4">--</div><div class="sb" id="slk4s">of quarterly target</div></div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Proposal Funnel — by Month</h3><div class="cs">Won / Lost / In-Process by value</div><canvas id="sal-funnel" height="200"></canvas></div>
-    <div class="card"><h3>Quarterly Target vs Achieved</h3><div class="cs">FY 2026-27 quarter-by-quarter</div><canvas id="sal-target" height="200"></canvas></div>
+    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap sm"><canvas id="sal-funnel"></canvas></div></div>
+    <div class="card"><h3>Quarterly Revenue Comparison</h3><div class="cs">Q1&ndash;Q4 across financial years</div><div class="ch-wrap"><canvas id="sal-qrev"></canvas></div></div>
   </div>
-  <div class="cg c11">
-    <div class="card"><h3>Order Book</h3><div class="cs">Confirmed orders &mdash; booked vs balance</div>
-      <table class="mt" id="sal-ord-tbl"><thead><tr><th>Client</th><th>Program</th><th class="nr">Booked</th><th class="nr">Balance</th></tr></thead><tbody></tbody></table>
+  <div class="cg c21">
+    <div class="card"><h3>Order Book &mdash; Active Programs</h3><div class="cs">Confirmed orders: booked vs consumed vs balance</div>
+      <table class="mt" id="sal-ord-tbl"><thead><tr><th>Client</th><th>Program</th><th class="nr">Booked</th><th class="nr">Consumed</th><th class="nr">Balance</th></tr></thead><tbody></tbody></table>
     </div>
-    <div class="card"><h3>Expected Pipeline</h3><div class="cs">Major deals expected to close</div><canvas id="sal-pipe" height="160"></canvas></div>
+    <div class="card"><h3>Monthly Revenue &mdash; FY 2026-27</h3><div class="cs">Revenue realized per month</div><div class="ch-wrap"><canvas id="sal-monthly"></canvas></div></div>
+  </div>
+  <div class="cg c11">
+    <div class="card"><h3>Quarterly Targets vs Achieved</h3><div class="cs">FY 2026-27 quarter-by-quarter tracking</div><div class="ch-wrap"><canvas id="sal-targets"></canvas></div></div>
+    <div class="card"><h3>Expected Major Pipeline</h3><div class="cs">High-value deals expected to close</div><div class="ch-wrap"><canvas id="sal-pipe"></canvas></div></div>
   </div>
 </div>
+
 <script>
+// ─────────────────────────────────────────────────────
+// CHART REGISTRY & BRAND COLORS
+// ─────────────────────────────────────────────────────
 var CH={};
-var NV='#1B2A4A',TL='#00808C',GD='#E8A020',GN='#2DBD7E',PU='#7C5CBF',RD='#E05252',OR='#F4845F';
-Chart.register(ChartDataLabels);
+var NV='#1B2A4A',TL='#00808C',GD='#E8A020',GN='#2DBD7E',PU='#7C5CBF',RD='#E05252',LG='#DDE3ED';
 Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
 Chart.defaults.color='#6B7A99';
 Chart.defaults.plugins.legend.labels.usePointStyle=true;
 Chart.defaults.plugins.legend.labels.pointStyleWidth=8;
 Chart.defaults.plugins.legend.labels.boxHeight=7;
 Chart.defaults.plugins.legend.labels.font={size:10};
+// Register ChartDataLabels globally; default OFF so donut/line charts are unaffected
+if(typeof ChartDataLabels!=='undefined'){
+  Chart.register(ChartDataLabels);
+  Chart.defaults.plugins.datalabels={display:false};
+}
 
-function mk(id,cfg){if(CH[id])return;var c=document.getElementById(id);if(c)CH[id]=new Chart(c.getContext('2d'),cfg);}
-function refreshCharts(){Object.keys(CH).forEach(function(k){if(CH[k])CH[k].destroy();delete CH[k];});if(fh)readFile();}
+function mk(id,cfg){
+  if(CH[id])CH[id].destroy();
+  var c=document.getElementById(id);
+  if(c)CH[id]=new Chart(c.getContext('2d'),cfg);
+}
+
+// ─────────────────────────────────────────────────────
+// CORE HELPERS
+// ─────────────────────────────────────────────────────
+function norm(v){return String(v==null?'':v).trim();}
+
+// Parse numbers: strips ₹, commas, whitespace, newlines
+function num(v){
+  var s=String(v).replace(/[₹,\n\r\s]/g,'');
+  var n=parseFloat(s);
+  return isNaN(n)?0:n;
+}
+// Like num() but returns null for blank/missing values (used in line charts to break the line)
+function numOrNull(v){
+  if(v===''||v===null||v===undefined)return null;
+  var s=String(v).replace(/[₹,\n\r\s]/g,'');
+  if(s==='')return null;
+  var n=parseFloat(s);
+  return isNaN(n)?null:n;
+}
+
+// ── Datalabel config helpers ──────────────────────────────
+// Vertical bars: label on top, plain number
+function dlNum(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'600'},color:'#6B7A99',padding:2};}
+// Vertical bars: label on top, INR-formatted
+function dlInr(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:9,weight:'600'},color:'#6B7A99',padding:2};}
+// Stacked bars: label centred inside each segment
+function dlStack(){return{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'center',align:'center',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:'#fff'};}
+// Horizontal bars: label at right end of bar
+function dlH(){return{display:true,anchor:'end',align:'right',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'600'},color:'#6B7A99',clamp:true,padding:{left:4}};}
+// Horizontal bars: INR formatted
+function dlInrH(){return{display:true,anchor:'end',align:'right',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:9,weight:'600'},color:'#6B7A99',clamp:true,padding:{left:4}};}
+
+// Format Indian currency
+function fmtInr(v){
+  v=Math.abs(v);
+  if(v>=10000000)return'Rs.'+(v/10000000).toFixed(2)+'Cr';
+  if(v>=100000)return'Rs.'+(v/100000).toFixed(2)+'L';
+  if(v>=1000)return'Rs.'+(v/1000).toFixed(1)+'K';
+  return'Rs.'+Math.round(v);
+}
+function fmtL(v){return'Rs.'+parseFloat(v).toFixed(2)+'L';}
+
 function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
-function num(v){return isNaN(Number(v))?0:Number(v);}
+function setHTML(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
 
-/* FIX: parse currency strings like '₹ 2,100,000.00', '1.10 cr', '₹ 10.5L' */
-function parseRs(v){
-  if(typeof v==='number')return v;
-  var s=String(v).replace(/[₹,\s]/g,'').trim();
-  if(/cr$/i.test(s))return parseFloat(s)||0;  /* already handled as crores below */
-  /* detect crore suffix */
-  if(/cr/i.test(s)){var n=parseFloat(s);return isNaN(n)?0:n*10000000;}
-  /* detect lakh suffix */
-  if(/l$/i.test(s)&&!/url/i.test(s)){var n=parseFloat(s);return isNaN(n)?0:n*100000;}
-  return parseFloat(s)||0;
-}
+// Count non-empty cells in a row
+function neCount(r){return r.filter(function(c){return norm(c)!=='';}).length;}
 
-/* FIX: format values that are already stored in Lakhs */
-function fmtL(v){
-  var n=Number(v);
-  if(isNaN(n)||n===0)return'₹0';
-  return'₹'+n.toFixed(2)+'L';
-}
-
-function fmtR(v){
-  if(v>=10000000)return'₹'+(v/10000000).toFixed(2)+'Cr';
-  if(v>=100000)return'₹'+(v/100000).toFixed(2)+'L';
-  if(v>=1000)return'₹'+(v/1000).toFixed(0)+'K';
-  return'₹'+Math.round(v);
-}
-
-function dl(fmt,horiz){
-  var fmts={
-    count:function(v){return(v>0)?v:null;},
-    L:function(v){return(v>0)?Number(v).toFixed(1)+'L':null;},
-    Rs:function(v){return(v>0)?fmtR(v):null;},
-    Lpct:function(v){return(v>0)?Number(v).toFixed(1)+'L':null;}
-  };
-  return{anchor:'end',align:horiz?'right':'top',clamp:true,
-    font:{size:9,weight:'bold'},color:'#5A6480',
-    formatter:fmts[fmt]||fmts.count};
-}
-function dlIn(fmt){
-  var fmts={count:function(v){return v>0?v:null;},Rs:function(v){return v>0?fmtR(v):null;}};
-  return{anchor:'center',align:'center',clamp:true,
-    font:{size:8,weight:'bold'},color:'rgba(255,255,255,0.92)',
-    formatter:fmts[fmt]||fmts.count};
-}
-function bOpts(stacked,horiz){
-  return{responsive:true,maintainAspectRatio:true,
-    layout:{padding:{top:horiz?4:18,right:horiz?48:4}},
-    plugins:{legend:{position:'top'},datalabels:dl('count',horiz)},
-    scales:{x:{stacked:stacked,grid:{display:!!horiz},ticks:{font:{size:10}}},
-            y:{stacked:stacked,grid:{color:'#EDF0F5',display:!horiz},ticks:{font:{size:10}}}}};
-}
-
-/* ---- Section helpers ------------------------------------------------------- */
-function neCols(r){return r.filter(function(c){return c!==null&&c!==undefined&&String(c).trim()!=='';}).length;}
-
-/* Standard section finder: requires neCols>=2 */
-function findHdr(rows,marker){
-  for(var i=0;i<rows.length;i++){
+// Find header row: row with 2+ non-empty cells where any cell contains marker (case-insensitive)
+// Optional startFrom index
+function findHdr(rows,marker,startFrom){
+  var m=norm(marker).toLowerCase();
+  for(var i=(startFrom||0);i<rows.length;i++){
     var r=rows[i];
-    if(neCols(r)>=2&&r.some(function(c){return String(c).indexOf(marker)>=0;}))return i;
+    if(neCount(r)>=2&&r.some(function(c){return norm(c).toLowerCase().indexOf(m)>=0;}))return i;
   }
   return -1;
 }
 
-/* FIX: relaxed finder — matches any row regardless of neCols (for section titles) */
-function findAny(rows,marker){
-  for(var i=0;i<rows.length;i++){
-    if(rows[i].some(function(c){return String(c).indexOf(marker)>=0;}))return i;
+// Find section title row: single-cell row matching marker
+function findSection(rows,marker,startFrom){
+  var m=norm(marker).toLowerCase();
+  for(var i=(startFrom||0);i<rows.length;i++){
+    var ne=rows[i].filter(function(c){return norm(c)!=='';});
+    if(ne.length===1&&norm(rows[i][0]).toLowerCase().indexOf(m)>=0)return i;
+    // also check non-first cells for merged-cell scenarios
+    if(ne.length>=1&&rows[i].some(function(c){return norm(c).toLowerCase().indexOf(m)>=0;}))return i;
   }
   return -1;
 }
 
-function getSection(rows,hi,stops){
+// Read data section starting at header row hi.
+// Stops when a row has <=1 non-empty cell (section boundary) or end of data.
+function getSection(rows,hi){
   if(hi<0)return[];
-  var hdrs=rows[hi].map(function(h){return String(h).trim();});
+  var hdrs=rows[hi].map(function(h){return norm(h);});
   var out=[];
   for(var i=hi+1;i<rows.length;i++){
     var r=rows[i];
-    if(r[0]===null||r[0]===undefined||String(r[0]).trim()==='')continue;
-    if(neCols(r)<=1)break;
-    if(stops&&stops.length&&stops.some(function(s){return String(r[0]).indexOf(s)>=0;}))break;
-    var obj={};hdrs.forEach(function(h,j){obj[h]=r[j]!==undefined?r[j]:'';});
+    // skip rows where first cell is blank
+    if(!r[0]&&norm(r[0])==='')continue;
+    if(norm(r[0])==='')continue;
+    var ne=neCount(r);
+    if(ne<=1)break; // section boundary
+    var obj={};
+    hdrs.forEach(function(h,j){if(h)obj[h]=r[j]!==undefined?r[j]:'';});
     out.push(obj);
   }
   return out;
 }
 
-/* ---- SOLUTIONING ---------------------------------------------------------- */
-function doSol(wb){
-  var ws=wb.Sheets['Solutioning'];
-  if(!ws){console.warn('Solutioning sheet not found');return;}
-  var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-
-  var si =findHdr(rows,'Financial Year');
-  var ini=findHdr(rows,'Industry');
-  var lsi=findHdr(rows,'Line Of Service');
-  var dci=findHdr(rows,'Development Category');
-  var tei=findHdr(rows,'Type Of Engagement');
-  var cui=findHdr(rows,'Customization');
-  var moi=findHdr(rows,'Month');
-
-  /* ---- Summary ----
-     FIX: add stops so getSection doesn't run into the Industry header rows.
-     Excel FY labels are 'FY 25-26' / 'FY 26-27' — stop at 'Industry' row. */
-  var summ=getSection(rows,si,['Industry','Line Of Service','Development','Type Of','Customization','Monthly']);
-  /* FIX: search for '25-26' and '26-27' instead of '2025'/'2026' */
-  var fy25=summ.find(function(r){return String(r['Financial Year']).indexOf('25-26')>=0;})||{};
-  var fy26=summ.find(function(r){return String(r['Financial Year']).indexOf('26-27')>=0;})||{};
-
-  var tot25=num(fy25['Total']),   tot26=num(fy26['Total']);
-  var cl25=num(fy25['Closed']),   cl26=num(fy26['Closed']);
-  var lo25=num(fy25['Lost']),     lo26=num(fy26['Lost']);
-  var ip25=num(fy25['In Process']),ip26=num(fy26['In Process']);
-
-  var useFY26=(tot26>0);
-
-  set('sk-tot',useFY26?tot26:tot25);
-  set('sk-tot-s',useFY26?'FY 2026-27 pipeline':'FY 2025-26 (update FY26-27 in Excel)');
-  var toyEl=document.getElementById('sk-tot-yoy');
-  if(toyEl){
-    toyEl.textContent=useFY26?'vs '+tot25+' in FY25-26':'150 proposals tracked';
-    toyEl.className='yoy '+(useFY26?(tot26>tot25?'pos':tot26<tot25?'neg':'neu'):'neu');
-  }
-
-  var wr25=(cl25+lo25)>0?Math.round(cl25/(cl25+lo25)*100):0;
-  var wr26=(cl26+lo26)>0?Math.round(cl26/(cl26+lo26)*100):0;
-  set('sk-wr',(useFY26?wr26:wr25)+'%');
-  var wrEl=document.getElementById('sk-wr-yoy');
-  if(wrEl){
-    if(useFY26){var d=wr26-wr25;wrEl.textContent='FY25-26: '+wr25+'% ('+(d>=0?'+':'')+d+'%)';wrEl.className='yoy '+(d>0?'pos':d<0?'neg':'neu');}
-    else{wrEl.textContent='Closed/(Closed+Lost)';wrEl.className='yoy neu';}
-  }
-
-  set('sp-cl26',useFY26?cl26:'--');set('sp-cl25',cl25);
-  set('sp-lo26',useFY26?lo26:'--');set('sp-lo25',lo25);
-  set('sp-ip26',useFY26?ip26:'--');set('sp-ip25',ip25);
-
-  mk('sol-status',{type:'bar',data:{
-    labels:['Closed','Lost','In Process'],
-    datasets:[
-      {label:'FY 25-26',data:[cl25,lo25,ip25],backgroundColor:'rgba(27,42,74,0.75)',borderRadius:4},
-      {label:'FY 26-27',data:[cl26,lo26,ip26],backgroundColor:TL,borderRadius:4}
-    ]
-  },options:bOpts(false,false)});
-
-  /* ---- Industry ---- */
-  var inds=getSection(rows,ini,[]);
-  var indsSorted=inds.slice().sort(function(a,b){
-    var av=useFY26?num(a['FY 2026-27']):num(a['FY 2025-26']);
-    var bv=useFY26?num(b['FY 2026-27']):num(b['FY 2025-26']);
-    return bv-av;
-  });
-  var topInd=indsSorted[0]||{};
-  var topIndName=topInd['Industry']||'--';
-  var topIndCnt=useFY26?num(topInd['FY 2026-27']):num(topInd['FY 2025-26']);
-  set('sk-ind',topIndName);
-  set('sk-ind-s',topIndCnt+' proposals '+(useFY26?'FY26':'FY25'));
-
-  var topInds=indsSorted.slice(0,8);
-  mk('sol-ind',{type:'bar',data:{
-    labels:topInds.map(function(r){return r['Industry'];}),
-    datasets:[
-      {label:'FY 25-26',data:topInds.map(function(r){return num(r['FY 2025-26']);}),backgroundColor:'rgba(27,42,74,0.75)',borderRadius:4},
-      {label:'FY 26-27',data:topInds.map(function(r){return num(r['FY 2026-27']);}),backgroundColor:TL,borderRadius:4}
-    ]
-  },options:Object.assign({},bOpts(false,true),{indexAxis:'y'})});
-
-  /* ---- Development Categories ---- */
-  var dcs=getSection(rows,dci,[]);
-  var shortCat=dcs.map(function(r){
-    return r['Development Category']
-      .replace('Development','Dev.')
-      .replace('Enablement','Enab.')
-      .replace('Transformation','Trans.')
-      .replace('Assessment','Assess.')
-      .replace(' & ',' & ');
-  });
-  mk('sol-cats',{type:'bar',data:{
-    labels:shortCat,
-    datasets:[
-      {label:'FY 25-26',data:dcs.map(function(r){return num(r['FY 2025-26']);}),backgroundColor:'rgba(27,42,74,0.75)',borderRadius:4},
-      {label:'FY 26-27',data:dcs.map(function(r){return num(r['FY 2026-27']);}),backgroundColor:TL,borderRadius:4}
-    ]
-  },options:bOpts(false,false)});
-
-  /* ---- Monthly Trend ----
-     FIX: Excel uses abbreviated month names — match exactly what's in the sheet.
-     Detected values: Apr, May, June, July, Aug, Sep, Oct, Nov, Dec, Jan, Feb, Mar */
-  var MONTHS=['Apr','May','June','July','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
-  var MLBL  =['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
-  var mos=getSection(rows,moi,[]);
-  var mo25={},mo26={};
-  mos.forEach(function(r){mo25[r['Month']]=num(r['FY 2025-26']);mo26[r['Month']]=num(r['FY 2026-27']);});
-  mk('sol-trend',{type:'line',data:{
-    labels:MLBL,
-    datasets:[
-      {label:'FY 25-26',data:MONTHS.map(function(m){return mo25[m]||0;}),borderColor:NV,backgroundColor:'rgba(27,42,74,0.08)',tension:0.4,fill:true,pointRadius:4,pointBackgroundColor:NV},
-      {label:'FY 26-27',data:MONTHS.map(function(m){return mo26[m]||0;}),borderColor:TL,backgroundColor:'rgba(0,128,140,0.08)',tension:0.4,fill:true,pointRadius:4,pointBackgroundColor:TL}
-    ]
-  },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:{display:false}}})});
-
-  /* ---- Type of Engagement → Journey % KPI ---- */
-  var engs=getSection(rows,tei,[]);
-  var jRow=engs.find(function(r){return String(r['Type Of Engagement']).toLowerCase().indexOf('journey')>=0;})||{};
-  var totEngPrimary=engs.reduce(function(s,r){return s+num(useFY26?r['FY 2026-27']:r['FY 2025-26']);},0);
-  var jCountPrimary=num(useFY26?jRow['FY 2026-27']:jRow['FY 2025-26']);
-  var jPct=totEngPrimary>0?Math.round(jCountPrimary/totEngPrimary*100):0;
-  var totEng25=engs.reduce(function(s,r){return s+num(r['FY 2025-26']);},0);
-  var jPct25=totEng25>0?Math.round(num(jRow['FY 2025-26'])/totEng25*100):0;
-  set('sk-jrny',jPct+'%');
-  var jEl=document.getElementById('sk-jrny-yoy');
-  if(jEl){jEl.textContent='FY25-26: '+jPct25+'%';jEl.className='yoy '+(jPct>jPct25?'pos':jPct<jPct25?'neg':'neu');}
-
-  /* ---- Line of Service grouped bar ---- */
-  var losd=getSection(rows,lsi,[]);
-  mk('sol-los',{type:'bar',data:{
-    labels:losd.map(function(r){return r['Line Of Service'];}),
-    datasets:[
-      {label:'FY 25-26',data:losd.map(function(r){return num(r['FY 2025-26']);}),backgroundColor:'rgba(27,42,74,0.75)',borderRadius:4},
-      {label:'FY 26-27',data:losd.map(function(r){return num(r['FY 2026-27']);}),backgroundColor:TL,borderRadius:4}
-    ]
-  },options:bOpts(false,false)});
-
-  /* ---- Customization grouped bar ---- */
-  var cusd=getSection(rows,cui,[]);
-  mk('sol-cust',{type:'bar',data:{
-    labels:cusd.map(function(r){return r['Customization'];}),
-    datasets:[
-      {label:'FY 25-26',data:cusd.map(function(r){return num(r['FY 2025-26']);}),backgroundColor:'rgba(27,42,74,0.75)',borderRadius:4},
-      {label:'FY 26-27',data:cusd.map(function(r){return num(r['FY 2026-27']);}),backgroundColor:TL,borderRadius:4}
-    ]
-  },options:bOpts(false,false)});
+// Get the last FY column from a table with headers like [Category, FY 2025-26, FY 2026-27, ...]
+function lastFYCol(hdrs){
+  var fyCols=hdrs.filter(function(h){return h.toLowerCase().indexOf('fy')>=0||h.toLowerCase().indexOf('20')>=0;});
+  return fyCols.length>0?fyCols[fyCols.length-1]:'';
+}
+function prevFYCol(hdrs){
+  var fyCols=hdrs.filter(function(h){return h.toLowerCase().indexOf('fy')>=0||h.toLowerCase().indexOf('20')>=0;});
+  return fyCols.length>1?fyCols[fyCols.length-2]:'';
 }
 
-/* ---- OPERATIONS ----------------------------------------------------------- */
+// Chart option builders
+function bOpts(stacked,horiz){
+  return{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top'}},
+    scales:{
+      x:{stacked:stacked,grid:{display:!!horiz},ticks:{font:{size:10}}},
+      y:{stacked:stacked,grid:{color:'#EDF0F5',display:!horiz},ticks:{font:{size:10}}}
+    }};
+}
+function dOpts(){
+  return{responsive:true,maintainAspectRatio:false,cutout:'58%',
+    plugins:{legend:{position:'right',labels:{padding:12,font:{size:10}}}}};
+}
+
+// ─────────────────────────────────────────────────────
+// OPERATIONS
+// ─────────────────────────────────────────────────────
 function doOps(wb){
-  var ws=wb.Sheets['Operations'];if(!ws)return;
+  var ws=wb.Sheets['Operations'];
+  if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  var phi=findHdr(rows,'Financial Year'),chi=findHdr(rows,'Client'),tri=findHdr(rows,'Trainer');
-  if(phi>=0){
-    var pd=getSection(rows,phi,[]);
-    var tots=pd.map(function(r){return num(r['Total Delivered'])||num(r['Delivered (In-Person)'])+num(r['Delivered (Virtual)']);});
-    var best=tots.length?Math.max.apply(null,tots):0;
-    var bestIdx=tots.length?tots.indexOf(best):0;
-    var fy27=pd.find(function(r){return String(r['Financial Year']).indexOf('26-27')>=0||String(r['Financial Year']).indexOf('2026')>=0;})||{};
-    set('ok1',num(fy27['Total Delivered'])||num(fy27['Delivered (In-Person)'])+num(fy27['Delivered (Virtual)'])||'--');
-    set('ok2',num(fy27['Upcoming'])||'--');
-    set('ok3',best||'--');
-    set('ok3s',best&&pd[bestIdx]?'Best year: FY '+(pd[bestIdx]['Financial Year']||''):'');
-    if(pd.length>0){
-      mk('ops-trend',{type:'bar',data:{labels:pd.map(function(r){return'FY '+r['Financial Year'];}),
-        datasets:[{label:'Delivered',data:tots,backgroundColor:[TL,TL,TL,GD],borderRadius:5}]},options:bOpts(false,false)});
-      mk('ops-mode',{type:'bar',data:{labels:pd.map(function(r){return'FY '+r['Financial Year'];}),
-        datasets:[{label:'In-Person',data:pd.map(function(r){return num(r['Delivered (In-Person)']);}),backgroundColor:NV,borderRadius:4},
-                  {label:'Virtual',data:pd.map(function(r){return num(r['Delivered (Virtual)']);}),backgroundColor:TL,borderRadius:4}]},options:bOpts(false,false)});
+
+  // ── FY Trend Table (Financial Year, Delivered In-Person, Delivered Virtual, Total Delivered, Upcoming)
+  var fyHi=findHdr(rows,'Financial Year');
+  if(fyHi>=0){
+    var fyData=getSection(rows,fyHi);
+    // Filter to rows that look like FY entries (year in first col)
+    fyData=fyData.filter(function(r){return norm(r['Financial Year'])!=='';});
+
+    // Current FY = last row in table
+    var curFY=fyData.length>0?fyData[fyData.length-1]:null;
+
+    // Total Delivered uses the 'Total Delivered' column; fall back to In-Person + Virtual
+    var tots=fyData.map(function(r){
+      var td=num(r['Total Delivered']);
+      return td>0?td:num(r['Delivered (In-Person)'])+num(r['Delivered (Virtual)']);
+    });
+    var best=Math.max.apply(null,tots);
+    var bestIdx=tots.indexOf(best);
+
+    if(curFY){
+      var curTot=num(curFY['Total Delivered']);
+      if(curTot===0)curTot=num(curFY['Delivered (In-Person)'])+num(curFY['Delivered (Virtual)']);
+      set('ok1',curTot);
     }
+    set('ok3',best);
+    if(fyData[bestIdx])set('ok3s','FY '+norm(fyData[bestIdx]['Financial Year']));
+
+    // Trend chart
+    mk('ops-trend',{type:'bar',
+      data:{
+        labels:fyData.map(function(r){return norm(r['Financial Year']);}),
+        datasets:[{label:'Total Delivered',data:tots,
+          backgroundColor:fyData.map(function(r,i){return i===fyData.length-1?GD:TL;}),
+          borderRadius:5}]
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
+
+    // Delivery mode chart
+    mk('ops-mode',{type:'bar',
+      data:{
+        labels:fyData.map(function(r){return norm(r['Financial Year']);}),
+        datasets:[
+          {label:'In-Person',data:fyData.map(function(r){return num(r['Delivered (In-Person)']);}),backgroundColor:NV,borderRadius:4},
+          {label:'Virtual',data:fyData.map(function(r){return num(r['Delivered (Virtual)']);}),backgroundColor:TL,borderRadius:4}
+        ]
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
   }
-  if(chi>=0){
-    var cd=getSection(rows,chi,[]);
-    if(cd.length>0){
-      var sorted=cd.slice().sort(function(a,b){return num(b['Upcoming'])-num(a['Upcoming']);});
-      var top=sorted[0]||{};
-      set('ok4',top['Client']||'--');set('ok4s',num(top['Upcoming'])+' upcoming projects');
-      mk('ops-clients',{type:'bar',data:{labels:cd.map(function(r){return r['Client'];}),
-        datasets:[{label:'Delivered',data:cd.map(function(r){return num(r['Delivered']);}),backgroundColor:NV,borderRadius:4},
-                  {label:'Upcoming',data:cd.map(function(r){return num(r['Upcoming']);}),backgroundColor:GD,borderRadius:4}]},
-        options:Object.assign({},bOpts(true,true),{indexAxis:'y',plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.x;}}},datalabels:dlIn('count')}})});
-    }
+
+  // ── Client Status Table (Client, Delivered, Upcoming, Total)
+  var clientHi=findHdr(rows,'Client');
+  if(clientHi>=0){
+    var cd=getSection(rows,clientHi);
+    cd=cd.filter(function(r){return norm(r['Client'])!==''&&norm(r['Client']).toLowerCase().indexOf('total')<0;});
+
+    // Upcoming for KPI = sum from client table (FY row is blank for upcoming)
+    var totalUpcoming=cd.reduce(function(s,r){return s+num(r['Upcoming']);},0);
+    set('ok2',totalUpcoming);
+
+    // Key account = highest upcoming
+    var sorted=cd.slice().sort(function(a,b){return num(b['Upcoming'])-num(a['Upcoming']);});
+    var top=sorted[0]||{};
+    set('ok4',top['Client']||'--');
+    set('ok4s',num(top['Upcoming'])+' upcoming projects');
+
+    // Client chart
+    mk('ops-clients',{type:'bar',
+      data:{
+        labels:cd.map(function(r){return norm(r['Client']);}),
+        datasets:[
+          {label:'Delivered',data:cd.map(function(r){return num(r['Delivered']);}),backgroundColor:NV,borderRadius:4},
+          {label:'Upcoming',data:cd.map(function(r){return num(r['Upcoming']);}),backgroundColor:GD,borderRadius:4}
+        ]
+      },
+      options:Object.assign({},bOpts(false,false),{indexAxis:'y',plugins:{legend:{position:'top'},datalabels:dlH()}})});
   }
-  if(tri>=0){
-    var td=getSection(rows,tri,[]);
+
+  // ── Trainer Table (Trainer, Days Delivered, Days Upcoming, Total Days)
+  var trainerHi=findHdr(rows,'Trainer');
+  if(trainerHi>=0){
+    var td=getSection(rows,trainerHi);
+    td=td.filter(function(r){return norm(r['Trainer'])!=='';});
+    // Sort by total days desc
+    td.sort(function(a,b){
+      return(num(b['Days Delivered'])+num(b['Days Upcoming']))-(num(a['Days Delivered'])+num(a['Days Upcoming']));
+    });
     var tb=document.querySelector('#ops-tr-tbl tbody');
-    if(tb&&td.length>0)tb.innerHTML=td.slice(0,60).map(function(r){
-      return'<tr><td>'+r['Trainer']+'</td><td class="nr">'+num(r['Days Delivered'])+'</td><td class="nr">'+num(r['Days Upcoming'])+'</td></tr>';
+    if(tb)tb.innerHTML=td.map(function(r){
+      return'<tr><td>'+norm(r['Trainer'])+'</td>'
+        +'<td class="nr">'+num(r['Days Delivered'])+'</td>'
+        +'<td class="nr">'+num(r['Days Upcoming'])+'</td></tr>';
     }).join('');
   }
 }
 
-/* ---- FINANCE -------------------------------------------------------------- */
+// ─────────────────────────────────────────────────────
+// FINANCE
+// ─────────────────────────────────────────────────────
 function doFin(wb){
-  var ws=wb.Sheets['Finance'];if(!ws)return;
+  var ws=wb.Sheets['Finance'];
+  if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
 
-  var ri=findHdr(rows,'April Revenue');
-  /* FIX: 'Invoices Raised' header doesn't exist in Excel.
-     Find the 'Invoices / Vouchers' section title, then take next row as column header. */
-  var iviSect=findAny(rows,'Invoices / Vouchers');
-  var ii=iviSect>=0?iviSect+1:-1;
+  // ── Revenue Table (Financial Year, April Revenue (L), May Revenue (L), JUNE Revenue (L), Total (L))
+  var revHi=findHdr(rows,'April Revenue');
+  if(revHi>=0){
+    var rd=getSection(rows,revHi);
+    rd=rd.filter(function(r){return norm(r['Financial Year'])!==''&&norm(r['Financial Year']).toLowerCase().indexOf('total')<0;});
 
-  var di=findHdr(rows,'Amount Due');
-  var ci=findHdr(rows,'Credit Note');
-  var finInvi=findHdr(rows,'Invoiced');
+    // Current FY = last row
+    var curRev=rd.length>0?rd[rd.length-1]:null;
+    if(curRev){
+      // Revenue YTD: use Total(L) column if available, else sum months
+      var ytd=num(curRev['Total (L)']);
+      if(ytd===0){
+        // sum all month columns
+        var headers=Object.keys(curRev).filter(function(h){return h!=='Financial Year'&&h.toLowerCase()!=='total (l)';});
+        ytd=headers.reduce(function(s,h){return s+num(curRev[h]);},0);
+      }
+      set('fk1',fmtL(ytd));
+      // Subtext: list which months
+      var months=Object.keys(curRev).filter(function(h){return h!=='Financial Year'&&h.toLowerCase().indexOf('total')<0&&num(curRev[h])>0;});
+      set('fk1s',months.join(' + ')+' combined');
+    }
 
-  /* Revenue chart — values already in Lakhs */
-  if(ri>=0){
-    var rd=getSection(rows,ri,[]);
-    mk('fin-rev',{type:'bar',data:{labels:rd.map(function(r){return r['Financial Year'];}),
-      datasets:[
-        {label:'April (L)',data:rd.map(function(r){return num(r['April Revenue (L)']);}),backgroundColor:TL,borderRadius:4},
-        {label:'May (L)',data:rd.map(function(r){return num(r['May Revenue (L)']);}),backgroundColor:GD,borderRadius:4}
-      ]},
-      options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dl('L',false)}})});
+    // Revenue chart — dynamically use all month columns
+    var monthCols=rows[revHi].map(norm).filter(function(h){return h&&h!=='Financial Year'&&h.toLowerCase().indexOf('total')<0;});
+    var colors=[TL,GD,NV,PU,GN,RD];
+    mk('fin-rev',{type:'bar',
+      data:{
+        labels:rd.map(function(r){return norm(r['Financial Year']);}),
+        datasets:monthCols.map(function(mc,i){return{
+          label:mc,
+          data:rd.map(function(r){return num(r[mc]);}),
+          backgroundColor:colors[i%colors.length],
+          borderRadius:4
+        };})
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
   }
 
-  /* FIX: Invoice chart — use correct column names 'April' and 'May' (trimmed) */
-  if(ii>=0){
-    var id=getSection(rows,ii,[]);
-    mk('fin-inv',{type:'bar',data:{labels:id.map(function(r){return r['Financial Year'];}),
-      datasets:[
-        {label:'April',data:id.map(function(r){return num(r['April']);}),backgroundColor:[TL,TL,TL,GD],borderRadius:4},
-        {label:'May',data:id.map(function(r){return num(r['May']);}),backgroundColor:'rgba(27,42,74,0.55)',borderRadius:4}
-      ]},options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dl('count',false)}})});
+  // ── Invoices/Vouchers Table (Financial Year, April, May, June, Notes)
+  // Look for second occurrence: header after the "Invoices / Vouchers" section title
+  var invSecRow=findSection(rows,'Invoices');
+  var invHi=invSecRow>=0?findHdr(rows,'April',invSecRow+1):findHdr(rows,'Notes');
+  if(invHi<0)invHi=findHdr(rows,'Notes'); // fallback
+  if(invHi>=0){
+    var id=getSection(rows,invHi);
+    id=id.filter(function(r){return norm(r['Financial Year'])!==''&&norm(r['Financial Year']).toLowerCase().indexOf('total')<0;});
+    var invMonthCols=rows[invHi].map(norm).filter(function(h){return h&&h!=='Financial Year'&&h.toLowerCase().indexOf('notes')<0;});
+    var colors2=[TL,GD,NV,PU];
+    mk('fin-inv',{type:'bar',
+      data:{
+        labels:id.map(function(r){return norm(r['Financial Year']);}),
+        datasets:invMonthCols.map(function(mc,i){return{
+          label:mc,
+          data:id.map(function(r){return num(r[mc]);}),
+          backgroundColor:colors2[i%colors2.length],
+          borderRadius:4
+        };})
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
   }
 
-  /* Outstanding table — FIX: skip 'Total' row */
-  if(di>=0){
-    var dd=getSection(rows,di,[]).filter(function(r){
-      var first=String(Object.values(r)[0]).toLowerCase().trim();
-      return first!=='total'&&first!=='';
+  // ── Payments Due Table (Client / Description, Amount Due (L), Due Dates, Type)
+  var dueHi=findHdr(rows,'Amount Due');
+  if(dueHi>=0){
+    var dd=getSection(rows,dueHi);
+    dd=dd.filter(function(r){
+      var first=norm(Object.values(r)[0]);
+      return first!==''&&first.toLowerCase().indexOf('total')<0;
     });
+    var totalDue=dd.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
+    set('fk2',fmtL(totalDue));
+    set('fin-due-cs','Total due: Rs.'+totalDue.toFixed(2)+'L across '+dd.length+' clients');
+
     var tb=document.querySelector('#fin-due-tbl tbody');
     if(tb)tb.innerHTML=dd.map(function(r){
-      var v=Object.values(r);
-      return'<tr><td>'+v[0]+'</td><td class="nr">'+num(v[1]).toFixed(2)+'</td><td>'+v[2]+'</td><td>'+v[3]+'</td></tr>';
+      return'<tr>'
+        +'<td>'+norm(r['Client / Description'])+'</td>'
+        +'<td class="nr">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+        +'<td>'+norm(r['Due Dates'])+'</td>'
+        +'<td>'+norm(r['Type'])+'</td>'
+        +'</tr>';
     }).join('');
   }
 
-  /* Credit notes */
-  if(ci>=0){
-    var cn=getSection(rows,ci,[]);
-    var tb2=document.querySelector('#fin-cn-tbl tbody');
-    if(tb2&&cn.length>0)tb2.innerHTML=cn.map(function(r){
-      var v=Object.values(r);
-      /* Credit note value may be in raw rupees — show as-is with fmtR */
-      return'<tr><td>'+v[0]+'</td><td class="nr">'+v[1]+'</td><td class="nr">'+fmtR(num(v[2]))+'</td><td>'+v[3]+'</td></tr>';
-    }).join('');
-  }
-
-  /* FIX: Finance KPIs — values in Excel are already in Lakhs, use fmtL() not fmtR() */
-  if(finInvi>=0){
-    var finInvd=getSection(rows,finInvi,[]);
-    if(finInvd.length>0){
-      var finInv=finInvd[0];
-      set('fk1',fmtL(num(finInv['Invoiced'])));
-      set('fk2',fmtL(num(finInv['To be Invoiced'])));
-      set('fk3',fmtL(num(finInv['Amount Dues in Market'])));
-      var outDue=num(finInv['Outstanding Payment Dues']);
-      set('fk4',outDue>0?fmtL(outDue):'₹0');
+  // ── Invoice & Payment Summary (Invoiced, To be Invoiced, Amount Dues in Market, Outstanding Payment Dues)
+  var summSecRow=findSection(rows,'Invoice & Payment Summary');
+  if(summSecRow<0)summSecRow=findSection(rows,'Invoice &');
+  var summHi=summSecRow>=0?findHdr(rows,'Invoiced',summSecRow+1):-1;
+  if(summHi<0)summHi=findHdr(rows,'Invoiced');
+  if(summHi>=0){
+    var sdata=getSection(rows,summHi);
+    if(sdata.length>0){
+      var s=sdata[0];
+      var invoiced=num(s['Invoiced']);
+      var toInvoice=num(s['To be Invoiced']);
+      if(invoiced>0)set('fk3',fmtL(invoiced));
+      if(toInvoice>0)set('fk4',fmtL(toInvoice));
     }
   }
 }
 
-/* ---- SALES ---------------------------------------------------------------- */
-function doSal(wb){
-  var ws=wb.Sheets['Sales'];if(!ws)return;
+// ─────────────────────────────────────────────────────
+// SOLUTIONING
+// ─────────────────────────────────────────────────────
+function doSol(wb){
+  var ws=wb.Sheets['Solutioning'];
+  if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  var psi=findHdr(rows,'Won (Count)');
-  var obi=findHdr(rows,'Order Booked');
-  var rci=findHdr(rows,'FY 2024-25');
-  var mri=findHdr(rows,'Revenue (Rs.)');
-  var qti=findHdr(rows,'Target (Rs.)');
-  var epi=findHdr(rows,'Particulars');
 
-  /* ---- Proposal Status → KPIs + sal-funnel chart ---- */
-  if(psi>=0){
-    var pd=getSection(rows,psi,[]);
-    var totP=pd.reduce(function(s,r){return s+num(r['No. of Proposals']);},0);
-    /* FIX: Won/Lost/In Process values are raw numbers in this sheet — num() works */
-    var wonV=pd.reduce(function(s,r){return s+num(r['Won Value (Rs.)']);},0);
-    var lostV=pd.reduce(function(s,r){return s+num(r['Lost Value (Rs.)']);},0);
-    var ipV=pd.reduce(function(s,r){return s+num(r['In Process Value (Rs.)']);},0);
-    var wonC=pd.reduce(function(s,r){return s+num(r['Won (Count)']);},0);
-    var lostC=pd.reduce(function(s,r){return s+num(r['Lost (Count)']);},0);
-    var ipC=pd.reduce(function(s,r){return s+num(r['In Process (Count)']);},0);
-    set('slk1',totP);
-    set('slk2',fmtR(wonV));
-    set('slk2s',wonC+' proposals closed');
-    set('slk3',fmtR(ipV));
-    set('slk3s',ipC+' proposals active');
-    mk('sal-funnel',{type:'bar',data:{
-      labels:pd.map(function(r){return r['Month'];}),
-      datasets:[
-        {label:'Won',data:pd.map(function(r){return num(r['Won Value (Rs.)']);}),backgroundColor:GN,borderRadius:5},
-        {label:'Lost',data:pd.map(function(r){return num(r['Lost Value (Rs.)']);}),backgroundColor:RD,borderRadius:5},
-        {label:'In Process',data:pd.map(function(r){return num(r['In Process Value (Rs.)']);}),backgroundColor:GD,borderRadius:5}
-      ]
-    },options:Object.assign({},bOpts(true,false),{plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtR(c.parsed.y);}}},datalabels:dlIn('Rs')}})});
+  // ── Summary (Financial Year, Total, Closed, Lost, In Process)
+  var summHi=findHdr(rows,'In Process');
+  if(summHi>=0){
+    var sd=getSection(rows,summHi);
+    // Current FY = last row
+    var curSumm=sd.length>0?sd[sd.length-1]:null;
+    var total=curSumm?num(curSumm['Total']):0;
+    set('sk1',total);
+
+    // Pipeline summary chart (stacked bar)
+    mk('sol-summ',{type:'bar',
+      data:{
+        labels:sd.map(function(r){return norm(r['Financial Year']);}),
+        datasets:[
+          {label:'Closed',data:sd.map(function(r){return num(r['Closed']);}),backgroundColor:GN,borderRadius:3},
+          {label:'Lost',data:sd.map(function(r){return num(r['Lost']);}),backgroundColor:RD,borderRadius:3},
+          {label:'In Process',data:sd.map(function(r){return num(r['In Process']);}),backgroundColor:GD,borderRadius:3}
+        ]
+      },options:Object.assign({},bOpts(true,false),{plugins:{legend:{position:'top'},datalabels:dlStack()}})});
   }
 
-  /* ---- Order Book — FIX: use parseRs() for '₹ 2,100,000.00' strings ---- */
-  if(obi>=0){
-    var od=getSection(rows,obi,[]);
-    var totB=od.reduce(function(s,r){return s+parseRs(r['Order Booked (Rs.)']);},0);
-    var totBal=od.reduce(function(s,r){return s+parseRs(r['Balance (Rs.)']);},0);
-    var otb=document.querySelector('#sal-ord-tbl tbody');
-    if(otb){
-      otb.innerHTML=od.map(function(r){
-        var bk=parseRs(r['Order Booked (Rs.)']);var bal=parseRs(r['Balance (Rs.)']);
-        return'<tr>'+
-          '<td style="font-weight:600">'+r['Client']+'</td>'+
-          '<td style="font-size:10px;color:#6B7A99">'+r['Topic / Program']+'</td>'+
-          '<td class="nr">'+fmtR(bk)+'</td>'+
-          '<td class="nr" style="color:#1D8F5C;font-weight:600">'+fmtR(bal)+'</td>'+
-        '</tr>';
-      }).join('')+
-      '<tr style="background:#F4F7FA">'+
-        '<td colspan="2" style="font-weight:700">Total</td>'+
-        '<td class="nr" style="font-weight:700">'+fmtR(totB)+'</td>'+
-        '<td class="nr" style="color:#1D8F5C;font-weight:700">'+fmtR(totBal)+'</td>'+
-      '</tr>';
+  // ── Industry Breakdown (Industry, FY 2025-26, FY 2026-27, ...)
+  var indHi=findHdr(rows,'Industry');
+  if(indHi>=0){
+    var id=getSection(rows,indHi);
+    id=id.filter(function(r){return norm(r['Industry'])!=='';});
+    var hdrs=rows[indHi].map(norm);
+    var curFYCol=lastFYCol(hdrs);
+
+    // Sort by current FY desc
+    if(curFYCol)id.sort(function(a,b){return num(b[curFYCol])-num(a[curFYCol]);});
+
+    var topInd=id[0]||{};
+    set('sk3',topInd['Industry']||'--');
+    set('sk3s',num(topInd[curFYCol]||0)+' opportunities this FY');
+
+    mk('sol-ind',{type:'bar',
+      data:{
+        labels:id.map(function(r){return norm(r['Industry']);}),
+        datasets:[{
+          label:curFYCol||'Current FY',
+          data:id.map(function(r){return num(r[curFYCol]);}),
+          backgroundColor:[TL,NV,GD,GN,PU,RD,TL,NV,GD],
+          borderRadius:4
+        }]
+      },
+      options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
+  }
+
+  // ── Type of Engagement (Type Of Engagement, FY 2025-26, FY 2026-27)
+  var engHi=findHdr(rows,'Type Of Engagement');
+  if(engHi<0)engHi=findHdr(rows,'Type of Engagement');
+  if(engHi>=0){
+    var ed=getSection(rows,engHi);
+    ed=ed.filter(function(r){return norm(r['Type Of Engagement']||r['Type of Engagement'])!=='';});
+    var engHdrs=rows[engHi].map(norm);
+    var curEngCol=lastFYCol(engHdrs);
+    var engKey=norm(rows[engHi][0]);
+
+    var etotal=ed.reduce(function(s,r){return s+num(r[curEngCol]);},0);
+    var journeyRow=ed.find(function(r){return norm(r[engKey]).toLowerCase().indexOf('journey')>=0;})||{};
+    var journeyCount=num(journeyRow[curEngCol]||0);
+    set('sk2',journeyCount);
+    set('sk2s',etotal>0?Math.round(journeyCount/etotal*100)+'% of '+etotal+' total':'--');
+
+    mk('sol-eng',{type:'doughnut',
+      data:{
+        labels:ed.map(function(r){return norm(r[engKey]);}),
+        datasets:[{data:ed.map(function(r){return num(r[curEngCol]);}),
+          backgroundColor:[TL,GD,PU,NV,GN],borderWidth:2,borderColor:'#fff'}]
+      },options:dOpts()});
+  }
+
+  // ── Development Category (Development Category, FY 2025-26, FY 2026-27)
+  var devHi=findHdr(rows,'Development Category');
+  if(devHi>=0){
+    var dv=getSection(rows,devHi);
+    dv=dv.filter(function(r){return norm(r['Development Category'])!=='';});
+    var devHdrs=rows[devHi].map(norm);
+    var curDevCol=lastFYCol(devHdrs);
+    var prevDevCol=prevFYCol(devHdrs);
+
+    // Sort by current FY desc
+    dv.sort(function(a,b){return num(b[curDevCol])-num(a[curDevCol]);});
+
+    var datasets=[];
+    if(prevDevCol)datasets.push({label:prevDevCol,data:dv.map(function(r){return num(r[prevDevCol]);}),backgroundColor:NV,borderRadius:3});
+    datasets.push({label:curDevCol||'Current FY',data:dv.map(function(r){return num(r[curDevCol]);}),backgroundColor:TL,borderRadius:3});
+
+    // Shorten long category names
+    var shortLabels=dv.map(function(r){
+      var n=norm(r['Development Category']);
+      return n.length>22?n.substring(0,20)+'..':n;
+    });
+
+    mk('sol-dev',{type:'bar',
+      data:{labels:shortLabels,datasets:datasets},
+      options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
+  }
+
+  // ── Customization (Customization, FY 2025-26, FY 2026-27)
+  var custHi=findHdr(rows,'Customization');
+  if(custHi>=0){
+    var custData=getSection(rows,custHi);
+    custData=custData.filter(function(r){return norm(r['Customization'])!=='';});
+    var custHdrs=rows[custHi].map(norm);
+    var curCustCol=lastFYCol(custHdrs);
+    var custKey=norm(rows[custHi][0]);
+
+    var custTotal=custData.reduce(function(s,r){return s+num(r[curCustCol]);},0);
+    var custRow=custData.find(function(r){return norm(r[custKey]).toLowerCase().indexOf('customiz')>=0;})||{};
+    var custPct=custTotal>0?Math.round(num(custRow[curCustCol]||0)/custTotal*100):0;
+    set('sk4',custPct+'%');
+    set('sk4s',num(custRow[curCustCol]||0)+' of '+custTotal+' proposals');
+  }
+
+  // ── Monthly Trend (Month, FY 2025-26, FY 2026-27)
+  var mthHi=findHdr(rows,'Month',50); // start search after row 50 to skip Sales-like headers
+  if(mthHi<0)mthHi=findHdr(rows,'Month');
+  if(mthHi>=0){
+    var mthData=getSection(rows,mthHi);
+    mthData=mthData.filter(function(r){return norm(r['Month'])!=='';});
+    var mthHdrs=rows[mthHi].map(norm);
+    var curMthCol=lastFYCol(mthHdrs);
+    var prevMthCol=prevFYCol(mthHdrs);
+
+    var mthDatasets=[];
+    if(prevMthCol){
+      // FY 25-26 uses num() — all months have data, no gaps needed
+      mthDatasets.push({label:prevMthCol,data:mthData.map(function(r){return num(r[prevMthCol]);}),
+        backgroundColor:'rgba(27,42,74,0.15)',borderColor:NV,borderWidth:2,fill:true,tension:0.3,pointRadius:3,spanGaps:false});
     }
-  }
+    // Current FY uses numOrNull() — blank future months become null → line stops cleanly (no drop to 0)
+    mthDatasets.push({label:curMthCol||'Current FY',data:mthData.map(function(r){return numOrNull(r[curMthCol]);}),
+      backgroundColor:'rgba(0,128,140,0.12)',borderColor:TL,borderWidth:2,fill:true,tension:0.3,pointRadius:4,spanGaps:false});
 
-  /* ---- Revenue 3-year comparison — FIX: parseRs() for '₹ x,xxx,xxx.00' ---- */
-  if(rci>=0){
-    var rc=getSection(rows,rci,[]).filter(function(r){return String(r['Quarter']).toLowerCase().indexOf('full')<0;});
-    mk('sal-rev',{type:'bar',data:{
-      labels:rc.map(function(r){return r['Quarter'].replace(' — ',' ');}),
-      datasets:[
-        {label:'FY 2024-25',data:rc.map(function(r){return parseRs(r['FY 2024-25']);}),backgroundColor:'rgba(27,42,74,0.35)',borderRadius:4},
-        {label:'FY 2025-26',data:rc.map(function(r){return parseRs(r['FY 2025-26']);}),backgroundColor:NV,borderRadius:4},
-        {label:'FY 2026-27',data:rc.map(function(r){return parseRs(r['FY 2026-27']);}),backgroundColor:TL,borderRadius:4}
-      ]
-    },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtR(c.parsed.y);}}},datalabels:dl('Rs',false)}})});
-  }
-
-  /* ---- Monthly Revenue FY26-27 — FIX: parseRs() ---- */
-  if(mri>=0){
-    var mr=getSection(rows,mri,[]);
-    mk('sal-monthly',{type:'bar',data:{
-      labels:mr.map(function(r){return String(r['Month']).substring(0,3);}),
-      datasets:[{label:'Revenue',data:mr.map(function(r){return parseRs(r['Revenue (Rs.)']);}),
-        backgroundColor:mr.map(function(r){return parseRs(r['Revenue (Rs.)'])>0?TL:'rgba(0,128,140,0.15)';}),
-        borderRadius:5}]
-    },options:Object.assign({},bOpts(false,false),{plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtR(c.parsed.y);}}},datalabels:dl('Rs',false)}})});
-  }
-
-  /* ---- Quarterly Targets — FIX: parseRs() for '1.10 cr' target & '₹ x.xx' achieved ---- */
-  if(qti>=0){
-    var qtd=getSection(rows,qti,[]);
-    var full=qtd.find(function(r){return String(r['Quarter']).toLowerCase().indexOf('full')>=0;})||{};
-    var qs=qtd.filter(function(r){return String(r['Quarter']).toLowerCase().indexOf('full')<0;});
-    var pctAch=num(full['% Achieved']);
-    /* If no full-year row, compute from quarters */
-    if(pctAch===0&&qs.length>0){
-      var totTarget=qs.reduce(function(s,r){return s+parseRs(r['Target (Rs.)']);},0);
-      var totAchieved=qs.reduce(function(s,r){return s+parseRs(r['Achieved (Rs.)']);},0);
-      pctAch=totTarget>0?Math.round(totAchieved/totTarget*100):0;
-    }
-    set('slk4',pctAch>0?pctAch.toFixed(1)+'%':'--');
-    mk('sal-target',{type:'bar',data:{
-      labels:qs.map(function(r){return r['Quarter'].replace(' — AMJ','').replace(' — JAS','').replace(' — OND','').replace(' — JFM','');}),
-      datasets:[
-        {label:'Target (L)',data:qs.map(function(r){return parseRs(r['Target (Rs.)'])/100000;}),backgroundColor:'rgba(0,128,140,0.15)',borderColor:TL,borderWidth:2,borderRadius:4},
-        {label:'Achieved (L)',data:qs.map(function(r){return parseRs(r['Achieved (Rs.)'])/100000;}),backgroundColor:GN,borderRadius:4}
-      ]
-    },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': ₹'+c.parsed.y.toFixed(1)+'L';}}},datalabels:dl('L',false)}})});
-  }
-
-  /* ---- Expected Projects — FIX: parseRs() for '₹ x,xxx,xxx.00' ---- */
-  if(epi>=0){
-    var ep=getSection(rows,epi,[]);
-    mk('sal-pipe',{type:'bar',data:{
-      labels:ep.map(function(r){return r['Client'];}),
-      datasets:[{label:'Expected Value',data:ep.map(function(r){return parseRs(r['Approx. Value (Rs.)']);}),
-        backgroundColor:[TL,NV,GD,PU,RD,OR],borderRadius:5}]
-    },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtR(c.parsed.x);}}},datalabels:dl('Rs',true)}})});
+    mk('sol-trend',{type:'line',
+      data:{labels:mthData.map(function(r){return norm(r['Month']);}),datasets:mthDatasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        spanGaps:false,
+        plugins:{legend:{position:'top'},datalabels:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#EDF0F5'},ticks:{font:{size:10}}}}}});
   }
 }
 
-/* ---- Master update -------------------------------------------------------- */
+// ─────────────────────────────────────────────────────
+// SALES
+// ─────────────────────────────────────────────────────
+function doSal(wb){
+  var ws=wb.Sheets['Sales'];
+  if(!ws)return;
+  var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+
+  // ── Proposal Status (Month, No. of Proposals, Won Count, Lost Count, In Process Count, Won Value, Lost Value, In Process Value, ...)
+  var propHi=findHdr(rows,'No. of Proposals');
+  if(propHi>=0){
+    var pd=getSection(rows,propHi);
+    pd=pd.filter(function(r){return norm(r['Month'])!==''&&norm(r['Month']).toLowerCase().indexOf('total')<0;});
+
+    var totalProps=pd.reduce(function(s,r){return s+num(r['No. of Proposals']);},0);
+    set('slk1',totalProps);
+    set('slk1s',pd.map(function(r){return norm(r['Month']);}).join(' + '));
+
+    var totalWonVal=pd.reduce(function(s,r){return s+num(r['Won Value (Rs.)']);},0);
+    var totalIPVal=pd.reduce(function(s,r){return s+num(r['In Process Value (Rs.)']);},0);
+    var totalLostVal=pd.reduce(function(s,r){return s+num(r['Lost Value (Rs.)']);},0);
+    var totalWonCount=pd.reduce(function(s,r){return s+num(r['Won (Count)']);},0);
+    var totalIPCount=pd.reduce(function(s,r){return s+num(r['In Process (Count)']);},0);
+
+    set('slk2',fmtInr(totalWonVal));
+    set('slk2s',totalWonCount+' proposals won');
+    set('slk3',fmtInr(totalIPVal));
+    set('slk3s',totalIPCount+' proposals active');
+
+    // Funnel donut
+    if(totalWonVal+totalLostVal+totalIPVal>0){
+      mk('sal-funnel',{type:'doughnut',
+        data:{
+          labels:['Won','Lost','In Process'],
+          datasets:[{data:[totalWonVal,totalLostVal,totalIPVal],
+            backgroundColor:[GN,RD,GD],borderWidth:2,borderColor:'#fff'}]
+        },options:dOpts()});
+    }
+  }
+
+  // ── Order Book (Client, Topic/Program, Order Booked, Total Consumed, Balance)
+  var ordHi=findHdr(rows,'Order Booked');
+  if(ordHi<0)ordHi=findHdr(rows,'Program');
+  if(ordHi>=0){
+    var od=getSection(rows,ordHi);
+    od=od.filter(function(r){
+      var cl=norm(r['Client']||Object.values(r)[0]);
+      return cl!==''&&cl.toLowerCase().indexOf('total')<0;
+    });
+    var tb=document.querySelector('#sal-ord-tbl tbody');
+    if(tb)tb.innerHTML=od.map(function(r){
+      var v=Object.values(r);
+      return'<tr>'
+        +'<td>'+norm(v[0])+'</td>'
+        +'<td style="font-size:10px;color:#6B7A99">'+norm(v[1])+'</td>'
+        +'<td class="nr">'+fmtInr(num(v[2]))+'</td>'
+        +'<td class="nr">'+fmtInr(num(v[3]))+'</td>'
+        +'<td class="nr" style="color:'+( num(v[4])>500000?'#2DBD7E':'#1B2A4A')+'">'+fmtInr(num(v[4]))+'</td>'
+        +'</tr>';
+    }).join('');
+  }
+
+  // ── Quarterly Revenue Comparison (Quarter, FY 2024-25, FY 2025-26, FY 2026-27, ...)
+  var revSecRow=findSection(rows,'Revenue Comparison');
+  var qrevHi=revSecRow>=0?findHdr(rows,'Quarter',revSecRow+1):findHdr(rows,'FY 2024');
+  if(qrevHi<0)qrevHi=findHdr(rows,'FY 2024');
+  if(qrevHi>=0){
+    var qd=getSection(rows,qrevHi);
+    qd=qd.filter(function(r){
+      var q=norm(r['Quarter']||Object.values(r)[0]);
+      return q!==''&&q.toLowerCase().indexOf('full')<0;
+    });
+    var qHdrs=rows[qrevHi].map(norm);
+    var fyCols=qHdrs.filter(function(h){return h&&h!=='Quarter'&&(h.toLowerCase().indexOf('fy')>=0||h.toLowerCase().indexOf('20')>=0);});
+    var qColors=[LG,NV,TL,GD,GN];
+
+    mk('sal-qrev',{type:'bar',
+      data:{
+        labels:qd.map(function(r){return norm(r['Quarter']||Object.values(r)[0]);}),
+        datasets:fyCols.map(function(fc,i){return{
+          label:fc,
+          data:qd.map(function(r){return num(r[fc]);}),
+          backgroundColor:qColors[i%qColors.length],
+          borderRadius:3
+        };})
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlInr()}})});
+  }
+
+  // ── Monthly Revenue (Month, Revenue (Rs.), Key Clients)
+  var mrevSecRow=findSection(rows,'Monthly Revenue');
+  var mrevHi=mrevSecRow>=0?findHdr(rows,'Revenue (Rs.)',mrevSecRow+1):findHdr(rows,'Revenue (Rs.)');
+  if(mrevHi>=0){
+    var mrd=getSection(rows,mrevHi);
+    mrd=mrd.filter(function(r){return norm(r['Month'])!=='';});
+    mk('sal-monthly',{type:'bar',
+      data:{
+        labels:mrd.map(function(r){return norm(r['Month']);}),
+        datasets:[{label:'Revenue (Rs.)',data:mrd.map(function(r){return num(r['Revenue (Rs.)']);}),
+          backgroundColor:TL,borderRadius:4}]
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlInr()}})});
+  }
+
+  // ── Quarterly Targets (Quarter, Target (Rs.), Achieved (Rs.), % Achieved)
+  var tgtSecRow=findSection(rows,'Quarterly Targets');
+  var tgtHi=tgtSecRow>=0?findHdr(rows,'Target',tgtSecRow+1):findHdr(rows,'Target (Rs.)');
+  if(tgtHi<0)tgtHi=findHdr(rows,'Target (Rs.)');
+  if(tgtHi>=0){
+    var td=getSection(rows,tgtHi);
+    td=td.filter(function(r){
+      var q=norm(r['Quarter']||Object.values(r)[0]);
+      return q!==''&&q.toLowerCase().indexOf('full')<0&&q.toLowerCase().indexOf('total')<0;
+    });
+    // Q1 achievement for KPI
+    var q1=td.find(function(r){return norm(r['Quarter']||Object.values(r)[0]).toLowerCase().indexOf('q1')>=0;})||{};
+    var q1pct=num(q1['% Achieved']||Object.values(q1)[3]||0);
+    set('slk4',q1pct.toFixed(1)+'%');
+    var q1target=num(q1['Target (Rs.)']||Object.values(q1)[1]||0);
+    set('slk4s','of '+fmtInr(q1target)+' Q1 target');
+
+    // Quarterly targets chart
+    var tHdrs=rows[tgtHi].map(norm);
+    var tgtKey=tHdrs[0]||'Quarter';
+    var achKey=tHdrs[2]||'Achieved (Rs.)';
+    var tarKey=tHdrs[1]||'Target (Rs.)';
+
+    mk('sal-targets',{type:'bar',
+      data:{
+        labels:td.map(function(r){return norm(r[tgtKey]||Object.values(r)[0]);}),
+        datasets:[
+          {label:'Target (Rs.)',data:td.map(function(r){return num(r[tarKey]||Object.values(r)[1]);}),
+            backgroundColor:'rgba(0,128,140,0.15)',borderColor:TL,borderWidth:2,borderRadius:4,type:'bar'},
+          {label:'Achieved (Rs.)',data:td.map(function(r){return num(r[achKey]||Object.values(r)[2]);}),
+            backgroundColor:GN,borderRadius:4,type:'bar'}
+        ]
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlInr()}})});
+  }
+
+  // ── Expected Pipeline (Client, Particulars, Approx. Value)
+  var pipeHi=findHdr(rows,'Approx. Value');
+  if(pipeHi<0)pipeHi=findHdr(rows,'Approx');
+  if(pipeHi>=0){
+    var pp=getSection(rows,pipeHi);
+    pp=pp.filter(function(r){return norm(r['Client']||Object.values(r)[0])!=='';});
+    var pHdrs=rows[pipeHi].map(norm);
+    var valKey=pHdrs[2]||'Approx. Value (Rs.)';
+    var labelKey=pHdrs[0]||'Client';
+
+    mk('sal-pipe',{type:'bar',
+      data:{
+        labels:pp.map(function(r){return norm(r[labelKey]||Object.values(r)[0]);}),
+        datasets:[{label:'Approx. Value (Rs.)',
+          data:pp.map(function(r){return num(r[valKey]||Object.values(r)[2]);}),
+          backgroundColor:[TL,NV,GD,GN],borderRadius:4}]
+      },
+      options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlInrH()}})});
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// MAIN UPDATE CYCLE  (charts rebuild only when data changes)
+// ─────────────────────────────────────────────────────
+var lastHash=null;
+
+function dataHash(wb){
+  var h='';
+  ['Operations','Finance','Solutioning','Sales'].forEach(function(s){
+    if(wb.Sheets[s])h+=JSON.stringify(XLSX.utils.sheet_to_json(wb.Sheets[s],{header:1,defval:''}));
+  });
+  return h;
+}
+
 function update(wb){
-  try{doOps(wb);doFin(wb);doSol(wb);doSal(wb);
-    set('sync-time','Last sync: '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
-    document.getElementById('ldot').classList.remove('off');set('ltxt','Live Sync ON');
-  }catch(e){console.error('Dashboard error:',e);}
+  try{
+    var h=dataHash(wb);
+    var t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    set('sync-time','Last sync: '+t);
+    document.getElementById('ldot').classList.remove('off');
+    set('ltxt','Live Sync ON');
+    if(h===lastHash)return; // data unchanged — skip full re-render
+    lastHash=h;
+    doOps(wb);
+    doFin(wb);
+    doSol(wb);
+    doSal(wb);
+  }catch(e){
+    console.error('Dashboard error:',e);
+  }
 }
 
-/* ---- IndexedDB persistence ------------------------------------------------ */
-var DB='ER-Dashboard-v1',ST='handles',KY='excel';
-function openDB(){return new Promise(function(res,rej){var r=indexedDB.open(DB,1);r.onupgradeneeded=function(e){e.target.result.createObjectStore(ST);};r.onsuccess=function(e){res(e.target.result);};r.onerror=rej;});}
-async function saveHandle(h){try{var db=await openDB();db.transaction(ST,'readwrite').objectStore(ST).put(h,KY);}catch(e){}}
-async function loadHandle(){try{var db=await openDB();return new Promise(function(res){var q=db.transaction(ST,'readonly').objectStore(ST).get(KY);q.onsuccess=function(){res(q.result||null);};q.onerror=function(){res(null);};});}catch(e){return null;}}
-
-/* ---- File I/O ------------------------------------------------------------- */
+// ─────────────────────────────────────────────────────
+// FILE CONNECT & AUTO-REFRESH
+// ─────────────────────────────────────────────────────
 var fh=null,si=null;
+
 async function connectExcel(){
   try{
     if(window.showOpenFilePicker){
-      var r=await window.showOpenFilePicker({types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});
-      fh=r[0];await saveHandle(fh);
+      var r=await window.showOpenFilePicker({
+        types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]
+      });
+      fh=r[0];
       document.getElementById('overlay').style.display='none';
-      await readFile();if(si)clearInterval(si);si=setInterval(readFile,3000);
+      await readFile();
+      if(si)clearInterval(si);
+      si=setInterval(readFile,3000);
     }else{
-      var inp=document.createElement('input');inp.type='file';inp.accept='.xlsx';
-      inp.onchange=async function(e){var f=e.target.files[0];if(!f)return;document.getElementById('overlay').style.display='none';update(XLSX.read(await f.arrayBuffer(),{type:'array'}));set('ltxt','Loaded');document.getElementById('ldot').classList.add('off');};inp.click();
+      var inp=document.createElement('input');
+      inp.type='file';inp.accept='.xlsx';
+      inp.onchange=async function(e){
+        var f=e.target.files[0];
+        if(!f)return;
+        document.getElementById('overlay').style.display='none';
+        update(XLSX.read(await f.arrayBuffer(),{type:'array'}));
+        set('ltxt','Manual mode');
+        document.getElementById('ldot').classList.add('off');
+      };
+      inp.click();
     }
-  }catch(e){if(e.name!=='AbortError')alert('Please use Chrome or Edge for full live-sync.');}
+  }catch(e){
+    if(e.name!=='AbortError')alert('Please use Chrome or Edge browser for Live Sync.');
+  }
 }
-async function readFile(){if(!fh)return;try{var f=await fh.getFile();update(XLSX.read(await f.arrayBuffer(),{type:'array'}));}catch(e){}}
-window.addEventListener('load',async function(){
-  if(!window.showOpenFilePicker)return;
-  var saved=await loadHandle();if(!saved)return;
-  try{var p=await saved.queryPermission({mode:'read'});
-    if(p==='granted'){fh=saved;document.getElementById('overlay').style.display='none';await readFile();if(si)clearInterval(si);si=setInterval(readFile,3000);}
-    else{document.getElementById('ob-msg').innerHTML='<strong>Dashboard Report Data.xlsx</strong> was connected before. Click below to reconnect.';}
-  }catch(e){}
-});
+
+async function readFile(){
+  if(!fh)return;
+  try{
+    var f=await fh.getFile();
+    update(XLSX.read(await f.arrayBuffer(),{type:'array'}));
+  }catch(e){
+    console.warn('Read error:',e);
+  }
+}
+
 function goTab(id,el){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
-  document.getElementById('page-'+id).classList.add('active');el.classList.add('active');
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
 }
 </script>
 </body>
