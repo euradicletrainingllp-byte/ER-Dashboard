@@ -52,6 +52,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 .kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:10px 0 0 10px}
 .kpi.tl::before{background:#00808C}.kpi.gd::before{background:#E8A020}.kpi.gn::before{background:#2DBD7E}
 .kpi.nv::before{background:#1B2A4A}.kpi.rd::before{background:#E05252}.kpi.pu::before{background:#7C5CBF}
+.g5{grid-template-columns:repeat(5,1fr)}
 .kpi .lb{font-size:10px;color:#6B7A99;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
 .kpi .vl{font-size:24px;font-weight:800;color:#1B2A4A;line-height:1.15;margin:4px 0 2px}
 .kpi .sb{font-size:10px;color:#6B7A99}
@@ -73,7 +74,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 .mt tr:last-child td{border-bottom:none}
 .mt tr:nth-child(even) td{background:#FAFBFC}
 .nr{text-align:right;font-weight:600}
-@media(max-width:800px){.g4,.g3{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}}
+@media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}}
 </style>
 </head>
 <body>
@@ -137,11 +138,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 <!-- FINANCE -->
 <div class="page" id="page-fin">
   <div class="pg-hdr"><h2>Finance</h2><p>Revenue, invoices &amp; outstanding collections</p></div>
-  <div class="kg g4">
+  <div class="kg g5">
     <div class="kpi tl"><div class="lb">FY 26-27 Revenue YTD</div><div class="vl" id="fk1">--</div><div class="sb" id="fk1s">Apr + May + Jun combined</div></div>
-    <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Pending collection</div><span class="tg bad">Action needed</span></div>
-    <div class="kpi gd"><div class="lb">Invoiced (FY 26-27)</div><div class="vl" id="fk3">--</div><div class="sb">Total invoiced to date</div></div>
+    <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Pending collection</div></div>
+    <div class="kpi gd"><div class="lb">No. of Invoiced (FY 26-27)</div><div class="vl" id="fk3">--</div><div class="sb">Total invoiced to date</div></div>
     <div class="kpi pu"><div class="lb">To be Invoiced</div><div class="vl" id="fk4">--</div><div class="sb">Pending billing</div><span class="tg warn">Pending</span></div>
+    <div class="kpi gn"><div class="lb">Total Targeted Revenue</div><div class="vl" id="fk5">--</div><div class="sb">Yearly revenue target</div></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">Monthly revenue per financial year</div><div class="ch-wrap"><canvas id="fin-rev"></canvas></div></div>
@@ -149,7 +151,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
   </div>
   <div class="cg c1">
     <div class="card"><h3>Outstanding Payments Due</h3><div class="cs" id="fin-due-cs">Pending collections — update amounts in Excel to refresh</div>
-      <table class="mt" id="fin-due-tbl"><thead><tr><th>Client / Description</th><th class="nr">Amount Due (Rs. L)</th><th>Due Dates</th><th>Type</th></tr></thead><tbody></tbody></table>
+      <table class="mt" id="fin-due-tbl"><thead><tr><th>Client / Description</th><th class="nr" style="min-width:130px;white-space:nowrap">Amount Due (Rs. L)</th><th>Due Dates</th><th>Type</th></tr></thead><tbody></tbody></table>
     </div>
   </div>
 </div>
@@ -523,7 +525,7 @@ function doFin(wb){
     if(tb)tb.innerHTML=dd.map(function(r){
       return'<tr>'
         +'<td>'+norm(r['Client / Description'])+'</td>'
-        +'<td class="nr">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+        +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
         +'<td>'+norm(r['Due Dates'])+'</td>'
         +'<td>'+norm(r['Type'])+'</td>'
         +'</tr>';
@@ -539,10 +541,15 @@ function doFin(wb){
     var sdata=getSection(rows,summHi);
     if(sdata.length>0){
       var s=sdata[0];
-      var invoiced=num(s['Invoiced']);
+      var invoiced = num(s['No. of Invoiced']);
       var toInvoice=num(s['To be Invoiced']);
+      // Support both (CR) and (L) suffix in case header changes
+      var targetRevCR=num(s['Total Targeted Revenue (CR)']);
+      var targetRevL=num(s['Total Targeted Revenue (L)']);
       if(invoiced>0)set('fk3',fmtL(invoiced));
       if(toInvoice>0)set('fk4',fmtL(toInvoice));
+      if(targetRevCR>0){set('fk5','Rs.'+targetRevCR.toFixed(2)+'Cr');}
+      else if(targetRevL>0){set('fk5',fmtL(targetRevL));}
     }
   }
 }
@@ -938,6 +945,10 @@ function goTab(id,el){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById('page-'+id).classList.add('active');
   el.classList.add('active');
+  // Resize all charts after the tab becomes visible so Chart.js can measure correctly
+  setTimeout(function(){
+    Object.values(CH).forEach(function(c){if(c)c.resize();});
+  },50);
 }
 </script>
 </body>
