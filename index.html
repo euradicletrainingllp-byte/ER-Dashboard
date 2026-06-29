@@ -9,7 +9,46 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4A;font-size:13px}
+
+/* ── CSS Variables (Light Mode defaults) ── */
+:root{
+  --bg:#F2F4F8;
+  --surface:#fff;
+  --border:#DDE3ED;
+  --text-primary:#0D1B35;
+  --text-secondary:#374151;
+  --text-muted:#6B7A99;
+  --heading:#0D1B35;
+  --card-bg:#fff;
+  --tbl-header-bg:#F4F7FA;
+  --tbl-row-alt:#FAFBFC;
+  --tbl-border:#E5E9F0;
+  --tab-bar:#fff;
+  --tab-inactive:#374151;
+  --tab-hover:#0D1B35;
+  --kpi-bg:#fff;
+}
+
+/* ── Dark Mode overrides ── */
+body.dark{
+  --bg:#0F1923;
+  --surface:#182030;
+  --border:#2A3A52;
+  --text-primary:#E2EAF4;
+  --text-secondary:#94A3B8;
+  --text-muted:#5E7A99;
+  --heading:#FFFFFF;
+  --card-bg:#1C2B3E;
+  --tbl-header-bg:#162232;
+  --tbl-row-alt:#1A2840;
+  --tbl-border:#243548;
+  --tab-bar:#182030;
+  --tab-inactive:#94A3B8;
+  --tab-hover:#FFFFFF;
+  --kpi-bg:#1C2B3E;
+}
+
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);font-size:13px;transition:background .25s,color .25s}
 #overlay{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#1B2A4A,#003B50);display:flex;align-items:center;justify-content:center}
 .ob{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:44px 52px;max-width:480px;width:90%;text-align:center}
 .ob-logo{width:60px;height:60px;border-radius:14px;background:#00808C;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;margin:0 auto 20px}
@@ -36,43 +75,64 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .chg-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer}
 .chg-btn:hover{background:rgba(255,255,255,.18)}
-.tabs{background:#fff;border-bottom:2px solid #DDE3ED;padding:0 28px;display:flex;overflow-x:auto}
-.tab{padding:12px 22px;font-size:12px;font-weight:600;color:#6B7A99;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
-.tab:hover{color:#1B2A4A}
+
+/* ── Dark/Light mode toggle button ── */
+.theme-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 10px;font-size:13px;font-weight:600;cursor:pointer;line-height:1;display:flex;align-items:center;gap:5px}
+.theme-btn:hover{background:rgba(255,255,255,.18)}
+
+.tabs{background:var(--tab-bar);border-bottom:2px solid var(--border);padding:0 28px;display:flex;overflow-x:auto;transition:background .25s}
+.tab{padding:12px 22px;font-size:12px;font-weight:600;color:var(--tab-inactive);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
+.tab:hover{color:var(--tab-hover)}
 .tab.active{color:#00808C;border-bottom-color:#00808C}
 .page{display:none;padding:18px 24px 32px;max-width:1440px;margin:0 auto}
 .page.active{display:block}
 .pg-hdr{margin-bottom:20px}
-.pg-hdr h2{font-size:18px;font-weight:800;color:#1B2A4A}
-.pg-hdr p{font-size:12px;color:#6B7A99;margin-top:2px}
+
+/* ── Page headings: use --heading variable for strong contrast in both modes ── */
+.pg-hdr h2{font-size:18px;font-weight:800;color:var(--heading)}
+.pg-hdr p{font-size:12px;color:var(--text-secondary);margin-top:2px}
+
 .kg{display:grid;gap:10px;margin-bottom:14px}
 .g4{grid-template-columns:repeat(4,1fr)}
 .g3{grid-template-columns:repeat(3,1fr)}
-.kpi{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #DDE3ED;position:relative;overflow:hidden}
+.kpi{background:var(--kpi-bg);border-radius:10px;padding:16px 18px;border:1px solid var(--border);position:relative;overflow:hidden;transition:background .25s,border-color .25s}
 .kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:10px 0 0 10px}
 .kpi.tl::before{background:#00808C}.kpi.gd::before{background:#E8A020}.kpi.gn::before{background:#2DBD7E}
 .kpi.nv::before{background:#1B2A4A}.kpi.rd::before{background:#E05252}.kpi.pu::before{background:#7C5CBF}
 .g5{grid-template-columns:repeat(5,1fr)}
-.kpi .lb{font-size:10px;color:#6B7A99;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-.kpi .vl{font-size:24px;font-weight:800;color:#1B2A4A;line-height:1.15;margin:4px 0 2px}
-.kpi .sb{font-size:10px;color:#6B7A99}
+
+/* ── KPI labels and values ── */
+.kpi .lb{font-size:10px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.kpi .vl{font-size:24px;font-weight:800;color:var(--heading);line-height:1.15;margin:4px 0 2px}
+.kpi .sb{font-size:10px;color:var(--text-secondary)}
+
 .tg{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;margin-top:5px}
 .tg.up{background:#E6F9F0;color:#1D8F5C}.tg.warn{background:#FFF3E0;color:#B45309}
 .tg.info{background:#EAF2FF;color:#1A5FB4}.tg.bad{background:#FEF0EE;color:#C03A2B}
+body.dark .tg.up{background:rgba(45,189,126,.15);color:#3DD68C}
+body.dark .tg.warn{background:rgba(232,160,32,.15);color:#FBBF24}
+body.dark .tg.info{background:rgba(0,128,140,.15);color:#38BDF8}
+body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
+
 .cg{display:grid;gap:12px;margin-bottom:12px}
 .c11{grid-template-columns:1fr 1fr}.c21{grid-template-columns:2fr 1fr}.c1{grid-template-columns:1fr}
-.card{background:#fff;border-radius:10px;border:1px solid #DDE3ED;padding:16px 18px}
-.card h3{font-size:12px;font-weight:700;color:#1B2A4A;margin-bottom:2px}
-.card .cs{font-size:10px;color:#6B7A99;margin-bottom:10px}
+.card{background:var(--card-bg);border-radius:10px;border:1px solid var(--border);padding:16px 18px;transition:background .25s,border-color .25s}
+
+/* ── Card headings: strong contrast in both modes ── */
+.card h3{font-size:12px;font-weight:700;color:var(--heading);margin-bottom:2px}
+.card .cs{font-size:10px;color:var(--text-secondary);margin-bottom:10px}
+
 .ch-wrap{position:relative;height:240px}
 .ch-wrap.sm{position:relative;height:185px}
 .ch-wrap.xs{position:relative;height:150px}
 .ch-wrap canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important}
+
+/* ── Table headings and cells ── */
 .mt{width:100%;border-collapse:collapse;font-size:11px}
-.mt th{background:#F4F7FA;color:#6B7A99;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.3px;padding:7px 10px;text-align:left;border-bottom:1px solid #DDE3ED}
-.mt td{padding:7px 10px;border-bottom:1px solid #F0F2F5;color:#1B2A4A}
+.mt th{background:var(--tbl-header-bg);color:var(--heading);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.3px;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.mt td{padding:7px 10px;border-bottom:1px solid var(--tbl-border);color:var(--text-primary)}
 .mt tr:last-child td{border-bottom:none}
-.mt tr:nth-child(even) td{background:#FAFBFC}
+.mt tr:nth-child(even) td{background:var(--tbl-row-alt)}
 .nr{text-align:right;font-weight:600}
 @media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}}
 </style>
@@ -104,6 +164,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
     <span class="tb-sync" id="sync-time">Not connected</span>
     <div class="live"><div class="dot off" id="ldot"></div><span id="ltxt">Connecting</span></div>
     <button class="chg-btn" onclick="connectExcel()">&#8635; Change File</button>
+    <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙 Dark</button>
   </div>
 </div>
 
@@ -205,12 +266,42 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#F2F4F8;color:#1B2A4
 
 <script>
 // ─────────────────────────────────────────────────────
+// THEME TOGGLE
+// ─────────────────────────────────────────────────────
+var isDark=false;
+function toggleTheme(){
+  isDark=!isDark;
+  document.body.classList.toggle('dark',isDark);
+  var btn=document.getElementById('theme-toggle');
+  if(btn)btn.textContent=isDark?'☀️ Light':'🌙 Dark';
+  // Update Chart.js defaults for the new theme
+  var textCol=isDark?'#94A3B8':'#374151';
+  var gridCol=isDark?'#1E3048':'#EDF0F5';
+  var dlCol=dlColor();
+  Chart.defaults.color=textCol;
+  // Rebuild all active charts with updated grid, legend and datalabel colors
+  Object.values(CH).forEach(function(c){
+    if(!c)return;
+    if(c.options.scales){
+      if(c.options.scales.x){c.options.scales.x.grid=c.options.scales.x.grid||{};c.options.scales.x.grid.color=gridCol;if(c.options.scales.x.ticks)c.options.scales.x.ticks.color=textCol;}
+      if(c.options.scales.y){c.options.scales.y.grid=c.options.scales.y.grid||{};c.options.scales.y.grid.color=gridCol;if(c.options.scales.y.ticks)c.options.scales.y.ticks.color=textCol;}
+    }
+    if(c.options.plugins&&c.options.plugins.legend&&c.options.plugins.legend.labels)c.options.plugins.legend.labels.color=textCol;
+    // Update datalabel colors (skip white inside-bar labels)
+    if(c.options.plugins&&c.options.plugins.datalabels&&c.options.plugins.datalabels.color!=='#fff'){
+      c.options.plugins.datalabels.color=dlCol;
+    }
+    c.update();
+  });
+}
+
+// ─────────────────────────────────────────────────────
 // CHART REGISTRY & BRAND COLORS
 // ─────────────────────────────────────────────────────
 var CH={};
 var NV='#1B2A4A',TL='#00808C',GD='#E8A020',GN='#2DBD7E',PU='#7C5CBF',RD='#E05252',LG='#DDE3ED';
 Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
-Chart.defaults.color='#6B7A99';
+Chart.defaults.color='#374151';
 Chart.defaults.plugins.legend.labels.usePointStyle=true;
 Chart.defaults.plugins.legend.labels.pointStyleWidth=8;
 Chart.defaults.plugins.legend.labels.boxHeight=7;
@@ -248,16 +339,18 @@ function numOrNull(v){
 }
 
 // ── Datalabel config helpers ──────────────────────────────
+// Theme-aware datalabel text color
+function dlColor(){return isDark?'#B8C8DC':'#374151';}
 // Vertical bars: label on top, plain number
-function dlNum(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'600'},color:'#6B7A99',padding:2};}
+function dlNum(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'600'},color:dlColor(),padding:2};}
 // Vertical bars: label on top, INR-formatted
-function dlInr(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:9,weight:'600'},color:'#6B7A99',padding:2};}
+function dlInr(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:9,weight:'600'},color:dlColor(),padding:2};}
 // Stacked bars: label centred inside each segment
 function dlStack(){return{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'center',align:'center',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:'#fff'};}
 // Horizontal bars: label at right end of bar
-function dlH(){return{display:true,anchor:'end',align:'right',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'600'},color:'#6B7A99',clamp:true,padding:{left:4}};}
+function dlH(){return{display:true,anchor:'end',align:'right',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'600'},color:dlColor(),clamp:true,padding:{left:4}};}
 // Horizontal bars: INR formatted
-function dlInrH(){return{display:true,anchor:'end',align:'right',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:9,weight:'600'},color:'#6B7A99',clamp:true,padding:{left:4}};}
+function dlInrH(){return{display:true,anchor:'end',align:'right',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:9,weight:'600'},color:dlColor(),clamp:true,padding:{left:4}};}
 
 // Format Indian currency
 function fmtInr(v){
@@ -329,12 +422,13 @@ function prevFYCol(hdrs){
 }
 
 // Chart option builders
+function gridCol(){return isDark?'#1E3048':'#EDF0F5';}
 function bOpts(stacked,horiz){
   return{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'top'}},
     scales:{
-      x:{stacked:stacked,grid:{display:!!horiz},ticks:{font:{size:10}}},
-      y:{stacked:stacked,grid:{color:'#EDF0F5',display:!horiz},ticks:{font:{size:10}}}
+      x:{stacked:stacked,grid:{display:!!horiz,color:gridCol()},ticks:{font:{size:10}}},
+      y:{stacked:stacked,grid:{color:gridCol(),display:!horiz},ticks:{font:{size:10}}}
     }};
 }
 function dOpts(){
@@ -546,7 +640,7 @@ function doFin(wb){
       // Support both (CR) and (L) suffix in case header changes
       var targetRevCR=num(s['Total Targeted Revenue (CR)']);
       var targetRevL=num(s['Total Targeted Revenue (L)']);
-      if(invoiced>0)set('fk3',fmtL(invoiced));
+      if(invoiced>0)set('fk3',(invoiced));
       if(toInvoice>0)set('fk4',fmtL(toInvoice));
       if(targetRevCR>0){set('fk5','Rs.'+targetRevCR.toFixed(2)+'Cr');}
       else if(targetRevL>0){set('fk5',fmtL(targetRevL));}
@@ -703,7 +797,7 @@ function doSol(wb){
       options:{responsive:true,maintainAspectRatio:false,
         spanGaps:false,
         plugins:{legend:{position:'top'},datalabels:{display:false}},
-        scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#EDF0F5'},ticks:{font:{size:10}}}}}});
+        scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:gridCol()},ticks:{font:{size:10}}}}}});
   }
 }
 
@@ -761,10 +855,10 @@ function doSal(wb){
       var v=Object.values(r);
       return'<tr>'
         +'<td>'+norm(v[0])+'</td>'
-        +'<td style="font-size:10px;color:#6B7A99">'+norm(v[1])+'</td>'
+        +'<td style="font-size:10px;opacity:.7">'+norm(v[1])+'</td>'
         +'<td class="nr">'+fmtInr(num(v[2]))+'</td>'
         +'<td class="nr">'+fmtInr(num(v[3]))+'</td>'
-        +'<td class="nr" style="color:'+( num(v[4])>500000?'#2DBD7E':'#1B2A4A')+'">'+fmtInr(num(v[4]))+'</td>'
+        +'<td class="nr" style="color:'+( num(v[4])>500000?'#2DBD7E':'var(--heading)')+'">'+fmtInr(num(v[4]))+'</td>'
         +'</tr>';
     }).join('');
   }
