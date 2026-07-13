@@ -93,6 +93,8 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 .nr{text-align:center;font-weight:600}
 .mt-note{margin-top:8px;font-size:10px;color:var(--text-muted)}
 .ch-wrap.tall{height:300px}
+.card.flex-card{display:flex;flex-direction:column}
+.ch-wrap.flex-fill{flex:1 1 auto;height:auto;min-height:260px}
 .mini-chart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .mini-chart-col{min-width:0}
 .mini-chart-title{font-size:11px;font-weight:700;color:var(--heading);text-align:center;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -157,7 +159,7 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="card"><h3>Top Consultants &mdash; FY 2026-27</h3><div class="cs">Days delivered and upcoming</div>
       <table class="mt" id="ops-tr-tbl"><thead><tr><th>Trainer</th><th class="nr">Delivered (Days)</th><th class="nr">Upcoming (Days)</th><th class="nr">Total Days</th></tr></thead><tbody></tbody></table>
     </div>
-    <div class="card"><h3>FY 2026-27 &mdash; Client Status</h3><div class="cs">Delivered vs upcoming per client</div><div class="ch-wrap"><canvas id="ops-clients"></canvas></div></div>
+    <div class="card flex-card"><h3>FY 2026-27 &mdash; Client Status</h3><div class="cs">Delivered vs upcoming per client</div><div class="ch-wrap flex-fill"><canvas id="ops-clients"></canvas></div></div>
   </div>
   <div class="cg c1">
     <div class="card"><h3>Consultant Days &mdash; Previous Years</h3><div class="cs">FY 2023-24 through FY 2025-26, by trainer &mdash; one chart per year</div>
@@ -563,21 +565,30 @@ function doOps(wb){
   if(cdpySec>=0){
     var cdpyBlocks=getSideBySideBlocks(rows,cdpySec+1,[0,3,6]);
     var cdpyPalette=[TL,GD,NV];
+    var cdpySortedBlocks=cdpyBlocks.map(function(b){return b.data.slice().sort(function(a,c){return c.value-a.value;});});
+    var cdpyMax=0;
+    cdpySortedBlocks.forEach(function(arr){arr.forEach(function(d){if(d.value>cdpyMax)cdpyMax=d.value;});});
+    var cdpyAxisMax=cdpyMax>0?Math.ceil(cdpyMax*1.08):1;
     cdpyBlocks.forEach(function(b,idx){
       var fyLabel=b.key1||('FY '+(idx+1));
       var titleEl=document.getElementById('ops-prevyears-title-'+idx);
       if(titleEl)titleEl.textContent=fyLabel;
-      var sorted=b.data.slice().sort(function(a,c){return c.value-a.value;});
+      var sorted=cdpySortedBlocks[idx];
+      var opts=Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}});
+      opts.scales=Object.assign({},opts.scales,{x:Object.assign({},opts.scales.x,{min:0,max:cdpyAxisMax})});
       mk('ops-prevyears-chart-'+idx,{type:'bar',
         data:{
           labels:sorted.map(function(d){return d.label;}),
           datasets:[{label:'Days',data:sorted.map(function(d){return d.value;}),
             backgroundColor:cdpyPalette[idx%cdpyPalette.length],borderRadius:3}]
-        },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
+        },options:opts});
     });
   }
 
-  var csSec=findSection(rows,'Client Status');
+  // Marker is 'Client Status 20' (not just 'Client Status') because an earlier section in this
+  // sheet is titled "FY 2026-27 - Client Status" — a plain 'Client Status' search would match
+  // that one first and silently pull the wrong header/data for this historical triple-block table.
+  var csSec=findSection(rows,'Client Status 20');
   if(csSec>=0){
     var csTitleRow=rows[csSec];
     var offsets=[0,3,6];
@@ -595,16 +606,22 @@ function doOps(wb){
       if(!any)break;
     }
     var csPalette=[NV,TL,GD];
+    var csSortedBlocks=csBlocks.map(function(b){return b.data.slice().sort(function(a,c){return c.projects-a.projects;});});
+    var csMax=0;
+    csSortedBlocks.forEach(function(arr){arr.forEach(function(d){if(d.projects>csMax)csMax=d.projects;});});
+    var csAxisMax=csMax>0?Math.ceil(csMax*1.08):1;
     csBlocks.forEach(function(b,idx){
       var titleEl=document.getElementById('ops-clientstatus-title-'+idx);
       if(titleEl)titleEl.textContent=b.label||('FY '+(idx+1));
-      var sorted=b.data.slice().sort(function(a,c){return c.projects-a.projects;});
+      var sorted=csSortedBlocks[idx];
+      var opts=Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}});
+      opts.scales=Object.assign({},opts.scales,{x:Object.assign({},opts.scales.x,{min:0,max:csAxisMax})});
       mk('ops-clientstatus-chart-'+idx,{type:'bar',
         data:{
           labels:sorted.map(function(d){return d.client;}),
           datasets:[{label:'Projects',data:sorted.map(function(d){return d.projects;}),
             backgroundColor:csPalette[idx%csPalette.length],borderRadius:3}]
-        },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
+        },options:opts});
     });
   }
 }
