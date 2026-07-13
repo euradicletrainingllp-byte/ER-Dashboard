@@ -92,10 +92,14 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 .mt tr:nth-child(even) td{background:var(--tbl-row-alt)}
 .nr{text-align:center;font-weight:600}
 .mt-note{margin-top:8px;font-size:10px;color:var(--text-muted)}
+.ch-wrap.tall{height:300px}
+.mini-chart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mini-chart-col{min-width:0}
+.mini-chart-title{font-size:11px;font-weight:700;color:var(--heading);text-align:center;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mt-scroll{max-height:340px;overflow-y:auto}
 .ch-wrap-scroll{position:relative;max-height:400px;overflow-y:auto;overflow-x:hidden}
 .ch-wrap-inner{position:relative;width:100%}
-@media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}}
+@media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}.ch-wrap.tall{height:260px}.mini-chart-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -147,20 +151,30 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
   </div>
   <div class="cg c11">
     <div class="card"><h3>Project Trend by FY</h3><div class="cs">Total delivered projects per financial year</div><div class="ch-wrap"><canvas id="ops-trend"></canvas></div></div>
-    <div class="card"><h3>FY 2026-27 &mdash; Client Status</h3><div class="cs">Delivered vs upcoming per client</div><div class="ch-wrap"><canvas id="ops-clients"></canvas></div></div>
+    <div class="card"><h3>Delivery Mode</h3><div class="cs">In-Person vs Virtual by financial year</div><div class="ch-wrap"><canvas id="ops-mode"></canvas></div></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Top Consultants &mdash; FY 2026-27</h3><div class="cs">Days delivered and upcoming</div>
       <table class="mt" id="ops-tr-tbl"><thead><tr><th>Trainer</th><th class="nr">Delivered (Days)</th><th class="nr">Upcoming (Days)</th><th class="nr">Total Days</th></tr></thead><tbody></tbody></table>
     </div>
-    <div class="card"><h3>Delivery Mode</h3><div class="cs">In-Person vs Virtual by financial year</div><div class="ch-wrap"><canvas id="ops-mode"></canvas></div></div>
+    <div class="card"><h3>FY 2026-27 &mdash; Client Status</h3><div class="cs">Delivered vs upcoming per client</div><div class="ch-wrap"><canvas id="ops-clients"></canvas></div></div>
   </div>
-  <div class="cg c11">
-    <div class="card"><h3>Consultant Days &mdash; Previous Years</h3><div class="cs">FY 2023-24 through FY 2025-26, by trainer</div>
-      <div class="ch-wrap-scroll"><div class="ch-wrap-inner"><canvas id="ops-prevyears-chart"></canvas></div></div>
+  <div class="cg c1">
+    <div class="card"><h3>Consultant Days &mdash; Previous Years</h3><div class="cs">FY 2023-24 through FY 2025-26, by trainer &mdash; one chart per year</div>
+      <div class="mini-chart-grid">
+        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-prevyears-title-0">FY</div><div class="ch-wrap tall"><canvas id="ops-prevyears-chart-0"></canvas></div></div>
+        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-prevyears-title-1">FY</div><div class="ch-wrap tall"><canvas id="ops-prevyears-chart-1"></canvas></div></div>
+        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-prevyears-title-2">FY</div><div class="ch-wrap tall"><canvas id="ops-prevyears-chart-2"></canvas></div></div>
+      </div>
     </div>
-    <div class="card"><h3>Client Status &mdash; Historical by FY</h3><div class="cs">Projects delivered per client, FY 2023-24 to FY 2025-26</div>
-      <div class="ch-wrap-scroll"><div class="ch-wrap-inner"><canvas id="ops-clientstatus-chart"></canvas></div></div>
+  </div>
+  <div class="cg c1">
+    <div class="card"><h3>Client Status &mdash; Historical by FY</h3><div class="cs">Projects delivered per client &mdash; one chart per year</div>
+      <div class="mini-chart-grid">
+        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-clientstatus-title-0">FY</div><div class="ch-wrap tall"><canvas id="ops-clientstatus-chart-0"></canvas></div></div>
+        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-clientstatus-title-1">FY</div><div class="ch-wrap tall"><canvas id="ops-clientstatus-chart-1"></canvas></div></div>
+        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-clientstatus-title-2">FY</div><div class="ch-wrap tall"><canvas id="ops-clientstatus-chart-2"></canvas></div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -193,6 +207,11 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     </div>
     <div class="card"><h3>Average Billing Days per Month</h3><div class="cs">Monthly billing distribution by financial year</div><div class="ch-wrap"><canvas id="fin-billing"></canvas></div></div>
   </div>
+  <div class="cg c1">
+    <div class="card"><h3>Average Revenue per Engaged Day</h3><div class="cs">Revenue efficiency by financial year (Rs. Lakhs per engaged day)</div>
+      <table class="mt" id="fin-avgbillday-tbl"><thead><tr><th>Financial Year</th><th class="nr">Total Revenue (Rs. L)</th><th class="nr">Engaged Days</th><th class="nr">Avg / Day (Rs. L)</th><th>Notes</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
 </div>
 
 <!-- SOLUTIONING -->
@@ -206,7 +225,7 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
   </div>
   <div class="cg c11">
     <div class="card"><h3>Development Category Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 comparison</div><div class="ch-wrap"><canvas id="sol-dev"></canvas></div></div>
-    <div class="card"><h3>Industry Traction</h3><div class="cs">Opportunities by sector &mdash; current FY</div><div class="ch-wrap"><canvas id="sol-ind"></canvas></div></div>
+    <div class="card"><h3>Industry Traction</h3><div class="cs">Opportunities by sector &mdash; current FY</div><div class="ch-wrap-scroll" style="max-height:340px"><div class="ch-wrap-inner"><canvas id="sol-ind"></canvas></div></div></div>
   </div>
   <div class="cg c21">
     <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
@@ -253,7 +272,7 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     </div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap sm"><canvas id="sal-funnel"></canvas></div></div>
+    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap"><canvas id="sal-funnel"></canvas></div></div>
     <div class="card"><h3>Quarterly Revenue Comparison</h3><div class="cs">Q1&ndash;Q4 across financial years</div><div class="ch-wrap"><canvas id="sal-qrev"></canvas></div></div>
   </div>
   <div class="cg c21">
@@ -543,24 +562,19 @@ function doOps(wb){
   var cdpySec=findSection(rows,'Consultant Days - Previous Years');
   if(cdpySec>=0){
     var cdpyBlocks=getSideBySideBlocks(rows,cdpySec+1,[0,3,6]);
-    var combined=[];
-    cdpyBlocks.forEach(function(b){
-      var fyLabel=b.key1||'FY';
-      b.data.forEach(function(d){combined.push({fy:fyLabel,trainer:d.label,days:d.value});});
+    var cdpyPalette=[TL,GD,NV];
+    cdpyBlocks.forEach(function(b,idx){
+      var fyLabel=b.key1||('FY '+(idx+1));
+      var titleEl=document.getElementById('ops-prevyears-title-'+idx);
+      if(titleEl)titleEl.textContent=fyLabel;
+      var sorted=b.data.slice().sort(function(a,c){return c.value-a.value;});
+      mk('ops-prevyears-chart-'+idx,{type:'bar',
+        data:{
+          labels:sorted.map(function(d){return d.label;}),
+          datasets:[{label:'Days',data:sorted.map(function(d){return d.value;}),
+            backgroundColor:cdpyPalette[idx%cdpyPalette.length],borderRadius:3}]
+        },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
     });
-    var fyColorMap={};
-    var fyPalette=[TL,GD,NV,PU,GN,RD];
-    var fyColorIdx=0;
-    combined.forEach(function(r){
-      if(!(r.fy in fyColorMap)){fyColorMap[r.fy]=fyPalette[fyColorIdx%fyPalette.length];fyColorIdx++;}
-    });
-    setChartHeight('ops-prevyears-chart',combined.length);
-    mk('ops-prevyears-chart',{type:'bar',
-      data:{
-        labels:combined.map(function(r){return r.trainer+'  ('+r.fy+')';}),
-        datasets:[{label:'Days',data:combined.map(function(r){return r.days;}),
-          backgroundColor:combined.map(function(r){return fyColorMap[r.fy];}),borderRadius:3}]
-      },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
   }
 
   var csSec=findSection(rows,'Client Status');
@@ -580,21 +594,18 @@ function doOps(wb){
       });
       if(!any)break;
     }
-    var combined2=[];
-    csBlocks.forEach(function(b){b.data.forEach(function(d){combined2.push({fy:b.label,client:d.client,projects:d.projects});});});
-    var fyColorMap2={};
-    var fyPalette2=[NV,TL,GD,PU,GN,RD];
-    var fyColorIdx2=0;
-    combined2.forEach(function(r){
-      if(!(r.fy in fyColorMap2)){fyColorMap2[r.fy]=fyPalette2[fyColorIdx2%fyPalette2.length];fyColorIdx2++;}
+    var csPalette=[NV,TL,GD];
+    csBlocks.forEach(function(b,idx){
+      var titleEl=document.getElementById('ops-clientstatus-title-'+idx);
+      if(titleEl)titleEl.textContent=b.label||('FY '+(idx+1));
+      var sorted=b.data.slice().sort(function(a,c){return c.projects-a.projects;});
+      mk('ops-clientstatus-chart-'+idx,{type:'bar',
+        data:{
+          labels:sorted.map(function(d){return d.client;}),
+          datasets:[{label:'Projects',data:sorted.map(function(d){return d.projects;}),
+            backgroundColor:csPalette[idx%csPalette.length],borderRadius:3}]
+        },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
     });
-    setChartHeight('ops-clientstatus-chart',combined2.length);
-    mk('ops-clientstatus-chart',{type:'bar',
-      data:{
-        labels:combined2.map(function(r){return r.client+'  ('+r.fy+')';}),
-        datasets:[{label:'Projects',data:combined2.map(function(r){return r.projects;}),
-          backgroundColor:combined2.map(function(r){return fyColorMap2[r.fy];}),borderRadius:3}]
-      },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
   }
 }
 
@@ -740,6 +751,27 @@ function doFin(wb){
     }
   }
 
+  // ── Avg. Billing per Day (Financial Year, Total Revenue (L), No. of Engaged Days, AVG per day, notes)
+  var abpdSec=findSection(rows,'Avg. Billing per Day');
+  if(abpdSec>=0){
+    var hdrIdx=abpdSec+1;
+    var rowsOut=[];
+    for(var i=hdrIdx+1;i<rows.length;i++){
+      var r=rows[i]||[];
+      var fy=norm(r[0]);
+      if(fy==='')break;
+      rowsOut.push({fy:fy,rev:num(r[1]),days:num(r[2]),avg:num(r[3]),note:norm(r[4])});
+    }
+    var abTb=document.querySelector('#fin-avgbillday-tbl tbody');
+    if(abTb)abTb.innerHTML=rowsOut.map(function(r){
+      var isGrand=r.fy.toLowerCase().indexOf('grand')>=0;
+      return'<tr><td style="white-space:nowrap;'+(isGrand?'font-weight:700':'')+'">'+r.fy+'</td>'
+        +'<td class="nr">'+r.rev.toFixed(2)+'</td>'
+        +'<td class="nr">'+r.days+'</td>'
+        +'<td class="nr">'+r.avg.toFixed(2)+'</td>'
+        +'<td style="font-size:10px;color:var(--text-secondary)">'+r.note+'</td></tr>';
+    }).join('');
+  }
 }
 
 function doSol(wb){
@@ -791,12 +823,16 @@ function doSol(wb){
     set('sk3',topInd['Industry']||'--');
     set('sk3s',num(topInd[curFYCol]||0)+' opportunities this FY');
 
+    // Chart only shows industries with current-FY activity — sectors at 0 add clutter without
+    // adding information, and were causing the bars/labels to look mismatched at this density.
+    var idActive=id.filter(function(r){return num(r[curFYCol])>0;});
+    setChartHeight('sol-ind',idActive.length,26);
     mk('sol-ind',{type:'bar',
       data:{
-        labels:id.map(function(r){return norm(r['Industry']);}),
+        labels:idActive.map(function(r){return norm(r['Industry']);}),
         datasets:[{
           label:curFYCol||'Current FY',
-          data:id.map(function(r){return num(r[curFYCol]);}),
+          data:idActive.map(function(r){return num(r[curFYCol]);}),
           backgroundColor:[TL,NV,GD,GN,PU,RD,TL,NV,GD],
           borderRadius:4
         }]
@@ -935,19 +971,29 @@ function doSal(wb){
     set('slk3s',totalIPCount+' proposals active');
 
     if(totalWonVal+totalLostVal+totalIPVal>0){
+      var funnelColors=[GN,RD,GD];
       mk('sal-funnel',{type:'doughnut',
         data:{
           labels:['Won','Lost','In Process'],
           datasets:[{data:[totalWonVal,totalLostVal,totalIPVal],
-            backgroundColor:[GN,RD,GD],borderWidth:2,borderColor:'#fff'}]
-        },options:Object.assign({},dOpts(),{plugins:Object.assign({},dOpts().plugins,{datalabels:{
-          display:true,color:'#fff',font:{size:11,weight:'700'},
-          formatter:function(v,ctx){
-            var total=ctx.chart.data.datasets[0].data.reduce(function(a,b){return a+b;},0);
-            var pct=total>0?Math.round(v/total*100):0;
-            return v>0?[fmtInr(v),'('+pct+'%)']:'';
+            backgroundColor:funnelColors,borderWidth:2,borderColor:'#fff'}]
+        },options:{
+          responsive:true,maintainAspectRatio:false,cutout:'52%',
+          layout:{padding:{top:28,bottom:28,left:28,right:28}},
+          plugins:{
+            legend:{position:'bottom',labels:{padding:12,font:{size:10}}},
+            datalabels:{
+              anchor:'end',align:'end',offset:10,clamp:false,
+              color:function(ctx){return funnelColors[ctx.dataIndex];},
+              font:{size:11,weight:'700'},
+              formatter:function(v,ctx){
+                var total=ctx.chart.data.datasets[0].data.reduce(function(a,b){return a+b;},0);
+                var pct=total>0?(v/total*100).toFixed(1):'0.0';
+                return v>0?[fmtInr(v),'('+pct+'%)']:'';
+              }
+            }
           }
-        }})})});
+        }});
     }
 
     var ptb=document.querySelector('#sal-prop-tbl tbody');
