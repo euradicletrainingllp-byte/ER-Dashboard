@@ -90,9 +90,11 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 .mt td{padding:7px 10px;border-bottom:1px solid var(--tbl-border);color:var(--text-primary)}
 .mt tr:last-child td{border-bottom:none}
 .mt tr:nth-child(even) td{background:var(--tbl-row-alt)}
-.nr{text-align:right;font-weight:600}
+.nr{text-align:center;font-weight:600}
 .mt-note{margin-top:8px;font-size:10px;color:var(--text-muted)}
 .mt-scroll{max-height:340px;overflow-y:auto}
+.ch-wrap-scroll{position:relative;max-height:400px;overflow-y:auto;overflow-x:hidden}
+.ch-wrap-inner{position:relative;width:100%}
 @media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}}
 </style>
 </head>
@@ -155,10 +157,10 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
   </div>
   <div class="cg c11">
     <div class="card"><h3>Consultant Days &mdash; Previous Years</h3><div class="cs">FY 2023-24 through FY 2025-26, by trainer</div>
-      <div class="mt-scroll"><table class="mt" id="ops-prevyears-tbl"><thead><tr><th>Financial Year</th><th>Trainer</th><th class="nr">Days</th></tr></thead><tbody></tbody></table></div>
+      <div class="ch-wrap-scroll"><div class="ch-wrap-inner"><canvas id="ops-prevyears-chart"></canvas></div></div>
     </div>
     <div class="card"><h3>Client Status &mdash; Historical by FY</h3><div class="cs">Projects delivered per client, FY 2023-24 to FY 2025-26</div>
-      <div class="mt-scroll"><table class="mt" id="ops-clientstatus-tbl"><thead><tr><th>Financial Year</th><th>Client</th><th class="nr">No. of Projects</th></tr></thead><tbody></tbody></table></div>
+      <div class="ch-wrap-scroll"><div class="ch-wrap-inner"><canvas id="ops-clientstatus-chart"></canvas></div></div>
     </div>
   </div>
 </div>
@@ -166,16 +168,15 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 <!-- FINANCE -->
 <div class="page" id="page-fin">
   <div class="pg-hdr"><h2>Finance</h2><p>Revenue, invoices &amp; outstanding collections</p></div>
-  <div class="kg g4">
+  <div class="kg g3">
+    <div class="kpi gd"><div class="lb">No. of Invoices</div><div class="vl" id="fk3">--</div><div class="sb">Total invoiced to date</div></div>
     <div class="kpi tl"><div class="lb">FY 26-27 Revenue YTD</div><div class="vl" id="fk1">--</div><div class="sb" id="fk1s">Apr + May + Jun combined</div></div>
     <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Pending collection</div></div>
-    <div class="kpi gd"><div class="lb">No. of Invoiced (FY 26-27)</div><div class="vl" id="fk3">--</div><div class="sb">Total invoiced to date</div></div>
-    <div class="kpi pu"><div class="lb">To be Invoiced</div><div class="vl" id="fk4">--</div><div class="sb">Pending billing</div><span class="tg warn">Pending</span></div>
   </div>
   <div class="kg g3">
-    <div class="kpi gn"><div class="lb">Total Targeted Revenue</div><div class="vl" id="fk5">--</div><div class="sb">Yearly revenue target</div></div>
-    <div class="kpi rd"><div class="lb">Amount Dues in Market</div><div class="vl" id="fk6">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
-    <div class="kpi tl"><div class="lb">Invoiced Revenue (FY 26-27)</div><div class="vl" id="fk7">--</div><div class="sb">Revenue invoiced to date</div></div>
+    <div class="kpi pu"><div class="lb">To be Raised</div><div class="vl" id="fk4">--</div><div class="sb">Pending billing</div><span class="tg warn">Pending</span></div>
+    <div class="kpi rd"><div class="lb">Total Amount Due in the Market</div><div class="vl" id="fk6">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
+    <div class="kpi gn"><div class="lb">Total FY 26-27 Target</div><div class="vl" id="fk5">--</div><div class="sb">Yearly revenue target</div></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">Monthly revenue per financial year</div><div class="ch-wrap"><canvas id="fin-rev"></canvas></div></div>
@@ -191,12 +192,6 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
       <table class="mt" id="fin-credit-tbl"><thead><tr><th>Credit Note</th><th class="nr">Count</th><th class="nr">Value</th><th>Date / Notes</th></tr></thead><tbody></tbody></table>
     </div>
     <div class="card"><h3>Average Billing Days per Month</h3><div class="cs">Monthly billing distribution by financial year</div><div class="ch-wrap"><canvas id="fin-billing"></canvas></div></div>
-  </div>
-  <div class="cg c1">
-    <div class="card"><h3>Average Revenue per Engaged Day</h3><div class="cs">Revenue efficiency by financial year (Rs. Lakhs per engaged day)</div>
-      <div class="ch-wrap xs"><canvas id="fin-avgday"></canvas></div>
-      <table class="mt" id="fin-avgbillday-tbl" style="margin-top:10px"><thead><tr><th>Financial Year</th><th class="nr">Total Revenue (Rs. L)</th><th class="nr">Engaged Days</th><th class="nr">Avg / Day (Rs. L)</th><th>Notes</th></tr></thead><tbody></tbody></table>
-    </div>
   </div>
 </div>
 
@@ -437,6 +432,15 @@ function getSideBySideBlocks(rows,hdrRowIdx,offsets){
   return blocks;
 }
 
+// Sizes a chart's canvas wrapper tall enough to fit N horizontal bars legibly; the
+// outer .ch-wrap-scroll clips/scrolls so the card itself doesn't grow unbounded.
+function setChartHeight(canvasId,itemCount,pxPerItem){
+  var c=document.getElementById(canvasId);
+  if(!c||!c.parentElement)return;
+  var px=Math.max(220,itemCount*(pxPerItem||22));
+  c.parentElement.style.height=px+'px';
+}
+
 function gridCol(){return isDark?'#1E3048':'#EDF0F5';}
 function bOpts(stacked,horiz){
   return{responsive:true,maintainAspectRatio:false,
@@ -544,10 +548,19 @@ function doOps(wb){
       var fyLabel=b.key1||'FY';
       b.data.forEach(function(d){combined.push({fy:fyLabel,trainer:d.label,days:d.value});});
     });
-    var tb2=document.querySelector('#ops-prevyears-tbl tbody');
-    if(tb2)tb2.innerHTML=combined.map(function(r){
-      return'<tr><td style="white-space:nowrap;font-weight:600">'+r.fy+'</td><td>'+r.trainer+'</td><td class="nr">'+r.days+'</td></tr>';
-    }).join('');
+    var fyColorMap={};
+    var fyPalette=[TL,GD,NV,PU,GN,RD];
+    var fyColorIdx=0;
+    combined.forEach(function(r){
+      if(!(r.fy in fyColorMap)){fyColorMap[r.fy]=fyPalette[fyColorIdx%fyPalette.length];fyColorIdx++;}
+    });
+    setChartHeight('ops-prevyears-chart',combined.length);
+    mk('ops-prevyears-chart',{type:'bar',
+      data:{
+        labels:combined.map(function(r){return r.trainer+'  ('+r.fy+')';}),
+        datasets:[{label:'Days',data:combined.map(function(r){return r.days;}),
+          backgroundColor:combined.map(function(r){return fyColorMap[r.fy];}),borderRadius:3}]
+      },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
   }
 
   var csSec=findSection(rows,'Client Status');
@@ -569,10 +582,19 @@ function doOps(wb){
     }
     var combined2=[];
     csBlocks.forEach(function(b){b.data.forEach(function(d){combined2.push({fy:b.label,client:d.client,projects:d.projects});});});
-    var tb3=document.querySelector('#ops-clientstatus-tbl tbody');
-    if(tb3)tb3.innerHTML=combined2.map(function(r){
-      return'<tr><td style="white-space:nowrap;font-weight:600">'+r.fy+'</td><td>'+r.client+'</td><td class="nr">'+r.projects+'</td></tr>';
-    }).join('');
+    var fyColorMap2={};
+    var fyPalette2=[NV,TL,GD,PU,GN,RD];
+    var fyColorIdx2=0;
+    combined2.forEach(function(r){
+      if(!(r.fy in fyColorMap2)){fyColorMap2[r.fy]=fyPalette2[fyColorIdx2%fyPalette2.length];fyColorIdx2++;}
+    });
+    setChartHeight('ops-clientstatus-chart',combined2.length);
+    mk('ops-clientstatus-chart',{type:'bar',
+      data:{
+        labels:combined2.map(function(r){return r.client+'  ('+r.fy+')';}),
+        datasets:[{label:'Projects',data:combined2.map(function(r){return r.projects;}),
+          backgroundColor:combined2.map(function(r){return fyColorMap2[r.fy];}),borderRadius:3}]
+      },options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}})});
   }
 }
 
@@ -715,38 +737,9 @@ function doFin(wb){
       if(targetRevCR>0){set('fk5','Rs.'+targetRevCR.toFixed(2)+'Cr');}
       else if(targetRevL>0){set('fk5',fmtL(targetRevL));}
       set('fk6',fmtL(duesInMarket));
-      if(invoicedRevenue>0)set('fk7',fmtL(invoicedRevenue));
     }
   }
 
-  var abpdSec=findSection(rows,'Avg. Billing per Day');
-  if(abpdSec>=0){
-    var hdrIdx=abpdSec+1;
-    var rowsOut=[];
-    for(var i=hdrIdx+1;i<rows.length;i++){
-      var r=rows[i]||[];
-      var fy=norm(r[0]);
-      if(fy==='')break;
-      rowsOut.push({fy:fy,rev:num(r[1]),days:num(r[2]),avg:num(r[3]),note:norm(r[4])});
-    }
-    var tb2=document.querySelector('#fin-avgbillday-tbl tbody');
-    if(tb2)tb2.innerHTML=rowsOut.map(function(r){
-      var isGrand=r.fy.toLowerCase().indexOf('grand')>=0;
-      return'<tr><td style="white-space:nowrap;'+(isGrand?'font-weight:700':'')+'">'+r.fy+'</td>'
-        +'<td class="nr">'+r.rev.toFixed(2)+'</td>'
-        +'<td class="nr">'+r.days+'</td>'
-        +'<td class="nr">'+r.avg.toFixed(2)+'</td>'
-        +'<td style="font-size:10px;color:var(--text-secondary)">'+r.note+'</td></tr>';
-    }).join('');
-
-    var chartRows=rowsOut.filter(function(r){return r.fy.toLowerCase().indexOf('grand')<0;});
-    mk('fin-avgday',{type:'bar',
-      data:{
-        labels:chartRows.map(function(r){return r.fy;}),
-        datasets:[{label:'Avg Revenue / Engaged Day (Rs. L)',data:chartRows.map(function(r){return r.avg;}),
-          backgroundColor:chartRows.map(function(r,i){return i===chartRows.length-1?GD:PU;}),borderRadius:4}]
-      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?v.toFixed(2):'';},font:{size:11,weight:'600'},color:dlColor(),padding:2}}})});
-  }
 }
 
 function doSol(wb){
@@ -947,7 +940,14 @@ function doSal(wb){
           labels:['Won','Lost','In Process'],
           datasets:[{data:[totalWonVal,totalLostVal,totalIPVal],
             backgroundColor:[GN,RD,GD],borderWidth:2,borderColor:'#fff'}]
-        },options:dOpts()});
+        },options:Object.assign({},dOpts(),{plugins:Object.assign({},dOpts().plugins,{datalabels:{
+          display:true,color:'#fff',font:{size:11,weight:'700'},
+          formatter:function(v,ctx){
+            var total=ctx.chart.data.datasets[0].data.reduce(function(a,b){return a+b;},0);
+            var pct=total>0?Math.round(v/total*100):0;
+            return v>0?[fmtInr(v),'('+pct+'%)']:'';
+          }
+        }})})});
     }
 
     var ptb=document.querySelector('#sal-prop-tbl tbody');
@@ -1054,10 +1054,15 @@ function doSal(wb){
     var tgtKey=tHdrs[0]||'Quarter';
     var achKey=tHdrs[2]||'Achieved (Rs.)';
     var tarKey=tHdrs[1]||'Target (Rs.)';
+    var pctKey=tHdrs[3]||'% Achieved';
 
     mk('sal-targets',{type:'bar',
       data:{
-        labels:td.map(function(r){return norm(r[tgtKey]||(r.__raw?r.__raw[0]:''));}),
+        labels:td.map(function(r){
+          var qLabel=norm(r[tgtKey]||(r.__raw?r.__raw[0]:''));
+          var pctVal=num(r[pctKey]!==undefined?r[pctKey]:(r.__raw?r.__raw[3]:0));
+          return pctVal>0?(qLabel+' ('+pctVal.toFixed(1)+'%)'):qLabel;
+        }),
         datasets:[
           {label:'Target (Rs.)',data:td.map(function(r){return num(r[tarKey]||(r.__raw?r.__raw[1]:0));}),
             backgroundColor:'rgba(0,128,140,0.15)',borderColor:TL,borderWidth:2,borderRadius:4,type:'bar'},
