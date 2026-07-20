@@ -162,6 +162,9 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="card flex-card"><h3>FY 2026-27 &mdash; Client Status</h3><div class="cs">Delivered vs upcoming per client</div><div class="ch-wrap flex-fill"><canvas id="ops-clients"></canvas></div></div>
   </div>
   <div class="cg c1">
+    <div class="card"><h3>Recent Program Feedback</h3><div class="cs">Post-program feedback scores (out of 5)</div><div class="ch-wrap"><canvas id="ops-feedback"></canvas></div></div>
+  </div>
+  <div class="cg c1">
     <div class="card"><h3>Consultant Days &mdash; Previous Years</h3><div class="cs">FY 2023-24 through FY 2025-26, by trainer &mdash; one chart per year</div>
       <div class="mini-chart-grid">
         <div class="mini-chart-col"><div class="mini-chart-title" id="ops-prevyears-title-0">FY</div><div class="ch-wrap tall"><canvas id="ops-prevyears-chart-0"></canvas></div></div>
@@ -573,6 +576,46 @@ function doOps(wb){
     }).join('');
   }
 
+  // 'Feedback' matches the sheet's section title even though it's spelled "Recnt Programs
+  // Feedbacks" — searching on the stable substring avoids breaking if that typo gets fixed later.
+  var fbSec=findSection(rows,'Feedback');
+  if(fbSec>=0){
+    var fbHi=findHdr(rows,'Program Name',fbSec+1);
+    if(fbHi<0)fbHi=findHdr(rows,'Feedback Score',fbSec+1);
+    if(fbHi>=0){
+      var fbHdrs=rows[fbHi].map(norm);
+      var progKey=fbHdrs[0]||'Program Name';
+      var scoreKey=fbHdrs[1]||'Feedback Score (Out of 5)';
+      var fbData=getSection(rows,fbHi);
+      fbData=fbData.filter(function(r){return norm(r[progKey])!=='';});
+      fbData.sort(function(a,b){return num(b[scoreKey])-num(a[scoreKey]);});
+      setChartHeight('ops-feedback',fbData.length,34);
+      mk('ops-feedback',{type:'bar',
+        data:{
+          labels:fbData.map(function(r){return norm(r[progKey]);}),
+          datasets:[{label:'Feedback Score',
+            data:fbData.map(function(r){return num(r[scoreKey]);}),
+            backgroundColor:fbData.map(function(r){
+              var s=num(r[scoreKey]);
+              return s>=4.5?GN:(s>=4?TL:(s>=3?GD:RD));
+            }),
+            borderRadius:4}]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,indexAxis:'y',
+          plugins:{legend:{display:false},datalabels:{
+            display:true,anchor:'end',align:'right',
+            formatter:function(v){return v>0?v.toFixed(2):'';},
+            font:{size:11,weight:'600'},color:dlColor(),clamp:true,padding:{left:4}
+          }},
+          scales:{
+            x:{min:0,max:5,grid:{color:gridCol()},ticks:{font:{size:10}}},
+            y:{grid:{display:false},ticks:{font:{size:10}}}
+          }
+        }});
+    }
+  }
+
   var cdpySec=findSection(rows,'Consultant Days - Previous Years');
   if(cdpySec>=0){
     var cdpyBlocks=getSideBySideBlocks(rows,cdpySec+1,[0,3,6]);
@@ -728,7 +771,7 @@ function doFin(wb){
       return'<tr>'
         +'<td>'+norm(r['Credit Note'])+'</td>'
         +'<td class="nr">'+num(r['Count'])+'</td>'
-        +'<td class="nr">'+fmtInr(num(r['Value (L)']))+'</td>'
+        +'<td class="nr">'+fmtL(num(r['Value (L)']))+'</td>'
         +'<td>'+norm(r['Notes'])+'</td>'
         +'</tr>';
     }).join('');
@@ -1010,7 +1053,17 @@ function doSal(wb){
           responsive:true,maintainAspectRatio:false,cutout:'52%',
           layout:{padding:{top:28,bottom:28,left:28,right:28}},
           plugins:{
-            legend:{position:'bottom',labels:{padding:12,font:{size:10}}},
+            legend:{position:'top',labels:{padding:12,font:{size:10},
+              generateLabels:function(chart){
+                var ds=chart.data.datasets[0];
+                var total=ds.data.reduce(function(a,b){return a+b;},0);
+                return chart.data.labels.map(function(label,i){
+                  var v=ds.data[i];
+                  var pct=total>0?(v/total*100).toFixed(1):'0.0';
+                  return{text:label+' — '+pct+'%',fillStyle:ds.backgroundColor[i],strokeStyle:ds.backgroundColor[i],lineWidth:0,index:i};
+                });
+              }
+            }},
             datalabels:{
               anchor:'end',align:'end',offset:10,clamp:false,
               color:function(ctx){return funnelColors[ctx.dataIndex];},
