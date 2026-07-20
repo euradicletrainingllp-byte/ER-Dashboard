@@ -251,7 +251,7 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="kpi tl"><div class="lb">Total Proposals (YTD)</div><div class="vl" id="slk1">--</div><div class="sb" id="slk1s">this financial year</div></div>
     <div class="kpi gn"><div class="lb">Won Value (YTD)</div><div class="vl" id="slk2">--</div><div class="sb" id="slk2s">proposals won</div><span class="tg up">Closed</span></div>
     <div class="kpi gd"><div class="lb">In-Process Value</div><div class="vl" id="slk3">--</div><div class="sb" id="slk3s">proposals active</div><span class="tg info">In negotiation</span></div>
-    <div class="kpi nv"><div class="lb">Q1 Target Achieved</div><div class="vl" id="slk4">--</div><div class="sb" id="slk4s">of quarterly target</div></div>
+    <div class="kpi nv"><div class="lb" id="slk4-label">Q1 Target Achieved</div><div class="vl" id="slk4">--</div><div class="sb" id="slk4s">of quarterly target</div></div>
     <div class="kpi pu"><div class="lb">Total Unique Clients</div><div class="vl" id="slk5">--</div><div class="sb">Since inception, till date</div><span class="tg info">All-time</span></div>
   </div>
   <div class="cg c1">
@@ -288,8 +288,8 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="card"><h3>Expected Major Pipeline</h3><div class="cs">High-value deals expected to close</div><div class="ch-wrap"><canvas id="sal-pipe"></canvas></div></div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Invoice &amp; Payment Summary</h3><div class="cs">Sales-side invoicing snapshot</div>
-      <table class="mt" id="sal-invsumm-tbl"><thead><tr><th>Segment</th><th class="nr">Invoiced</th><th class="nr">To be Invoiced</th><th class="nr">Amount Dues in Market</th><th class="nr">Outstanding Payment Dues</th></tr></thead><tbody></tbody></table>
+    <div class="card"><h3>FY 2026-27 — Quarterly Targets</h3><div class="cs">Target vs achieved revenue by quarter</div>
+      <table class="mt" id="sal-target-tbl"><thead><tr><th>Quarter</th><th class="nr">Target (Rs.)</th><th class="nr">Achieved (Rs.)</th><th class="nr">% Achieved</th></tr></thead><tbody></tbody></table>
     </div>
     <div class="card"><h3>Monthly Revenue Key Clients</h3><div class="cs">Clients driving revenue each month</div>
       <table class="mt" id="sal-monthly-clients-tbl"><thead><tr><th>Month</th><th class="nr">Revenue</th><th>Key Clients</th></tr></thead><tbody></tbody></table>
@@ -379,6 +379,18 @@ function fmtL(v){return'Rs.'+parseFloat(v).toFixed(2)+'L';}
 
 function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
 function setHTML(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
+
+// Determines which FY quarter "today" falls in (Apr-Jun=Q1, Jul-Sep=Q2, Oct-Dec=Q3, Jan-Mar=Q4).
+// Used to auto-advance the "Target Achieved" KPI as the calendar moves through the year, without
+// touching the Excel file.
+function currentFYQuarter(d){
+  d=d||new Date();
+  var m=d.getMonth(); // 0=Jan ... 11=Dec
+  if(m>=3&&m<=5)return'Q1';
+  if(m>=6&&m<=8)return'Q2';
+  if(m>=9&&m<=11)return'Q3';
+  return'Q4';
+}
 
 function neCount(r){return r.filter(function(c){return norm(c)!=='';}).length;}
 
@@ -1107,17 +1119,29 @@ function doSal(wb){
       var q=norm(r['Quarter']||(r.__raw?r.__raw[0]:''));
       return q!==''&&q.toLowerCase().indexOf('full')<0&&q.toLowerCase().indexOf('total')<0;
     });
-    var q1=td.find(function(r){return norm(r['Quarter']||(r.__raw?r.__raw[0]:'')).toLowerCase().indexOf('q1')>=0;})||{};
-    var q1pct=num(q1['% Achieved']||(q1.__raw?q1.__raw[3]:0));
-    set('slk4',q1pct.toFixed(1)+'%');
-    var q1target=num(q1['Target (Rs.)']||(q1.__raw?q1.__raw[1]:0));
-    set('slk4s','of '+fmtInr(q1target)+' Q1 target');
 
     var tHdrs=rows[tgtHi].map(norm);
     var tgtKey=tHdrs[0]||'Quarter';
     var achKey=tHdrs[2]||'Achieved (Rs.)';
     var tarKey=tHdrs[1]||'Target (Rs.)';
     var pctKey=tHdrs[3]||'% Achieved';
+
+    // Pick whichever quarter today's calendar date falls in (FY: Apr-Jun=Q1 ... Jan-Mar=Q4).
+    // Falls back to the most recent quarter that actually has target data, in case the current
+    // quarter hasn't been filled into the Excel yet.
+    var liveQLabel=currentFYQuarter();
+    var curQRow=td.find(function(r){return norm(r[tgtKey]||(r.__raw?r.__raw[0]:'')).toLowerCase()===liveQLabel.toLowerCase();});
+    if(!curQRow){
+      var withData=td.filter(function(r){return num(r[tarKey]||(r.__raw?r.__raw[1]:0))>0;});
+      curQRow=withData.length>0?withData[withData.length-1]:null;
+    }
+    var curQLabel=curQRow?norm(curQRow[tgtKey]||(curQRow.__raw?curQRow.__raw[0]:'')):liveQLabel;
+    var curQPct=curQRow?num(curQRow[pctKey]!==undefined?curQRow[pctKey]:(curQRow.__raw?curQRow.__raw[3]:0)):0;
+    var curQTarget=curQRow?num(curQRow[tarKey]||(curQRow.__raw?curQRow.__raw[1]:0)):0;
+
+    set('slk4',curQPct.toFixed(1)+'%');
+    setHTML('slk4-label',curQLabel+' Target Achieved');
+    set('slk4s','of '+fmtInr(curQTarget)+' '+curQLabel+' target');
 
     mk('sal-targets',{type:'bar',
       data:{
@@ -1133,6 +1157,21 @@ function doSal(wb){
             backgroundColor:GN,borderRadius:4,type:'bar'}
         ]
       },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlInr()}})});
+
+    var ttb=document.querySelector('#sal-target-tbl tbody');
+    if(ttb)ttb.innerHTML=td.map(function(r){
+      var qLabel=norm(r[tgtKey]||(r.__raw?r.__raw[0]:''));
+      var isLive=qLabel.toLowerCase()===curQLabel.toLowerCase();
+      var tar=num(r[tarKey]||(r.__raw?r.__raw[1]:0));
+      var ach=num(r[achKey]||(r.__raw?r.__raw[2]:0));
+      var pct=num(r[pctKey]!==undefined?r[pctKey]:(r.__raw?r.__raw[3]:0));
+      return'<tr'+(isLive?' style="background:rgba(0,128,140,0.06)"':'')+'>'
+        +'<td style="font-weight:600">'+qLabel+(isLive?' <span style="font-size:9px;color:#00808C;font-weight:700">(current)</span>':'')+'</td>'
+        +'<td class="nr">'+fmtInr(tar)+'</td>'
+        +'<td class="nr">'+fmtInr(ach)+'</td>'
+        +'<td class="nr">'+pct.toFixed(2)+'%</td>'
+        +'</tr>';
+    }).join('');
   }
 
   var pipeHi=findHdr(rows,'Approx. Value');
@@ -1153,31 +1192,6 @@ function doSal(wb){
       },
       options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlInrH()}})});
   }
-
-  var invSummRows=[];
-  var sec1=findSection(rows,'Invoice & Payment Summary');
-  if(sec1>=0){
-    var h1=findHdr(rows,'Invoiced',sec1+1);
-    var d1=getSection(rows,h1);
-    if(d1.length>0)invSummRows.push({label:'FY Invoice &amp; Payment Summary',row:d1[0]});
-  }
-  var sec2=findSection(rows,'Total Client New');
-  if(sec2>=0){
-    var h2=findHdr(rows,'Invoiced',sec2+1);
-    var d2=getSection(rows,h2);
-    if(d2.length>0)invSummRows.push({label:'Total Client New &amp; Exciting',row:d2[0]});
-  }
-  var isTb=document.querySelector('#sal-invsumm-tbl tbody');
-  if(isTb)isTb.innerHTML=invSummRows.map(function(e){
-    var r=e.row;
-    return'<tr>'
-      +'<td>'+e.label+'</td>'
-      +'<td class="nr">'+fmtInr(num(r['Invoiced']))+'</td>'
-      +'<td class="nr">'+fmtInr(num(r['To be Invoiced']))+'</td>'
-      +'<td class="nr">'+fmtInr(num(r['Amount Dues in Market']))+'</td>'
-      +'<td class="nr">'+fmtInr(num(r['Outstanding Payment Dues']))+'</td>'
-      +'</tr>';
-  }).join('');
 
   var clHdrIdx=-1;
   for(var ci=0;ci<rows.length;ci++){
