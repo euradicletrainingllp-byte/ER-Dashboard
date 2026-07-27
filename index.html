@@ -205,8 +205,8 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
   </div>
   <div class="kg g3">
     <div class="kpi pu"><div class="lb">To be Raised</div><div class="vl" id="fk4">--</div><div class="sb">Pending billing</div><span class="tg warn">Pending</span></div>
-    <div class="kpi rd"><div class="lb">Total Amount Due in the Market</div><div class="vl" id="fk6">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
     <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Pending collection</div></div>
+    <div class="kpi rd"><div class="lb">Total Amount Due in the Market</div><div class="vl" id="fk6">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">Monthly revenue per financial year</div><div class="ch-wrap"><canvas id="fin-rev"></canvas></div></div>
@@ -219,7 +219,13 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
   </div>
   <div class="cg c11">
     <div class="card"><h3>Average Billing Days per Month</h3><div class="cs">Monthly billing distribution by financial year</div><div class="ch-wrap"><canvas id="fin-billing"></canvas></div></div>
-    <div class="card"><h3>Average Revenue per Engaged Day</h3><div class="cs">Revenue efficiency by financial year (Rs. Lakhs per engaged day)</div>
+    <div class="card"><h3>Average Billing Days per Month</h3><div class="cs">Monthly billing distribution by financial year &mdash; table view</div>
+      <table class="mt" id="fin-billing-tbl"><thead><tr id="fin-billing-thead"><th>Financial Year</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <div class="cg c11">
+    <div class="card"><h3>Average Revenue per Engaged Day</h3><div class="cs">Revenue efficiency by financial year (Rs. Lakhs per engaged day)</div><div class="ch-wrap"><canvas id="fin-avgbillday-chart"></canvas></div></div>
+    <div class="card"><h3>Average Revenue per Engaged Day</h3><div class="cs">Revenue efficiency by financial year &mdash; table view</div>
       <table class="mt" id="fin-avgbillday-tbl"><thead><tr><th>Financial Year</th><th class="nr">Total Revenue (Rs. L)</th><th class="nr">Engaged Days</th><th class="nr">Avg / Day (Rs. L)</th><th>Notes</th></tr></thead><tbody></tbody></table>
     </div>
   </div>
@@ -898,9 +904,16 @@ function doFin(wb){
           borderRadius:4
         };})
       },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
-  }
 
-  var summSecRow=findSection(rows,'Invoice & Payment Summary');
+    var billTheadRow=document.getElementById('fin-billing-thead');
+    if(billTheadRow)billTheadRow.innerHTML='<th>Financial Year</th>'+billMonthCols.map(function(mc){return'<th class="nr">'+mc+'</th>';}).join('');
+    var billTb=document.querySelector('#fin-billing-tbl tbody');
+    if(billTb)billTb.innerHTML=billData.map(function(r){
+      return'<tr><td style="font-weight:600;white-space:nowrap">'+norm(r['Financial Year'])+'</td>'
+        +billMonthCols.map(function(mc){return'<td class="nr">'+num(r[mc])+'</td>';}).join('')
+        +'</tr>';
+    }).join('');
+  }
   if(summSecRow<0)summSecRow=findSection(rows,'Invoice &');
   var summHi=summSecRow>=0?findHdr(rows,'Invoiced',summSecRow+1):-1;
   if(summHi<0)summHi=findHdr(rows,'Invoiced');
@@ -942,6 +955,14 @@ function doFin(wb){
         +'<td class="nr">'+r.avg.toFixed(2)+'</td>'
         +'<td style="font-size:10px;color:var(--text-secondary)">'+r.note+'</td></tr>';
     }).join('');
+
+    var abChartRows=rowsOut.filter(function(r){return r.fy.toLowerCase().indexOf('grand')<0;});
+    mk('fin-avgbillday-chart',{type:'bar',
+      data:{
+        labels:abChartRows.map(function(r){return r.fy;}),
+        datasets:[{label:'Avg / Day (Rs. L)',data:abChartRows.map(function(r){return r.avg;}),
+          backgroundColor:TL,borderRadius:4}]
+      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
   }
 }
 
