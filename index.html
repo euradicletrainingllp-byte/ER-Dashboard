@@ -101,6 +101,9 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 .mt-scroll{max-height:340px;overflow-y:auto}
 .ch-wrap-scroll{position:relative;max-height:400px;overflow-y:auto;overflow-x:hidden}
 .ch-wrap-inner{position:relative;width:100%}
+.ind-scroll{overflow-x:auto;overflow-y:hidden;width:100%;padding-bottom:6px}
+.ind-inner{position:relative;height:440px;min-width:100%}
+.ind-inner canvas{height:100%!important}
 /* Header row that carries a metric (Count / Value) toggle button on the right */
 .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
 .card-head h3{margin-bottom:2px}
@@ -235,21 +238,21 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="kpi gd"><div class="lb">Top Industry</div><div class="vl" id="sk3">--</div><div class="sb" id="sk3s">most active sector</div></div>
     <div class="kpi nv"><div class="lb">Customization Rate</div><div class="vl" id="sk4">--</div><div class="sb" id="sk4s">bespoke proposals</div><span class="tg info">Fully custom</span></div>
   </div>
+  <div class="cg c1">
+    <div class="card">
+      <h3>Industry Traction &mdash; Count vs Value</h3>
+      <div class="cs">Bars = proposal count &middot; Lines = value (&#8377;) &middot; both FY 2025-26 &amp; FY 2026-27 shown together &middot; scroll sideways to see every sector</div>
+      <div class="ind-scroll"><div class="ind-inner" id="sol-ind-inner"><canvas id="sol-ind"></canvas></div></div>
+    </div>
+  </div>
   <div class="cg c11">
     <div class="card">
       <div class="card-head"><div><h3>Development Category Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 comparison</div></div><button class="metric-tgl" id="tgl-dev" onclick="solToggle('dev')">📊 Count</button></div>
       <div class="ch-wrap"><canvas id="sol-dev"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-head"><div><h3>Industry Traction</h3><div class="cs">Opportunities by sector &mdash; FY 2025-26 vs FY 2026-27</div></div><button class="metric-tgl" id="tgl-ind" onclick="solToggle('ind')">📊 Count</button></div>
-      <div class="ch-wrap-scroll" style="max-height:340px"><div class="ch-wrap-inner"><canvas id="sol-ind"></canvas></div></div>
-    </div>
-  </div>
-  <div class="cg c21">
-    <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
-    <div class="card">
       <div class="card-head"><div><h3>Type of Engagement</h3><div class="cs">Standalone vs Journey &mdash; FY 2025-26 vs FY 2026-27</div></div><button class="metric-tgl" id="tgl-eng" onclick="solToggle('eng')">📊 Count</button></div>
-      <div class="ch-wrap sm"><canvas id="sol-eng"></canvas></div>
+      <div class="ch-wrap"><canvas id="sol-eng"></canvas></div>
     </div>
   </div>
   <div class="cg c11">
@@ -261,6 +264,9 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
       <div class="card-head"><div><h3>Customization Mix</h3><div class="cs">Customized vs Standard vs New Creation &mdash; by FY</div></div><button class="metric-tgl" id="tgl-cust" onclick="solToggle('cust')">📊 Count</button></div>
       <div class="ch-wrap xs"><canvas id="sol-cust"></canvas></div>
     </div>
+  </div>
+  <div class="cg c1">
+    <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
   </div>
   <div class="cg c1">
     <div class="card"><h3>FY Pipeline Summary</h3><div class="cs">Closed vs Lost vs In Process comparison</div><div class="ch-wrap xs"><canvas id="sol-summ"></canvas></div>
@@ -353,6 +359,7 @@ function toggleTheme(){
     if(c.options.scales){
       if(c.options.scales.x){c.options.scales.x.grid=c.options.scales.x.grid||{};c.options.scales.x.grid.color=gridColV;if(c.options.scales.x.ticks)c.options.scales.x.ticks.color=textCol;}
       if(c.options.scales.y){c.options.scales.y.grid=c.options.scales.y.grid||{};c.options.scales.y.grid.color=gridColV;if(c.options.scales.y.ticks)c.options.scales.y.ticks.color=textCol;}
+      if(c.options.scales.y1){c.options.scales.y1.grid=c.options.scales.y1.grid||{};if(c.options.scales.y1.ticks)c.options.scales.y1.ticks.color=textCol;}
     }
     if(c.options.plugins&&c.options.plugins.legend&&c.options.plugins.legend.labels)c.options.plugins.legend.labels.color=textCol;
     if(c.options.plugins&&c.options.plugins.datalabels&&c.options.plugins.datalabels.color!=='#fff'){
@@ -915,7 +922,7 @@ function doFin(wb){
    re-render a single chart without re-reading Excel; SOL_METRIC remembers each
    chart's current metric so it survives the 3-second data refresh. */
 var SOL_DATA={};
-var SOL_METRIC={ind:'count',dev:'count',los:'count',eng:'count',cust:'count'};
+var SOL_METRIC={dev:'count',los:'count',eng:'count',cust:'count'};
 
 function metricLabel(m){return m==='count'?'📊 Count':'₹ Value';}
 function updMetricBtn(key,metricMap){
@@ -935,7 +942,75 @@ function renderSol(key){
   else if(key==='los')renderSolBreakdown('los','sol-los',false,0);
   else if(key==='cust')renderSolBreakdown('cust','sol-cust',false,0);
   else if(key==='eng')renderSolBreakdown('eng','sol-eng',false,0);
-  else if(key==='ind')renderSolBreakdown('ind','sol-ind',true,26);
+  else if(key==='ind')renderSolIndustry();
+}
+
+// Industry Traction: a combo chart that shows BOTH metrics for BOTH financial years at once —
+// grouped COUNT bars on the left axis (FY 2025-26 = navy, FY 2026-27 = teal) and VALUE lines on
+// the right axis (FY 2025-26 = amber, FY 2026-27 = red). Data labels are enabled on all four
+// series. The canvas is sized wider than its card and sits in a horizontal-scroll wrapper so
+// every sector and every label stays legible regardless of how many industries carry data.
+function renderSolIndustry(){
+  var d=SOL_DATA.ind;
+  if(!d)return;
+  var arr=d.rows.slice().filter(function(r){return(r.curCount+r.prevCount+r.curVal+r.prevVal)>0;});
+  // rank by a blend of current-FY count and value so the busiest sectors lead
+  arr.sort(function(a,b){return(b.curCount+b.curVal/1e6)-(a.curCount+a.curVal/1e6);});
+  if(arr.length===0)arr=d.rows.slice();
+
+  var labels=arr.map(function(r){return r.label;});
+  var prevLbl=d.prevLabel||'Prev FY';
+  var curLbl=d.curLabel||'Current FY';
+
+  // widen the inner canvas for breathing room (≈78px per sector), keeping the outer wrapper scrollable
+  var inner=document.getElementById('sol-ind-inner');
+  if(inner)inner.style.width=Math.max(760,arr.length*78)+'px';
+
+  var barDL=function(){return{display:true,anchor:'end',align:'end',offset:2,clamp:true,
+    formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:function(){return dlColor();}};};
+
+  var datasets=[
+    {type:'bar',label:prevLbl+' · Count',data:arr.map(function(r){return r.prevCount;}),
+      backgroundColor:NV,borderRadius:3,yAxisID:'y',order:4,datalabels:barDL()},
+    {type:'bar',label:curLbl+' · Count',data:arr.map(function(r){return r.curCount;}),
+      backgroundColor:TL,borderRadius:3,yAxisID:'y',order:4,datalabels:barDL()},
+    {type:'line',label:prevLbl+' · Value',data:arr.map(function(r){return r.prevVal;}),
+      borderColor:GD,backgroundColor:GD,borderWidth:2,tension:0.3,pointRadius:3,pointHoverRadius:5,
+      yAxisID:'y1',order:1,fill:false,
+      datalabels:{display:true,anchor:'center',align:'top',offset:5,clamp:true,
+        formatter:function(v){return v>0?fmtInr(v):'';},font:{size:8,weight:'700'},color:GD}},
+    {type:'line',label:curLbl+' · Value',data:arr.map(function(r){return r.curVal;}),
+      borderColor:RD,backgroundColor:RD,borderWidth:2,tension:0.3,pointRadius:4,pointHoverRadius:6,
+      yAxisID:'y1',order:0,fill:false,
+      datalabels:{display:true,anchor:'center',align:'bottom',offset:5,clamp:true,
+        formatter:function(v){return v>0?fmtInr(v):'';},font:{size:8,weight:'700'},color:RD}}
+  ];
+
+  mk('sol-ind',{type:'bar',
+    data:{labels:labels,datasets:datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:26,right:10,left:4,bottom:2}},
+      plugins:{
+        legend:{position:'top',labels:{font:{size:10},usePointStyle:true}},
+        datalabels:{display:false},
+        tooltip:{callbacks:{label:function(ctx){
+          var isVal=ctx.dataset.yAxisID==='y1';
+          return ctx.dataset.label+': '+(isVal?fmtInr(ctx.parsed.y):ctx.parsed.y);
+        }}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:9},maxRotation:60,minRotation:45,autoSkip:false,
+          callback:function(val){var l=this.getLabelForValue(val);return l.length>18?l.substring(0,16)+'…':l;}}},
+        y:{position:'left',beginAtZero:true,grid:{color:gridCol()},ticks:{font:{size:10},precision:0},
+          title:{display:true,text:'Proposal Count',font:{size:10,weight:'700'},color:dlColor()}},
+        y1:{position:'right',beginAtZero:true,grid:{drawOnChartArea:false},
+          ticks:{font:{size:10},callback:function(v){return fmtInr(v);}},
+          title:{display:true,text:'Value (₹)',font:{size:10,weight:'700'},color:dlColor()}}
+      }
+    }
+  });
 }
 
 // Renders one FY-count-or-value breakdown as grouped bars (FY 2025-26 vs FY 2026-27).
@@ -1015,7 +1090,7 @@ function doSol(wb){
     var topInd=SOL_DATA.ind.rows.slice().sort(function(a,b){return b.curCount-a.curCount;})[0]||{label:'--',curCount:0};
     set('sk3',topInd.label||'--');
     set('sk3s',topInd.curCount+' opportunities this FY');
-    renderSol('ind');updMetricBtn('ind',SOL_METRIC);
+    renderSolIndustry();
   }
 
   // ── Type of Engagement (count + value per FY) + KPI sk2 (Journey share)
@@ -1491,6 +1566,7 @@ function goTab(id,el){
   el.classList.add('active');
   setTimeout(function(){
     Object.values(CH).forEach(function(c){if(c)c.resize();});
+    if(id==='sol'&&typeof SOL_DATA!=='undefined'&&SOL_DATA.ind)renderSolIndustry();
   },50);
 }
 </script>
