@@ -108,7 +108,11 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 .metric-tgl{flex-shrink:0;background:var(--tbl-header-bg);border:1px solid var(--border);color:var(--text-secondary);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;line-height:1}
 .metric-tgl:hover{color:#00808C;border-color:#00808C}
 .metric-tgl.val{color:#00808C;border-color:#00808C;background:rgba(0,128,140,0.08)}
-@media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}.ch-wrap.tall{height:260px}.mini-chart-grid{grid-template-columns:1fr}}
+/* Side-by-side Count / Value chart pair */
+.cv-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cv-col{min-width:0}
+.cv-col-title{font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;text-align:center}
+@media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}.ch-wrap.tall{height:260px}.mini-chart-grid{grid-template-columns:1fr}.cv-pair{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -228,38 +232,59 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 
 <!-- SOLUTIONING -->
 <div class="page" id="page-sol">
-  <div class="pg-hdr"><h2>Solutioning</h2><p>Proposals, industry traction &amp; engagement mix &mdash; toggle any chart between proposal count and value (₹)</p></div>
+  <div class="pg-hdr"><h2>Solutioning</h2><p>Proposals, industry traction &amp; engagement mix &mdash; count and value shown side by side</p></div>
   <div class="kg g4">
     <div class="kpi tl"><div class="lb">FY 26-27 Total Proposals</div><div class="vl" id="sk1">--</div><div class="sb">Submitted this financial year</div></div>
     <div class="kpi gn"><div class="lb">Journey Engagements</div><div class="vl" id="sk2">--</div><div class="sb" id="sk2s">of total FY 26-27</div><span class="tg up">Demand shift</span></div>
     <div class="kpi gd"><div class="lb">Top Industry</div><div class="vl" id="sk3">--</div><div class="sb" id="sk3s">most active sector</div></div>
     <div class="kpi nv"><div class="lb">Customization Rate</div><div class="vl" id="sk4">--</div><div class="sb" id="sk4s">bespoke proposals</div><span class="tg info">Fully custom</span></div>
   </div>
-  <div class="cg c11">
+  <div class="cg c1">
     <div class="card">
-      <div class="card-head"><div><h3>Development Category Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 comparison</div></div><button class="metric-tgl" id="tgl-dev" onclick="solToggle('dev')">📊 Count</button></div>
-      <div class="ch-wrap"><canvas id="sol-dev"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><div><h3>Industry Traction</h3><div class="cs">Opportunities by sector &mdash; FY 2025-26 vs FY 2026-27</div></div><button class="metric-tgl" id="tgl-ind" onclick="solToggle('ind')">📊 Count</button></div>
-      <div class="ch-wrap-scroll" style="max-height:340px"><div class="ch-wrap-inner"><canvas id="sol-ind"></canvas></div></div>
+      <h3>Development Category Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 &mdash; Count and Value</div>
+      <div class="cv-pair">
+        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap"><canvas id="sol-dev-count"></canvas></div></div>
+        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap"><canvas id="sol-dev-value"></canvas></div></div>
+      </div>
     </div>
   </div>
-  <div class="cg c21">
+  <div class="cg c1">
+    <div class="card">
+      <h3>Industry Traction</h3><div class="cs">Opportunities by sector &mdash; FY 2025-26 vs FY 2026-27 &mdash; Count and Value</div>
+      <div class="cv-pair">
+        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap-scroll" style="max-height:400px"><div class="ch-wrap-inner"><canvas id="sol-ind-count"></canvas></div></div></div>
+        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap-scroll" style="max-height:400px"><div class="ch-wrap-inner"><canvas id="sol-ind-value"></canvas></div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cg c1">
     <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
+  </div>
+  <div class="cg c1">
     <div class="card">
-      <div class="card-head"><div><h3>Type of Engagement</h3><div class="cs">Standalone vs Journey &mdash; FY 2025-26 vs FY 2026-27</div></div><button class="metric-tgl" id="tgl-eng" onclick="solToggle('eng')">📊 Count</button></div>
-      <div class="ch-wrap sm"><canvas id="sol-eng"></canvas></div>
+      <h3>Type of Engagement</h3><div class="cs">Standalone vs Journey &mdash; FY 2025-26 vs FY 2026-27 &mdash; Count and Value</div>
+      <div class="cv-pair">
+        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap sm"><canvas id="sol-eng-count"></canvas></div></div>
+        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap sm"><canvas id="sol-eng-value"></canvas></div></div>
+      </div>
     </div>
   </div>
-  <div class="cg c11">
+  <div class="cg c1">
     <div class="card">
-      <div class="card-head"><div><h3>Line of Service Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 by service line</div></div><button class="metric-tgl" id="tgl-los" onclick="solToggle('los')">📊 Count</button></div>
-      <div class="ch-wrap xs"><canvas id="sol-los"></canvas></div>
+      <h3>Line of Service Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 by service line &mdash; Count and Value</div>
+      <div class="cv-pair">
+        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap xs"><canvas id="sol-los-count"></canvas></div></div>
+        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap xs"><canvas id="sol-los-value"></canvas></div></div>
+      </div>
     </div>
+  </div>
+  <div class="cg c1">
     <div class="card">
-      <div class="card-head"><div><h3>Customization Mix</h3><div class="cs">Customized vs Standard vs New Creation &mdash; by FY</div></div><button class="metric-tgl" id="tgl-cust" onclick="solToggle('cust')">📊 Count</button></div>
-      <div class="ch-wrap xs"><canvas id="sol-cust"></canvas></div>
+      <h3>Customization Mix</h3><div class="cs">Customized vs Standard vs New Creation &mdash; by FY &mdash; Count and Value</div>
+      <div class="cv-pair">
+        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap xs"><canvas id="sol-cust-count"></canvas></div></div>
+        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap xs"><canvas id="sol-cust-value"></canvas></div></div>
+      </div>
     </div>
   </div>
   <div class="cg c1">
@@ -301,25 +326,30 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
       </table>
     </div>
   </div>
-  <div class="cg c21">
+  <div class="cg c1">
     <div class="card">
-      <div class="card-head"><div><h3>Monthly Proposal Status &mdash; FY 2026-27</h3><div class="cs">Won vs Lost vs In-Process, stacked per month</div></div><button class="metric-tgl" id="tgl-prop" onclick="salToggle('prop')">📊 Count</button></div>
-      <div class="ch-wrap"><canvas id="sal-monthly-prop"></canvas></div>
+      <h3>Monthly Proposal Status &mdash; FY 2026-27</h3><div class="cs">Won vs Lost vs In-Process, stacked per month &mdash; Count and Value</div>
+      <div class="cv-pair">
+        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap"><canvas id="sal-monthly-prop-count"></canvas></div></div>
+        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap"><canvas id="sal-monthly-prop-value"></canvas></div></div>
+      </div>
     </div>
-    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap"><canvas id="sal-funnel"></canvas></div></div>
   </div>
   <div class="cg c11">
+    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap"><canvas id="sal-funnel"></canvas></div></div>
     <div class="card"><h3>Quarterly Revenue Comparison</h3><div class="cs">Q1&ndash;Q4 across financial years</div><div class="ch-wrap"><canvas id="sal-qrev"></canvas></div></div>
-    <div class="card"><h3>Monthly Revenue &mdash; FY 2026-27</h3><div class="cs">Revenue realized per month</div><div class="ch-wrap"><canvas id="sal-monthly"></canvas></div></div>
   </div>
-  <div class="cg c21">
+  <div class="cg c11">
+    <div class="card"><h3>Monthly Revenue &mdash; FY 2026-27</h3><div class="cs">Revenue realized per month</div><div class="ch-wrap"><canvas id="sal-monthly"></canvas></div></div>
     <div class="card"><h3>Order Book &mdash; Active Programs</h3><div class="cs">Confirmed orders: booked vs delivered vs confirmed vs balance</div>
       <div class="mt-scroll"><table class="mt" id="sal-ord-tbl"><thead><tr><th>Client</th><th>Program</th><th class="nr">Booked</th><th class="nr">Delivered</th><th class="nr">Confirmed by Dates</th><th class="nr">Balance</th></tr></thead><tbody></tbody></table></div>
     </div>
-    <div class="card"><h3>Expected Major Pipeline</h3><div class="cs">High-value deals expected to close</div><div class="ch-wrap"><canvas id="sal-pipe"></canvas></div></div>
   </div>
-  <div class="cg c11">
+  <div class="cg c21">
+    <div class="card"><h3>Expected Major Pipeline</h3><div class="cs">High-value deals expected to close</div><div class="ch-wrap"><canvas id="sal-pipe"></canvas></div></div>
     <div class="card"><h3>Quarterly Targets vs Achieved</h3><div class="cs">FY 2026-27 quarter-by-quarter tracking</div><div class="ch-wrap"><canvas id="sal-targets"></canvas></div></div>
+  </div>
+  <div class="cg c1">
     <div class="card"><h3>FY 2026-27 — Quarterly Targets</h3><div class="cs">Target vs achieved revenue by quarter</div>
       <table class="mt" id="sal-target-tbl"><thead><tr><th>Quarter</th><th class="nr">Target (Rs.)</th><th class="nr">Achieved (Rs.)</th><th class="nr">% Achieved</th></tr></thead><tbody></tbody></table>
     </div>
@@ -911,61 +941,38 @@ function doFin(wb){
 
 /* ============================ SOLUTIONING ============================
    Each breakdown table carries BOTH a proposal count and a rupee value per FY.
-   SOL_DATA holds the parsed count+value rows so the Count/₹ toggle buttons can
-   re-render a single chart without re-reading Excel; SOL_METRIC remembers each
-   chart's current metric so it survives the 3-second data refresh. */
+   Count and Value are now rendered as two adjacent charts (side by side) so both
+   views are visible at once, instead of a single chart toggled between metrics. */
 var SOL_DATA={};
-var SOL_METRIC={ind:'count',dev:'count',los:'count',eng:'count',cust:'count'};
 
-function metricLabel(m){return m==='count'?'📊 Count':'₹ Value';}
-function updMetricBtn(key,metricMap){
-  var b=document.getElementById('tgl-'+key);
-  if(!b)return;
-  var m=metricMap[key];
-  b.textContent=metricLabel(m);
-  b.classList.toggle('val',m==='value');
-}
-function solToggle(key){
-  SOL_METRIC[key]=SOL_METRIC[key]==='count'?'value':'count';
-  updMetricBtn(key,SOL_METRIC);
-  renderSol(key);
-}
-function renderSol(key){
-  if(key==='dev')renderSolBreakdown('dev','sol-dev',false,22);
-  else if(key==='los')renderSolBreakdown('los','sol-los',false,0);
-  else if(key==='cust')renderSolBreakdown('cust','sol-cust',false,0);
-  else if(key==='eng')renderSolBreakdown('eng','sol-eng',false,0);
-  else if(key==='ind')renderSolBreakdown('ind','sol-ind',true,26);
-}
-
-// Renders one FY-count-or-value breakdown as grouped bars (FY 2025-26 vs FY 2026-27).
-// horiz=true → horizontal + scroll-sized; truncLabel>0 → shorten long category names.
-function renderSolBreakdown(key,canvasId,horiz,truncLabel){
+function renderSolPair(key,baseId,horiz,truncLabel){
   var d=SOL_DATA[key];
   if(!d)return;
-  var m=SOL_METRIC[key];
-  var pick=function(r){return m==='count'?r.curCount:r.curVal;};
-  var pickPrev=function(r){return m==='count'?r.prevCount:r.prevVal;};
-  var arr=d.rows.slice().filter(function(r){
-    return m==='count'?(r.curCount+r.prevCount>0):(r.curVal+r.prevVal>0);
-  });
-  arr.sort(function(a,b){return pick(b)-pick(a);});
-  if(arr.length===0)arr=d.rows.slice();
-  var labels=arr.map(function(r){
-    var n=r.label;
-    return(truncLabel&&n.length>truncLabel)?n.substring(0,truncLabel-2)+'..':n;
-  });
-  var datasets=[];
-  if(d.prevLabel)datasets.push({label:d.prevLabel,data:arr.map(pickPrev),backgroundColor:NV,borderRadius:3});
-  datasets.push({label:d.curLabel||'Current FY',data:arr.map(pick),backgroundColor:TL,borderRadius:3});
+  ['count','value'].forEach(function(m){
+    var canvasId=baseId+'-'+m;
+    var pick=function(r){return m==='count'?r.curCount:r.curVal;};
+    var pickPrev=function(r){return m==='count'?r.prevCount:r.prevVal;};
+    var arr=d.rows.slice().filter(function(r){
+      return m==='count'?(r.curCount+r.prevCount>0):(r.curVal+r.prevVal>0);
+    });
+    arr.sort(function(a,b){return pick(b)-pick(a);});
+    if(arr.length===0)arr=d.rows.slice();
+    var labels=arr.map(function(r){
+      var n=r.label;
+      return(truncLabel&&n.length>truncLabel)?n.substring(0,truncLabel-2)+'..':n;
+    });
+    var datasets=[];
+    if(d.prevLabel)datasets.push({label:d.prevLabel,data:arr.map(pickPrev),backgroundColor:NV,borderRadius:3});
+    datasets.push({label:d.curLabel||'Current FY',data:arr.map(pick),backgroundColor:TL,borderRadius:3});
 
-  var dl=m==='count'?(horiz?dlH():dlNum()):(horiz?dlInrH():dlInr());
-  var opts=Object.assign({},bOpts(false,horiz),{plugins:{legend:{position:'top'},datalabels:dl}});
-  if(horiz){
-    opts.indexAxis='y';
-    setChartHeight(canvasId,arr.length,truncLabel||26);
-  }
-  mk(canvasId,{type:'bar',data:{labels:labels,datasets:datasets},options:opts});
+    var dl=m==='count'?(horiz?dlH():dlNum()):(horiz?dlInrH():dlInr());
+    var opts=Object.assign({},bOpts(false,horiz),{plugins:{legend:{position:'top'},datalabels:dl}});
+    if(horiz){
+      opts.indexAxis='y';
+      setChartHeight(canvasId,arr.length,truncLabel||26);
+    }
+    mk(canvasId,{type:'bar',data:{labels:labels,datasets:datasets},options:opts});
+  });
 }
 
 function doSol(wb){
@@ -1015,7 +1022,7 @@ function doSol(wb){
     var topInd=SOL_DATA.ind.rows.slice().sort(function(a,b){return b.curCount-a.curCount;})[0]||{label:'--',curCount:0};
     set('sk3',topInd.label||'--');
     set('sk3s',topInd.curCount+' opportunities this FY');
-    renderSol('ind');updMetricBtn('ind',SOL_METRIC);
+    renderSolPair('ind','sol-ind',true,26);
   }
 
   // ── Type of Engagement (count + value per FY) + KPI sk2 (Journey share)
@@ -1028,14 +1035,14 @@ function doSol(wb){
     var journeyRow=engRows.find(function(r){return r.label.toLowerCase().indexOf('journey')>=0;})||{curCount:0};
     set('sk2',journeyRow.curCount);
     set('sk2s',engTotal>0?Math.round(journeyRow.curCount/engTotal*100)+'% of '+engTotal+' total':'--');
-    renderSol('eng');updMetricBtn('eng',SOL_METRIC);
+    renderSolPair('eng','sol-eng',false,0);
   }
 
   // ── Development Category (count + value per FY)
   var devHi=findHdr(rows,'Development Category');
   if(devHi>=0){
     SOL_DATA.dev=parseFYCountValue(rows,devHi);
-    renderSol('dev');updMetricBtn('dev',SOL_METRIC);
+    renderSolPair('dev','sol-dev',false,22);
   }
 
   // ── Customization (count + value per FY) + KPI sk4 (bespoke rate)
@@ -1048,7 +1055,7 @@ function doSol(wb){
     var custPct=custTotal>0?Math.round(custRow.curCount/custTotal*100):0;
     set('sk4',custPct+'%');
     set('sk4s',custRow.curCount+' of '+custTotal+' proposals');
-    renderSol('cust');updMetricBtn('cust',SOL_METRIC);
+    renderSolPair('cust','sol-cust',false,0);
   }
 
   // ── Line of Service (count + value per FY)
@@ -1056,7 +1063,7 @@ function doSol(wb){
   if(losHi<0)losHi=findHdr(rows,'Line of Service');
   if(losHi>=0){
     SOL_DATA.los=parseFYCountValue(rows,losHi);
-    renderSol('los');updMetricBtn('los',SOL_METRIC);
+    renderSolPair('los','sol-los',false,0);
   }
 
   // ── Monthly proposal trend (count only, two FY lines) — unchanged
@@ -1088,29 +1095,25 @@ function doSol(wb){
 
 /* ============================== SALES =============================== */
 var SAL_DATA={};
-var SAL_METRIC={prop:'count'};
 
-function salToggle(key){
-  SAL_METRIC[key]=SAL_METRIC[key]==='count'?'value':'count';
-  updMetricBtn(key,SAL_METRIC);
-  if(key==='prop')renderSalProp();
-}
-function renderSalProp(){
+function renderSalPropPair(){
   var d=SAL_DATA.prop;
   if(!d)return;
-  var m=SAL_METRIC.prop;
-  var labels=d.map(function(r){return r.month;});
-  var won=d.map(function(r){return m==='count'?r.wonC:r.wonV;});
-  var lost=d.map(function(r){return m==='count'?r.lostC:r.lostV;});
-  var ip=d.map(function(r){return m==='count'?r.ipC:r.ipV;});
-  var dl=m==='count'?dlStack():dlStackInr();
-  mk('sal-monthly-prop',{type:'bar',
-    data:{labels:labels,datasets:[
-      {label:'Won',data:won,backgroundColor:GN,borderRadius:3},
-      {label:'Lost',data:lost,backgroundColor:RD,borderRadius:3},
-      {label:'In Process',data:ip,backgroundColor:GD,borderRadius:3}
-    ]},
-    options:Object.assign({},bOpts(true,false),{plugins:{legend:{position:'top'},datalabels:dl}})});
+  ['count','value'].forEach(function(m){
+    var canvasId='sal-monthly-prop-'+m;
+    var labels=d.map(function(r){return r.month;});
+    var won=d.map(function(r){return m==='count'?r.wonC:r.wonV;});
+    var lost=d.map(function(r){return m==='count'?r.lostC:r.lostV;});
+    var ip=d.map(function(r){return m==='count'?r.ipC:r.ipV;});
+    var dl=m==='count'?dlStack():dlStackInr();
+    mk(canvasId,{type:'bar',
+      data:{labels:labels,datasets:[
+        {label:'Won',data:won,backgroundColor:GN,borderRadius:3},
+        {label:'Lost',data:lost,backgroundColor:RD,borderRadius:3},
+        {label:'In Process',data:ip,backgroundColor:GD,borderRadius:3}
+      ]},
+      options:Object.assign({},bOpts(true,false),{plugins:{legend:{position:'top'},datalabels:dl}})});
+  });
 }
 
 function doSal(wb){
@@ -1138,7 +1141,7 @@ function doSal(wb){
     set('slk3',fmtInr(totalIPVal));
     set('slk3s',totalIPCount+' proposals active');
 
-    // Monthly proposal status chart (counts or values), fed from the same table
+    // Monthly proposal status chart (counts AND values, side by side), fed from the same table
     SAL_DATA.prop=pd.map(function(r){
       return{
         month:norm(r['Month']),
@@ -1146,7 +1149,7 @@ function doSal(wb){
         wonV:num(r['Won Value (Rs.)']),lostV:num(r['Lost Value (Rs.)']),ipV:num(r['In Process Value (Rs.)'])
       };
     });
-    renderSalProp();updMetricBtn('prop',SAL_METRIC);
+    renderSalPropPair();
 
     if(totalWonVal+totalLostVal+totalIPVal>0){
       var funnelColors=[GN,RD,GD];
