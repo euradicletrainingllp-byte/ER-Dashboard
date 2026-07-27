@@ -307,15 +307,18 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
       </table>
     </div>
   </div>
-  <div class="cg c21">
+  <div class="cg c1">
     <div class="card">
-      <div class="card-head"><div><h3>Monthly Proposal Status &mdash; FY 2026-27</h3><div class="cs">Won vs Lost vs In-Process, stacked per month</div></div><button class="metric-tgl" id="tgl-prop" onclick="salToggle('prop')">📊 Count</button></div>
-      <div class="ch-wrap"><canvas id="sal-monthly-prop"></canvas></div>
+      <h3>Monthly Proposal Status &mdash; FY 2026-27</h3>
+      <div class="cs">Bars = proposal count (stacked: Won / Lost / In-Process) &middot; Lines = value (&#8377;) per status &middot; scroll sideways for all months</div>
+      <div class="ind-scroll"><div class="ind-inner" id="sal-monthly-prop-inner"><canvas id="sal-monthly-prop"></canvas></div></div>
     </div>
-    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap"><canvas id="sal-funnel"></canvas></div></div>
   </div>
   <div class="cg c11">
+    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap"><canvas id="sal-funnel"></canvas></div></div>
     <div class="card"><h3>Quarterly Revenue Comparison</h3><div class="cs">Q1&ndash;Q4 across financial years</div><div class="ch-wrap"><canvas id="sal-qrev"></canvas></div></div>
+  </div>
+  <div class="cg c1">
     <div class="card"><h3>Monthly Revenue &mdash; FY 2026-27</h3><div class="cs">Revenue realized per month</div><div class="ch-wrap"><canvas id="sal-monthly"></canvas></div></div>
   </div>
   <div class="cg c21">
@@ -1163,29 +1166,63 @@ function doSol(wb){
 
 /* ============================== SALES =============================== */
 var SAL_DATA={};
-var SAL_METRIC={prop:'count'};
 
-function salToggle(key){
-  SAL_METRIC[key]=SAL_METRIC[key]==='count'?'value':'count';
-  updMetricBtn(key,SAL_METRIC);
-  if(key==='prop')renderSalProp();
-}
+// Monthly Proposal Status: combo chart showing count AND value together for every month —
+// stacked COUNT bars on the left axis (Won green / Lost red / In-Process amber) and matching
+// VALUE lines (dashed, same colours) on the right axis. Data labels on both bars and lines.
 function renderSalProp(){
   var d=SAL_DATA.prop;
   if(!d)return;
-  var m=SAL_METRIC.prop;
   var labels=d.map(function(r){return r.month;});
-  var won=d.map(function(r){return m==='count'?r.wonC:r.wonV;});
-  var lost=d.map(function(r){return m==='count'?r.lostC:r.lostV;});
-  var ip=d.map(function(r){return m==='count'?r.ipC:r.ipV;});
-  var dl=m==='count'?dlStack():dlStackInr();
+  var wonC=d.map(function(r){return r.wonC;}),lostC=d.map(function(r){return r.lostC;}),ipC=d.map(function(r){return r.ipC;});
+  var wonV=d.map(function(r){return r.wonV;}),lostV=d.map(function(r){return r.lostV;}),ipV=d.map(function(r){return r.ipV;});
+
+  // sized full-width; grows to scroll only if a lot of months accumulate
+  var inner=document.getElementById('sal-monthly-prop-inner');
+  if(inner)inner.style.width=Math.max(680,d.length*150)+'px';
+
+  var stackDL=function(){return{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},
+    anchor:'center',align:'center',formatter:function(v){return v>0?v:'';},font:{size:11,weight:'700'},color:'#fff'};};
+  var lineDL=function(col,align){return{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},
+    anchor:'center',align:align,offset:6,clamp:true,formatter:function(v){return v>0?fmtInr(v):'';},
+    font:{size:8,weight:'700'},color:col};};
+
+  var datasets=[
+    {type:'bar',label:'Won · Count',data:wonC,backgroundColor:GN,stack:'cnt',yAxisID:'y',order:5,datalabels:stackDL()},
+    {type:'bar',label:'Lost · Count',data:lostC,backgroundColor:RD,stack:'cnt',yAxisID:'y',order:5,datalabels:stackDL()},
+    {type:'bar',label:'In Process · Count',data:ipC,backgroundColor:GD,stack:'cnt',yAxisID:'y',order:5,datalabels:stackDL()},
+    {type:'line',label:'Won · Value',data:wonV,borderColor:GN,backgroundColor:GN,borderWidth:2,borderDash:[5,3],
+      tension:0.3,pointRadius:4,pointHoverRadius:6,pointStyle:'rectRot',yAxisID:'y1',order:1,fill:false,datalabels:lineDL(GN,'top')},
+    {type:'line',label:'Lost · Value',data:lostV,borderColor:RD,backgroundColor:RD,borderWidth:2,borderDash:[5,3],
+      tension:0.3,pointRadius:4,pointHoverRadius:6,pointStyle:'rectRot',yAxisID:'y1',order:1,fill:false,datalabels:lineDL(RD,'bottom')},
+    {type:'line',label:'In Process · Value',data:ipV,borderColor:GD,backgroundColor:GD,borderWidth:2,borderDash:[5,3],
+      tension:0.3,pointRadius:4,pointHoverRadius:6,pointStyle:'rectRot',yAxisID:'y1',order:1,fill:false,datalabels:lineDL(GD,'top')}
+  ];
+
   mk('sal-monthly-prop',{type:'bar',
-    data:{labels:labels,datasets:[
-      {label:'Won',data:won,backgroundColor:GN,borderRadius:3},
-      {label:'Lost',data:lost,backgroundColor:RD,borderRadius:3},
-      {label:'In Process',data:ip,backgroundColor:GD,borderRadius:3}
-    ]},
-    options:Object.assign({},bOpts(true,false),{plugins:{legend:{position:'top'},datalabels:dl}})});
+    data:{labels:labels,datasets:datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:24,right:10,left:4,bottom:2}},
+      plugins:{
+        legend:{position:'top',labels:{font:{size:10},usePointStyle:true}},
+        datalabels:{display:false},
+        tooltip:{callbacks:{label:function(ctx){
+          var isVal=ctx.dataset.yAxisID==='y1';
+          return ctx.dataset.label+': '+(isVal?fmtInr(ctx.parsed.y):ctx.parsed.y);
+        }}}
+      },
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},
+        y:{stacked:true,position:'left',beginAtZero:true,grid:{color:gridCol()},ticks:{font:{size:10},precision:0},
+          title:{display:true,text:'Proposal Count',font:{size:10,weight:'700'},color:dlColor()}},
+        y1:{stacked:false,position:'right',beginAtZero:true,grid:{drawOnChartArea:false},
+          ticks:{font:{size:10},callback:function(v){return fmtInr(v);}},
+          title:{display:true,text:'Value (₹)',font:{size:10,weight:'700'},color:dlColor()}}
+      }
+    }
+  });
 }
 
 function doSal(wb){
@@ -1221,7 +1258,7 @@ function doSal(wb){
         wonV:num(r['Won Value (Rs.)']),lostV:num(r['Lost Value (Rs.)']),ipV:num(r['In Process Value (Rs.)'])
       };
     });
-    renderSalProp();updMetricBtn('prop',SAL_METRIC);
+    renderSalProp();
 
     if(totalWonVal+totalLostVal+totalIPVal>0){
       var funnelColors=[GN,RD,GD];
