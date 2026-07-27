@@ -400,6 +400,12 @@ Chart.defaults.plugins.legend.labels.usePointStyle=true;
 Chart.defaults.plugins.legend.labels.pointStyleWidth=8;
 Chart.defaults.plugins.legend.labels.boxHeight=7;
 Chart.defaults.plugins.legend.labels.font={size:10};
+// Give every bar chart real breathing room: categoryPercentage shrinks how much of each
+// category's slot is used (bigger gap between groups/categories), barPercentage shrinks
+// how much of that slot each individual bar takes (small gap between bars in the same group).
+Chart.defaults.datasets.bar.categoryPercentage=0.55;
+Chart.defaults.datasets.bar.barPercentage=0.8;
+Chart.defaults.datasets.bar.maxBarThickness=46;
 if(typeof ChartDataLabels!=='undefined'){
   Chart.register(ChartDataLabels);
   Chart.defaults.plugins.datalabels={display:false};
@@ -1022,7 +1028,7 @@ function doSol(wb){
     var topInd=SOL_DATA.ind.rows.slice().sort(function(a,b){return b.curCount-a.curCount;})[0]||{label:'--',curCount:0};
     set('sk3',topInd.label||'--');
     set('sk3s',topInd.curCount+' opportunities this FY');
-    renderSolPair('ind','sol-ind',true,26);
+    renderSolPair('ind','sol-ind',true,34);
   }
 
   // ── Type of Engagement (count + value per FY) + KPI sk2 (Journey share)
