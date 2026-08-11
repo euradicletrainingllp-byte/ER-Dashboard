@@ -217,6 +217,16 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
       <table class="mt" id="fin-due-tbl"><thead><tr><th>Client / Description</th><th class="nr" style="min-width:130px;white-space:nowrap">Amount Due (Rs. L)</th><th>Due Dates</th><th>Type</th><th>Notes</th></tr></thead><tbody></tbody></table>
     </div>
   </div>
+  <div class="cg c1">
+    <div class="card"><h3>Outstanding Payments — Invoice-Level Breakdown</h3><div class="cs" id="fin-due-detail-cs">Every individual invoice pending collection, by client</div>
+      <table class="mt" id="fin-due-detail-tbl"><thead><tr><th>Client / Description</th><th class="nr" style="min-width:130px;white-space:nowrap">Amount Due (Rs. L)</th><th>Due Dates</th><th>Type</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <div class="cg c1">
+    <div class="card"><h3>To be Invoiced &mdash; Pending Billing</h3><div class="cs" id="fin-tobeinv-cs">Programs delivered/committed but not yet billed</div>
+      <table class="mt" id="fin-tobeinv-tbl"><thead><tr><th>Client</th><th class="nr" style="min-width:120px;white-space:nowrap">Amount (Rs. L)</th><th>Program Details</th><th>Program Dates</th><th>Reason Pending</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
   <div class="cg c11">
     <div class="card"><h3>Average Billing Days per Month</h3><div class="cs">Monthly billing distribution by financial year</div><div class="ch-wrap"><canvas id="fin-billing"></canvas></div></div>
     <div class="card"><h3>Average Revenue per Engaged Day</h3><div class="cs">Revenue efficiency by financial year (Rs. Lakhs per engaged day)</div>
@@ -480,6 +490,21 @@ function findSection(rows,marker,startFrom){
     var ne=rows[i].filter(function(c){return norm(c)!=='';});
     if(ne.length===1&&norm(rows[i][0]).toLowerCase().indexOf(m)>=0)return i;
     if(ne.length>=1&&rows[i].some(function(c){return norm(c).toLowerCase().indexOf(m)>=0;}))return i;
+  }
+  return -1;
+}
+
+// Like findSection, but ONLY matches a standalone section-title row (exactly one non-empty
+// cell). This is important when the same words also appear as a COLUMN header elsewhere —
+// e.g. "To be Invoiced" is both a section title (row 66) and a column in the
+// "Invoice & Payment Summary" header (row 33). findSection would grab the column header
+// first; findTitleRow only grabs the real title band, so it can also be chained with a
+// startFrom to reach the 2nd/3rd occurrence of a repeated title.
+function findTitleRow(rows,marker,startFrom){
+  var m=norm(marker).toLowerCase();
+  for(var i=(startFrom||0);i<rows.length;i++){
+    var ne=rows[i].filter(function(c){return norm(c)!=='';});
+    if(ne.length===1&&norm(rows[i][0]).toLowerCase().indexOf(m)>=0)return i;
   }
   return -1;
 }
@@ -837,6 +862,8 @@ function doFin(wb){
       },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
   }
 
+  // ── Outstanding Payments Due (AGGREGATED — one row per client). This is the first
+  // "Amount Due" header in the sheet, so findHdr's first-match behaviour is exactly right.
   var dueHi=findHdr(rows,'Amount Due');
   if(dueHi>=0){
     var dd=getSection(rows,dueHi);
@@ -859,6 +886,74 @@ function doFin(wb){
         +'<td style="color:var(--text-secondary)">'+extraNote+'</td>'
         +'</tr>';
     }).join('');
+  }
+
+  // ── NEW: Outstanding Payments — Invoice-Level Breakdown (2nd "Payments Due —
+  // Outstanding" band in the sheet). Same 4 columns as the aggregated table, but one row
+  // per individual invoice (a client can appear several times). We reach it by finding the
+  // SECOND standalone "Payments Due" title row, then the "Amount Due" header under it.
+  var dueTitle1=findTitleRow(rows,'Payments Due');
+  var dueTitle2=dueTitle1>=0?findTitleRow(rows,'Payments Due',dueTitle1+1):-1;
+  var detailBody=document.querySelector('#fin-due-detail-tbl tbody');
+  if(dueTitle2>=0){
+    var ddHi=findHdr(rows,'Amount Due',dueTitle2);
+    if(ddHi>=0){
+      var ddDetail=getSection(rows,ddHi);
+      ddDetail=ddDetail.filter(function(r){
+        var first=norm(r['Client / Description']!==undefined?r['Client / Description']:(r.__raw?r.__raw[0]:''));
+        return first!==''&&first.toLowerCase().indexOf('total')<0;
+      });
+      var detailTotal=ddDetail.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
+      set('fin-due-detail-cs','Invoice-level dues: Rs.'+detailTotal.toFixed(2)+'L across '+ddDetail.length+' line items');
+      if(detailBody)detailBody.innerHTML=ddDetail.map(function(r){
+        return'<tr>'
+          +'<td>'+norm(r['Client / Description'])+'</td>'
+          +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+          +'<td>'+norm(r['Due Dates'])+'</td>'
+          +'<td>'+norm(r['Type'])+'</td>'
+          +'</tr>';
+      }).join('');
+    }
+  }else if(detailBody){
+    // No second breakdown band present — keep the card empty rather than stale.
+    detailBody.innerHTML='<tr><td colspan="4" style="color:var(--text-muted)">No invoice-level breakdown in this file.</td></tr>';
+    set('fin-due-detail-cs','Every individual invoice pending collection, by client');
+  }
+
+  // ── NEW: To be Invoiced — Pending Billing detail (Client | Amount Due (L) |
+  // Program Details | Programs Dates | Reason). The phrase "To be Invoiced" also appears as
+  // a COLUMN in the Invoice & Payment Summary header, so we use findTitleRow (standalone
+  // title only) to land on the real detail band before reading its header.
+  var tbiTitle=findTitleRow(rows,'To be Invoiced');
+  var tbiBody=document.querySelector('#fin-tobeinv-tbl tbody');
+  if(tbiTitle>=0){
+    var tbiHi=findHdr(rows,'Program Details',tbiTitle);
+    if(tbiHi<0)tbiHi=findHdr(rows,'Amount Due',tbiTitle);
+    if(tbiHi>=0){
+      var tbiHdrs=rows[tbiHi].map(norm);
+      var progKeyF=tbiHdrs.filter(function(h){return h.toLowerCase().indexOf('program details')>=0;})[0]||'Program Details';
+      var datesKeyF=tbiHdrs.filter(function(h){return h.toLowerCase().indexOf('date')>=0;})[0]||'Programs Dates';
+      var reasonKeyF=tbiHdrs.filter(function(h){return h.toLowerCase().indexOf('reason')>=0;})[0]||'Reason';
+      var tbiData=getSection(rows,tbiHi);
+      tbiData=tbiData.filter(function(r){
+        var first=norm(r['Client']!==undefined?r['Client']:(r.__raw?r.__raw[0]:''));
+        return first!==''&&first.toLowerCase().indexOf('total')<0;
+      });
+      var tbiTotal=tbiData.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
+      set('fin-tobeinv-cs','Pending billing: Rs.'+tbiTotal.toFixed(2)+'L across '+tbiData.length+' program(s)');
+      if(tbiBody)tbiBody.innerHTML=tbiData.map(function(r){
+        return'<tr>'
+          +'<td style="font-weight:600">'+norm(r['Client'])+'</td>'
+          +'<td class="nr" style="white-space:nowrap">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+          +'<td>'+norm(r[progKeyF])+'</td>'
+          +'<td style="white-space:nowrap">'+norm(r[datesKeyF])+'</td>'
+          +'<td style="font-size:10px;color:var(--text-secondary)">'+norm(r[reasonKeyF])+'</td>'
+          +'</tr>';
+      }).join('');
+    }
+  }else if(tbiBody){
+    tbiBody.innerHTML='<tr><td colspan="5" style="color:var(--text-muted)">No "To be Invoiced" detail in this file.</td></tr>';
+    set('fin-tobeinv-cs','Programs delivered/committed but not yet billed');
   }
 
   var creditHi=findHdr(rows,'Credit Note');
