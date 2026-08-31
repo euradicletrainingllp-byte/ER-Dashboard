@@ -101,14 +101,12 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 .mt-scroll{max-height:340px;overflow-y:auto}
 .ch-wrap-scroll{position:relative;max-height:400px;overflow-y:auto;overflow-x:hidden}
 .ch-wrap-inner{position:relative;width:100%}
-/* Header row that carries a metric (Count / Value) toggle button on the right */
 .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
 .card-head h3{margin-bottom:2px}
 .card-head .cs{margin-bottom:0}
 .metric-tgl{flex-shrink:0;background:var(--tbl-header-bg);border:1px solid var(--border);color:var(--text-secondary);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;line-height:1}
 .metric-tgl:hover{color:#00808C;border-color:#00808C}
 .metric-tgl.val{color:#00808C;border-color:#00808C;background:rgba(0,128,140,0.08)}
-/* Side-by-side Count / Value chart pair */
 .cv-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .cv-col{min-width:0}
 .cv-col-title{font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;text-align:center}
@@ -268,7 +266,7 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     </div>
   </div>
   <div class="cg c1">
-    <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
+    <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month &mdash; FY 2025-26 (bars) vs FY 2026-27 (line)</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
   </div>
   <div class="cg c1">
     <div class="card">
@@ -285,6 +283,15 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
       <div class="cv-pair">
         <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap xs"><canvas id="sol-los-count"></canvas></div></div>
         <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap xs"><canvas id="sol-los-value"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cg c1">
+    <div class="card">
+      <h3>Type of Service Mix</h3><div class="cs">FY 2025-26 vs FY 2026-27 by service type &mdash; Count and Value</div>
+      <div class="cv-pair">
+        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap sm"><canvas id="sol-tos-count"></canvas></div></div>
+        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap sm"><canvas id="sol-tos-value"></canvas></div></div>
       </div>
     </div>
   </div>
@@ -410,9 +417,6 @@ Chart.defaults.plugins.legend.labels.usePointStyle=true;
 Chart.defaults.plugins.legend.labels.pointStyleWidth=8;
 Chart.defaults.plugins.legend.labels.boxHeight=7;
 Chart.defaults.plugins.legend.labels.font={size:10};
-// Give every bar chart real breathing room: categoryPercentage shrinks how much of each
-// category's slot is used (bigger gap between groups/categories), barPercentage shrinks
-// how much of that slot each individual bar takes (small gap between bars in the same group).
 Chart.defaults.datasets.bar.categoryPercentage=0.55;
 Chart.defaults.datasets.bar.barPercentage=0.8;
 Chart.defaults.datasets.bar.maxBarThickness=46;
@@ -443,6 +447,9 @@ function numOrNull(v){
 
 function dlColor(){return isDark?'#B8C8DC':'#374151';}
 function dlNum(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?v:'';},font:{size:11,weight:'600'},color:dlColor(),padding:2};}
+/* Vertical (rotated) datalabel for dense grouped monthly charts so every value stays legible
+   even when many thin bars sit side by side. */
+function dlNumV(){return{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'end',align:'end',rotation:-90,offset:2,formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:dlColor(),clamp:true,padding:2};}
 function dlInr(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:10,weight:'600'},color:dlColor(),padding:2};}
 function dlStack(){return{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'center',align:'center',formatter:function(v){return v>0?v:'';},font:{size:11,weight:'700'},color:'#fff'};}
 function dlStackInr(){return{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'center',align:'center',formatter:function(v){return v>0?fmtInr(v):'';},font:{size:9,weight:'700'},color:'#fff'};}
@@ -461,12 +468,9 @@ function fmtL(v){return'Rs.'+parseFloat(v).toFixed(2)+'L';}
 function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
 function setHTML(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
 
-// Determines which FY quarter "today" falls in (Apr-Jun=Q1, Jul-Sep=Q2, Oct-Dec=Q3, Jan-Mar=Q4).
-// Used to auto-advance the "Target Achieved" KPI as the calendar moves through the year, without
-// touching the Excel file.
 function currentFYQuarter(d){
   d=d||new Date();
-  var m=d.getMonth(); // 0=Jan ... 11=Dec
+  var m=d.getMonth();
   if(m>=3&&m<=5)return'Q1';
   if(m>=6&&m<=8)return'Q2';
   if(m>=9&&m<=11)return'Q3';
@@ -494,12 +498,6 @@ function findSection(rows,marker,startFrom){
   return -1;
 }
 
-// Like findSection, but ONLY matches a standalone section-title row (exactly one non-empty
-// cell). This is important when the same words also appear as a COLUMN header elsewhere —
-// e.g. "To be Invoiced" is both a section title (row 66) and a column in the
-// "Invoice & Payment Summary" header (row 33). findSection would grab the column header
-// first; findTitleRow only grabs the real title band, so it can also be chained with a
-// startFrom to reach the 2nd/3rd occurrence of a repeated title.
 function findTitleRow(rows,marker,startFrom){
   var m=norm(marker).toLowerCase();
   for(var i=(startFrom||0);i<rows.length;i++){
@@ -545,11 +543,6 @@ function prevFYCol(hdrs){
   return fyCols.length>1?fyCols[fyCols.length-2]:'';
 }
 
-// Parses a Solutioning breakdown block whose header row carries FY labels (each spanning a
-// count column and an adjacent value/₹ column), e.g.:
-//   Industry | FY 2025-26 | <val> | FY 2026-27 | <val>
-// Returns {rows:[{label,prevCount,prevVal,curCount,curVal}], prevLabel, curLabel}. The value
-// column is always the cell immediately to the right of each FY count column.
 function parseFYCountValue(rows,headerIdx){
   var hdr=rows[headerIdx].map(norm);
   var fyCols=[];
@@ -592,8 +585,6 @@ function getSideBySideBlocks(rows,hdrRowIdx,offsets){
   return blocks;
 }
 
-// Sizes a chart's canvas wrapper tall enough to fit N horizontal bars legibly; the
-// outer .ch-wrap-scroll clips/scrolls so the card itself doesn't grow unbounded.
 function setChartHeight(canvasId,itemCount,pxPerItem){
   var c=document.getElementById(canvasId);
   if(!c||!c.parentElement)return;
@@ -700,8 +691,6 @@ function doOps(wb){
     }).join('');
   }
 
-  // 'Feedback' matches the sheet's section title even though it's spelled "Recnt Programs
-  // Feedbacks" — searching on the stable substring avoids breaking if that typo gets fixed later.
   var fbSec=findSection(rows,'Feedback');
   if(fbSec>=0){
     var fbHi=findHdr(rows,'Program Name',fbSec+1);
@@ -711,7 +700,7 @@ function doOps(wb){
       var progKey=fbHdrs[0]||'Program Name';
       var scoreKey=fbHdrs[1]||'Feedback Score (Out of 5)';
       var fbData=getSection(rows,fbHi);
-      fbData=fbData.filter(function(r){return norm(r[progKey])!=='';});
+      fbData=fbData.filter(function(r){return norm(r[progKey])!==''&&num(r[scoreKey])>0;});
       fbData.sort(function(a,b){return num(b[scoreKey])-num(a[scoreKey]);});
       setChartHeight('ops-feedback',fbData.length,34);
       mk('ops-feedback',{type:'bar',
@@ -764,9 +753,6 @@ function doOps(wb){
     });
   }
 
-  // Marker is 'Client Status 20' (not just 'Client Status') because an earlier section in this
-  // sheet is titled "FY 2026-27 - Client Status" — a plain 'Client Status' search would match
-  // that one first and silently pull the wrong header/data for this historical triple-block table.
   var csSec=findSection(rows,'Client Status 20');
   if(csSec>=0){
     var csTitleRow=rows[csSec];
@@ -834,12 +820,12 @@ function doFin(wb){
       data:{
         labels:rd.map(function(r){return norm(r['Financial Year']);}),
         datasets:monthCols.map(function(mc,i){return{
-          label:mc,
+          label:mc.replace(/Revenue\s*\(L\)/i,'').trim(),
           data:rd.map(function(r){return num(r[mc]);}),
           backgroundColor:colors[i%colors.length],
           borderRadius:4
         };})
-      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
+      },options:Object.assign({},bOpts(false,false),{layout:{padding:{top:20}},plugins:{legend:{position:'top'},datalabels:dlNumV()}})});
   }
 
   var invSecRow=findSection(rows,'Invoices');
@@ -859,11 +845,9 @@ function doFin(wb){
           backgroundColor:colors2[i%colors2.length],
           borderRadius:4
         };})
-      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
+      },options:Object.assign({},bOpts(false,false),{layout:{padding:{top:20}},plugins:{legend:{position:'top'},datalabels:dlNumV()}})});
   }
 
-  // ── Outstanding Payments Due (AGGREGATED — one row per client). This is the first
-  // "Amount Due" header in the sheet, so findHdr's first-match behaviour is exactly right.
   var dueHi=findHdr(rows,'Amount Due');
   if(dueHi>=0){
     var dd=getSection(rows,dueHi);
@@ -876,22 +860,24 @@ function doFin(wb){
     set('fin-due-cs','Total due: Rs.'+totalDue.toFixed(2)+'L across '+dd.length+' clients');
 
     var tb=document.querySelector('#fin-due-tbl tbody');
-    if(tb)tb.innerHTML=dd.map(function(r){
-      var extraNote=firstNonEmptyFrom(r.__raw,4);
-      return'<tr>'
-        +'<td>'+norm(r['Client / Description'])+'</td>'
-        +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
-        +'<td>'+norm(r['Due Dates'])+'</td>'
-        +'<td>'+norm(r['Type'])+'</td>'
-        +'<td style="color:var(--text-secondary)">'+extraNote+'</td>'
-        +'</tr>';
-    }).join('');
+    if(tb){
+      tb.innerHTML=dd.map(function(r){
+        var extraNote=firstNonEmptyFrom(r.__raw,4);
+        return'<tr>'
+          +'<td>'+norm(r['Client / Description'])+'</td>'
+          +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+          +'<td>'+norm(r['Due Dates'])+'</td>'
+          +'<td>'+norm(r['Type'])+'</td>'
+          +'<td style="color:var(--text-secondary)">'+extraNote+'</td>'
+          +'</tr>';
+      }).join('');
+      tb.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
+        +'<td>Total</td>'
+        +'<td class="nr" style="white-space:nowrap;min-width:130px">'+totalDue.toFixed(2)+'</td>'
+        +'<td></td><td></td><td></td></tr>';
+    }
   }
 
-  // ── NEW: Outstanding Payments — Invoice-Level Breakdown (2nd "Payments Due —
-  // Outstanding" band in the sheet). Same 4 columns as the aggregated table, but one row
-  // per individual invoice (a client can appear several times). We reach it by finding the
-  // SECOND standalone "Payments Due" title row, then the "Amount Due" header under it.
   var dueTitle1=findTitleRow(rows,'Payments Due');
   var dueTitle2=dueTitle1>=0?findTitleRow(rows,'Payments Due',dueTitle1+1):-1;
   var detailBody=document.querySelector('#fin-due-detail-tbl tbody');
@@ -905,25 +891,26 @@ function doFin(wb){
       });
       var detailTotal=ddDetail.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
       set('fin-due-detail-cs','Invoice-level dues: Rs.'+detailTotal.toFixed(2)+'L across '+ddDetail.length+' line items');
-      if(detailBody)detailBody.innerHTML=ddDetail.map(function(r){
-        return'<tr>'
-          +'<td>'+norm(r['Client / Description'])+'</td>'
-          +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
-          +'<td>'+norm(r['Due Dates'])+'</td>'
-          +'<td>'+norm(r['Type'])+'</td>'
-          +'</tr>';
-      }).join('');
+      if(detailBody){
+        detailBody.innerHTML=ddDetail.map(function(r){
+          return'<tr>'
+            +'<td>'+norm(r['Client / Description'])+'</td>'
+            +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+            +'<td>'+norm(r['Due Dates'])+'</td>'
+            +'<td>'+norm(r['Type'])+'</td>'
+            +'</tr>';
+        }).join('');
+        detailBody.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
+          +'<td>Total</td>'
+          +'<td class="nr" style="white-space:nowrap;min-width:130px">'+detailTotal.toFixed(2)+'</td>'
+          +'<td></td><td></td></tr>';
+      }
     }
   }else if(detailBody){
-    // No second breakdown band present — keep the card empty rather than stale.
     detailBody.innerHTML='<tr><td colspan="4" style="color:var(--text-muted)">No invoice-level breakdown in this file.</td></tr>';
     set('fin-due-detail-cs','Every individual invoice pending collection, by client');
   }
 
-  // ── NEW: To be Invoiced — Pending Billing detail (Client | Amount Due (L) |
-  // Program Details | Programs Dates | Reason). The phrase "To be Invoiced" also appears as
-  // a COLUMN in the Invoice & Payment Summary header, so we use findTitleRow (standalone
-  // title only) to land on the real detail band before reading its header.
   var tbiTitle=findTitleRow(rows,'To be Invoiced');
   var tbiBody=document.querySelector('#fin-tobeinv-tbl tbody');
   if(tbiTitle>=0){
@@ -941,15 +928,21 @@ function doFin(wb){
       });
       var tbiTotal=tbiData.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
       set('fin-tobeinv-cs','Pending billing: Rs.'+tbiTotal.toFixed(2)+'L across '+tbiData.length+' program(s)');
-      if(tbiBody)tbiBody.innerHTML=tbiData.map(function(r){
-        return'<tr>'
-          +'<td style="font-weight:600">'+norm(r['Client'])+'</td>'
-          +'<td class="nr" style="white-space:nowrap">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
-          +'<td>'+norm(r[progKeyF])+'</td>'
-          +'<td style="white-space:nowrap">'+norm(r[datesKeyF])+'</td>'
-          +'<td style="font-size:10px;color:var(--text-secondary)">'+norm(r[reasonKeyF])+'</td>'
-          +'</tr>';
-      }).join('');
+      if(tbiBody){
+        tbiBody.innerHTML=tbiData.map(function(r){
+          return'<tr>'
+            +'<td style="font-weight:600">'+norm(r['Client'])+'</td>'
+            +'<td class="nr" style="white-space:nowrap">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+            +'<td>'+norm(r[progKeyF])+'</td>'
+            +'<td style="white-space:nowrap">'+norm(r[datesKeyF])+'</td>'
+            +'<td style="font-size:10px;color:var(--text-secondary)">'+norm(r[reasonKeyF])+'</td>'
+            +'</tr>';
+        }).join('');
+        tbiBody.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
+          +'<td>Total</td>'
+          +'<td class="nr" style="white-space:nowrap">'+tbiTotal.toFixed(2)+'</td>'
+          +'<td></td><td></td><td></td></tr>';
+      }
     }
   }else if(tbiBody){
     tbiBody.innerHTML='<tr><td colspan="5" style="color:var(--text-muted)">No "To be Invoiced" detail in this file.</td></tr>';
@@ -959,16 +952,29 @@ function doFin(wb){
   var creditHi=findHdr(rows,'Credit Note');
   if(creditHi>=0){
     var crData=getSection(rows,creditHi);
-    crData=crData.filter(function(r){return norm(r['Credit Note'])!=='';});
+    var crTotalRow=null;
+    crData=crData.filter(function(r){
+      if(norm(r['Credit Note']).toLowerCase().indexOf('total')>=0){crTotalRow=r;return false;}
+      return norm(r['Credit Note'])!=='';
+    });
     var crtb=document.querySelector('#fin-credit-tbl tbody');
-    if(crtb)crtb.innerHTML=crData.map(function(r){
-      return'<tr>'
-        +'<td>'+norm(r['Credit Note'])+'</td>'
-        +'<td class="nr">'+num(r['Count'])+'</td>'
-        +'<td class="nr">'+fmtL(num(r['Value (L)']))+'</td>'
-        +'<td>'+norm(r['Notes'])+'</td>'
-        +'</tr>';
-    }).join('');
+    if(crtb){
+      crtb.innerHTML=crData.map(function(r){
+        return'<tr>'
+          +'<td>'+norm(r['Credit Note'])+'</td>'
+          +'<td class="nr">'+num(r['Count'])+'</td>'
+          +'<td class="nr">'+fmtL(num(r['Value (L)']))+'</td>'
+          +'<td>'+norm(r['Notes'])+'</td>'
+          +'</tr>';
+      }).join('');
+      var crCount=crData.reduce(function(s,r){return s+num(r['Count']);},0);
+      var crValue=crData.reduce(function(s,r){return s+num(r['Value (L)']);},0);
+      crtb.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
+        +'<td>Total</td>'
+        +'<td class="nr">'+crCount+'</td>'
+        +'<td class="nr">'+fmtL(crValue)+'</td>'
+        +'<td></td></tr>';
+    }
   }
 
   var billSecRow=findSection(rows,'Average Billing Days');
@@ -992,7 +998,7 @@ function doFin(wb){
           backgroundColor:bColors[i%bColors.length],
           borderRadius:4
         };})
-      },options:Object.assign({},bOpts(false,false),{plugins:{legend:{position:'top'},datalabels:dlNum()}})});
+      },options:Object.assign({},bOpts(false,false),{layout:{padding:{top:20}},plugins:{legend:{position:'top'},datalabels:dlNumV()}})});
   }
 
   var summSecRow=findSection(rows,'Invoice & Payment Summary');
@@ -1003,7 +1009,7 @@ function doFin(wb){
     var sdata=getSection(rows,summHi);
     if(sdata.length>0){
       var s=sdata[0];
-      var invoiced=num(s['No. of Invoiced']);
+      var invoiced=num(s['No. of Invoices Raised']!==undefined&&s['No. of Invoices Raised']!==''?s['No. of Invoices Raised']:s['No. of Invoiced']);
       var toInvoice=num(s['To be Invoiced']);
       var duesInMarket=num(s['Amount Dues in Market']);
       var invoicedRevenue=num(s['Invoiced Revenue']);
@@ -1017,7 +1023,6 @@ function doFin(wb){
     }
   }
 
-  // ── Avg. Billing per Day (Financial Year, Total Revenue (L), No. of Engaged Days, AVG per day, notes)
   var abpdSec=findSection(rows,'Avg. Billing per Day');
   if(abpdSec>=0){
     var hdrIdx=abpdSec+1;
@@ -1040,10 +1045,7 @@ function doFin(wb){
   }
 }
 
-/* ============================ SOLUTIONING ============================
-   Each breakdown table carries BOTH a proposal count and a rupee value per FY.
-   Count and Value are now rendered as two adjacent charts (side by side) so both
-   views are visible at once, instead of a single chart toggled between metrics. */
+/* ============================ SOLUTIONING ============================ */
 var SOL_DATA={};
 
 function renderSolPair(key,baseId,horiz,truncLabel){
@@ -1119,7 +1121,6 @@ function doSol(wb){
   var indHi=findHdr(rows,'Industry');
   if(indHi>=0){
     SOL_DATA.ind=parseFYCountValue(rows,indHi);
-    // KPI: top industry by current-FY count
     var topInd=SOL_DATA.ind.rows.slice().sort(function(a,b){return b.curCount-a.curCount;})[0]||{label:'--',curCount:0};
     set('sk3',topInd.label||'--');
     set('sk3s',topInd.curCount+' opportunities this FY');
@@ -1167,7 +1168,15 @@ function doSol(wb){
     renderSolPair('los','sol-los',false,0);
   }
 
-  // ── Monthly proposal trend (count only, two FY lines) — unchanged
+  // ── Type of Service (count + value per FY) — NEW section added in this sheet
+  var tosHi=findHdr(rows,'Type of Service');
+  if(tosHi<0)tosHi=findHdr(rows,'Type Of Service');
+  if(tosHi>=0){
+    SOL_DATA.tos=parseFYCountValue(rows,tosHi);
+    renderSolPair('tos','sol-tos',false,0);
+  }
+
+  // ── Monthly proposal trend — combo: previous FY as (thin) bars + current FY as a line
   var mthHi=findHdr(rows,'Month',50);
   if(mthHi<0)mthHi=findHdr(rows,'Month');
   if(mthHi>=0){
@@ -1179,18 +1188,25 @@ function doSol(wb){
 
     var mthDatasets=[];
     if(prevMthCol){
-      mthDatasets.push({label:prevMthCol,data:mthData.map(function(r){return num(r[prevMthCol]);}),
-        backgroundColor:'rgba(27,42,74,0.15)',borderColor:NV,borderWidth:2,fill:true,tension:0.3,pointRadius:3,spanGaps:false});
+      mthDatasets.push({type:'bar',label:prevMthCol,
+        data:mthData.map(function(r){return num(r[prevMthCol]);}),
+        backgroundColor:'rgba(27,42,74,0.55)',borderColor:NV,borderWidth:1,borderRadius:3,
+        categoryPercentage:0.5,barPercentage:0.55,maxBarThickness:16,order:2,
+        datalabels:{display:false}});
     }
-    mthDatasets.push({label:curMthCol||'Current FY',data:mthData.map(function(r){return numOrNull(r[curMthCol]);}),
-      backgroundColor:'rgba(0,128,140,0.12)',borderColor:TL,borderWidth:2,fill:true,tension:0.3,pointRadius:4,spanGaps:false});
+    mthDatasets.push({type:'line',label:(curMthCol||'Current FY'),
+      data:mthData.map(function(r){return numOrNull(r[curMthCol]);}),
+      backgroundColor:'rgba(0,128,140,0.10)',borderColor:TL,borderWidth:2.5,
+      fill:false,tension:0.35,pointRadius:4,pointHoverRadius:5,pointBackgroundColor:TL,
+      spanGaps:false,order:1,
+      datalabels:{display:true,anchor:'end',align:'top',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:TL,padding:2}});
 
-    mk('sol-trend',{type:'line',
+    mk('sol-trend',{type:'bar',
       data:{labels:mthData.map(function(r){return norm(r['Month']);}),datasets:mthDatasets},
       options:{responsive:true,maintainAspectRatio:false,
-        spanGaps:false,
+        layout:{padding:{top:14}},
         plugins:{legend:{position:'top'},datalabels:{display:false}},
-        scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:gridCol()},ticks:{font:{size:10}}}}}});
+        scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,grid:{color:gridCol()},ticks:{font:{size:10}}}}}});
   }
 }
 
@@ -1235,6 +1251,7 @@ function doSal(wb){
     var totalIPVal=pd.reduce(function(s,r){return s+num(r['In Process Value (Rs.)']);},0);
     var totalLostVal=pd.reduce(function(s,r){return s+num(r['Lost Value (Rs.)']);},0);
     var totalWonCount=pd.reduce(function(s,r){return s+num(r['Won (Count)']);},0);
+    var totalLostCount=pd.reduce(function(s,r){return s+num(r['Lost (Count)']);},0);
     var totalIPCount=pd.reduce(function(s,r){return s+num(r['In Process (Count)']);},0);
 
     set('slk2',fmtInr(totalWonVal));
@@ -1242,7 +1259,6 @@ function doSal(wb){
     set('slk3',fmtInr(totalIPVal));
     set('slk3s',totalIPCount+' proposals active');
 
-    // Monthly proposal status chart (counts AND values, side by side), fed from the same table
     SAL_DATA.prop=pd.map(function(r){
       return{
         month:norm(r['Month']),
@@ -1289,26 +1305,35 @@ function doSal(wb){
     }
 
     var ptb=document.querySelector('#sal-prop-tbl tbody');
-    if(ptb)ptb.innerHTML=pd.map(function(r){
-      return'<tr>'
-        +'<td style="font-weight:600">'+norm(r['Month'])+'</td>'
-        +'<td class="nr">'+num(r['No. of Proposals'])+'</td>'
-        +'<td class="nr" style="color:#2DBD7E">'+num(r['Won (Count)'])+'</td>'
-        +'<td class="nr" style="color:#E05252">'+num(r['Lost (Count)'])+'</td>'
-        +'<td class="nr" style="color:#E8A020">'+num(r['In Process (Count)'])+'</td>'
-        +'<td class="nr">'+fmtInr(num(r['Won Value (Rs.)']))+'</td>'
-        +'<td class="nr">'+fmtInr(num(r['Lost Value (Rs.)']))+'</td>'
-        +'<td class="nr">'+fmtInr(num(r['In Process Value (Rs.)']))+'</td>'
-        +'<td style="font-size:10px">'+norm(r['Won Clients'])+'</td>'
-        +'<td style="font-size:10px">'+norm(r['In Process Clients'])+'</td>'
-        +'</tr>';
-    }).join('');
+    if(ptb){
+      ptb.innerHTML=pd.map(function(r){
+        return'<tr>'
+          +'<td style="font-weight:600">'+norm(r['Month'])+'</td>'
+          +'<td class="nr">'+num(r['No. of Proposals'])+'</td>'
+          +'<td class="nr" style="color:#2DBD7E">'+num(r['Won (Count)'])+'</td>'
+          +'<td class="nr" style="color:#E05252">'+num(r['Lost (Count)'])+'</td>'
+          +'<td class="nr" style="color:#E8A020">'+num(r['In Process (Count)'])+'</td>'
+          +'<td class="nr">'+fmtInr(num(r['Won Value (Rs.)']))+'</td>'
+          +'<td class="nr">'+fmtInr(num(r['Lost Value (Rs.)']))+'</td>'
+          +'<td class="nr">'+fmtInr(num(r['In Process Value (Rs.)']))+'</td>'
+          +'<td style="font-size:10px">'+norm(r['Won Clients'])+'</td>'
+          +'<td style="font-size:10px">'+norm(r['In Process Clients'])+'</td>'
+          +'</tr>';
+      }).join('');
+      ptb.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
+        +'<td>Total</td>'
+        +'<td class="nr">'+totalProps+'</td>'
+        +'<td class="nr" style="color:#2DBD7E">'+totalWonCount+'</td>'
+        +'<td class="nr" style="color:#E05252">'+totalLostCount+'</td>'
+        +'<td class="nr" style="color:#E8A020">'+totalIPCount+'</td>'
+        +'<td class="nr">'+fmtInr(totalWonVal)+'</td>'
+        +'<td class="nr">'+fmtInr(totalLostVal)+'</td>'
+        +'<td class="nr">'+fmtInr(totalIPVal)+'</td>'
+        +'<td></td><td></td></tr>';
+    }
   }
 
-  // ── Order Book. The sheet now carries S.No | Client | Topic | Order Booked |
-  // Projects Delivered | Confirmed With Dates | Balance (S.No + a Delivered column were
-  // added and columns reordered). Resolve each field by its header rather than a fixed
-  // index so the added columns don't misalign the table.
+  // ── Order Book
   var ordHi=findHdr(rows,'Order Booked');
   if(ordHi<0)ordHi=findHdr(rows,'Confirmed');
   if(ordHi>=0){
@@ -1323,25 +1348,43 @@ function doSal(wb){
 
     var otb=document.querySelector('#sal-ord-tbl tbody');
     var ohtml='';
+    var tBook=0,tDeliv=0,tConf=0,tBal=0;
+    var carryFwd=null,totConfDates=null;
     for(var oi=ordHi+1;oi<rows.length;oi++){
       var r=rows[oi]||[];
       var client=norm(cClient>=0?r[cClient]:'');
       var prog=norm(cProg>=0?r[cProg]:'');
-      // stop at blank client rows; skip TOTAL / Carry Forward / summary lines
-      if(client===''&&prog==='')break;
       var progLc=prog.toLowerCase();
-      if(client===''||client.toLowerCase().indexOf('total')>=0)continue;
-      if(progLc.indexOf('total')>=0||progLc.indexOf('carry forward')>=0)continue;
+      if(client===''){
+        if(progLc.indexOf('carry forward')>=0){carryFwd=num(cConf>=0?r[cConf]:0);continue;}
+        if(progLc.indexOf('total confirmed')>=0){totConfDates=num(cConf>=0?r[cConf]:0);continue;}
+        if(progLc.indexOf('total')>=0)continue;
+        if(prog==='')break;
+        continue;
+      }
+      if(client.toLowerCase().indexOf('total')>=0)continue;
+      var bkv=num(cBook>=0?r[cBook]:0);
+      var dlv=num(cDeliv>=0?r[cDeliv]:0);
+      var cfv=num(cConf>=0?r[cConf]:0);
       var bal=num(cBal>=0?r[cBal]:0);
+      tBook+=bkv;tDeliv+=dlv;tConf+=cfv;tBal+=bal;
       ohtml+='<tr>'
         +'<td>'+client+'</td>'
         +'<td style="font-size:10px;opacity:.75">'+prog+'</td>'
-        +'<td class="nr">'+fmtInr(num(cBook>=0?r[cBook]:0))+'</td>'
-        +'<td class="nr">'+fmtInr(num(cDeliv>=0?r[cDeliv]:0))+'</td>'
-        +'<td class="nr">'+fmtInr(num(cConf>=0?r[cConf]:0))+'</td>'
+        +'<td class="nr">'+fmtInr(bkv)+'</td>'
+        +'<td class="nr">'+fmtInr(dlv)+'</td>'
+        +'<td class="nr">'+fmtInr(cfv)+'</td>'
         +'<td class="nr" style="color:'+(bal>500000?'#E8A020':'var(--heading)')+'">'+fmtInr(bal)+'</td>'
         +'</tr>';
     }
+    ohtml+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
+      +'<td colspan="2">Total</td>'
+      +'<td class="nr">'+fmtInr(tBook)+'</td>'
+      +'<td class="nr">'+fmtInr(tDeliv)+'</td>'
+      +'<td class="nr">'+fmtInr(tConf)+'</td>'
+      +'<td class="nr">'+fmtInr(tBal)+'</td></tr>';
+    if(carryFwd!==null)ohtml+='<tr style="color:var(--text-secondary)"><td colspan="4">Carry Forward</td><td class="nr" colspan="2">'+fmtInr(carryFwd)+'</td></tr>';
+    if(totConfDates!==null)ohtml+='<tr style="font-weight:600;color:#00808C"><td colspan="4">Total Confirmed With Dates</td><td class="nr" colspan="2">'+fmtInr(totConfDates)+'</td></tr>';
     if(otb)otb.innerHTML=ohtml;
   }
 
@@ -1408,9 +1451,6 @@ function doSal(wb){
     var tarKey=tHdrs[1]||'Target (Rs.)';
     var pctKey=tHdrs[3]||'% Achieved';
 
-    // Pick whichever quarter today's calendar date falls in (FY: Apr-Jun=Q1 ... Jan-Mar=Q4).
-    // Falls back to the most recent quarter that actually has target data, in case the current
-    // quarter hasn't been filled into the Excel yet.
     var liveQLabel=currentFYQuarter();
     var curQRow=td.find(function(r){return norm(r[tgtKey]||(r.__raw?r.__raw[0]:'')).toLowerCase()===liveQLabel.toLowerCase();});
     if(!curQRow){
@@ -1490,6 +1530,7 @@ function doSal(wb){
       var crow2=rows[ci2]||[];
       var cFY=norm(crow2.length>0?crow2[0]:'');
       if(cFY==='')continue;
+      if(cFY.toLowerCase().indexOf('total unique')>=0)break;
       if(cFY.toLowerCase().indexOf('total')>=0){
         totalRow=crow2;
         continue;
@@ -1502,6 +1543,14 @@ function doSal(wb){
         +'<td class="nr">'+cUniq+'</td>'
         +'<td class="nr">'+cTot+'</td>'
         +'<td style="font-size:10px;color:var(--text-secondary);line-height:1.5">'+cNames+'</td>'
+        +'</tr>';
+    }
+    if(totalRow){
+      clHtml+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
+        +'<td style="white-space:nowrap">Total</td>'
+        +'<td class="nr">'+num(totalRow[1])+'</td>'
+        +'<td class="nr">'+num(totalRow[2])+'</td>'
+        +'<td style="font-size:10px;color:var(--text-secondary)">Cumulative since inception</td>'
         +'</tr>';
     }
     clTbody.innerHTML=clHtml;
