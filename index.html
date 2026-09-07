@@ -202,9 +202,9 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="kpi gn"><div class="lb">Total FY 26-27 Target</div><div class="vl" id="fk5">--</div><div class="sb">Yearly revenue target</div></div>
   </div>
   <div class="kg g3">
+    <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Pending collection</div></div>
     <div class="kpi pu"><div class="lb">To be Raised</div><div class="vl" id="fk4">--</div><div class="sb">Pending billing</div><span class="tg warn">Pending</span></div>
     <div class="kpi rd"><div class="lb">Total Amount Due in the Market</div><div class="vl" id="fk6">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
-    <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb">Pending collection</div></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">Monthly revenue per financial year</div><div class="ch-wrap"><canvas id="fin-rev"></canvas></div></div>
@@ -1176,7 +1176,7 @@ function doSol(wb){
     renderSolPair('tos','sol-tos',false,0);
   }
 
-  // ── Monthly proposal trend — combo: previous FY as (thin) bars + current FY as a line
+  // ── Monthly proposal trend — both FYs as grouped bars, each with a matching trend line overlaid
   var mthHi=findHdr(rows,'Month',50);
   if(mthHi<0)mthHi=findHdr(rows,'Month');
   if(mthHi>=0){
@@ -1186,20 +1186,39 @@ function doSol(wb){
     var curMthCol=lastFYCol(mthHdrs);
     var prevMthCol=prevFYCol(mthHdrs);
 
+    // Prev FY = full year (num). Cur FY = numOrNull so its line/bars stop at the last real month.
+    var prevSeries=mthData.map(function(r){return num(r[prevMthCol]);});
+    var curSeries=mthData.map(function(r){return numOrNull(r[curMthCol]);});
+
     var mthDatasets=[];
+
+    // Bars (drawn behind — higher order)
     if(prevMthCol){
       mthDatasets.push({type:'bar',label:prevMthCol,
-        data:mthData.map(function(r){return num(r[prevMthCol]);}),
+        data:prevSeries,
         backgroundColor:'rgba(27,42,74,0.55)',borderColor:NV,borderWidth:1,borderRadius:3,
-        categoryPercentage:0.5,barPercentage:0.55,maxBarThickness:16,order:2,
-        datalabels:{display:false}});
+        order:4,datalabels:{display:false}});
     }
-    mthDatasets.push({type:'line',label:(curMthCol||'Current FY'),
-      data:mthData.map(function(r){return numOrNull(r[curMthCol]);}),
-      backgroundColor:'rgba(0,128,140,0.10)',borderColor:TL,borderWidth:2.5,
-      fill:false,tension:0.35,pointRadius:4,pointHoverRadius:5,pointBackgroundColor:TL,
+    mthDatasets.push({type:'bar',label:(curMthCol||'Current FY'),
+      data:curSeries,
+      backgroundColor:'rgba(0,128,140,0.55)',borderColor:TL,borderWidth:1,borderRadius:3,
+      order:3,datalabels:{display:false}});
+
+    // Trend lines (drawn on top — lower order)
+    if(prevMthCol){
+      mthDatasets.push({type:'line',label:prevMthCol+' trend',
+        data:prevSeries,
+        borderColor:NV,borderWidth:2.5,borderDash:[5,4],
+        fill:false,tension:0.35,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:NV,
+        spanGaps:false,order:2,
+        datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'start',align:'bottom',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:NV,padding:2}});
+    }
+    mthDatasets.push({type:'line',label:(curMthCol||'Current FY')+' trend',
+      data:curSeries,
+      borderColor:TL,borderWidth:2.5,
+      fill:false,tension:0.35,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:TL,
       spanGaps:false,order:1,
-      datalabels:{display:true,anchor:'end',align:'top',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:TL,padding:2}});
+      datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'end',align:'top',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:TL,padding:2}});
 
     mk('sol-trend',{type:'bar',
       data:{labels:mthData.map(function(r){return norm(r['Month']);}),datasets:mthDatasets},
