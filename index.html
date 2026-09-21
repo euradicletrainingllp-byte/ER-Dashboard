@@ -175,20 +175,12 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
   </div>
   <div class="cg c1">
     <div class="card"><h3>Consultant Days &mdash; Previous Years</h3><div class="cs">FY 2023-24 through FY 2025-26, by trainer &mdash; one chart per year</div>
-      <div class="mini-chart-grid">
-        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-prevyears-title-0">FY</div><div class="ch-wrap tall"><canvas id="ops-prevyears-chart-0"></canvas></div></div>
-        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-prevyears-title-1">FY</div><div class="ch-wrap tall"><canvas id="ops-prevyears-chart-1"></canvas></div></div>
-        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-prevyears-title-2">FY</div><div class="ch-wrap tall"><canvas id="ops-prevyears-chart-2"></canvas></div></div>
-      </div>
+      <div class="mini-chart-grid" id="ops-prevyears-grid"></div>
     </div>
   </div>
   <div class="cg c1">
     <div class="card"><h3>Client Status &mdash; Historical by FY</h3><div class="cs">Projects delivered per client &mdash; one chart per year</div>
-      <div class="mini-chart-grid">
-        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-clientstatus-title-0">FY</div><div class="ch-wrap tall"><canvas id="ops-clientstatus-chart-0"></canvas></div></div>
-        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-clientstatus-title-1">FY</div><div class="ch-wrap tall"><canvas id="ops-clientstatus-chart-1"></canvas></div></div>
-        <div class="mini-chart-col"><div class="mini-chart-title" id="ops-clientstatus-title-2">FY</div><div class="ch-wrap tall"><canvas id="ops-clientstatus-chart-2"></canvas></div></div>
-      </div>
+      <div class="mini-chart-grid" id="ops-clientstatus-grid"></div>
     </div>
   </div>
 </div>
@@ -569,6 +561,21 @@ function parseFYCountValue(rows,headerIdx){
   return{rows:out,prevLabel:prev?prev.label:'',curLabel:cur?cur.label:''};
 }
 
+/* Generic side-by-side block reader: scans the header row for ANY number of
+   repeating column groups (Label, Value[, blank]) starting at column 0 and
+   repeating every `stride` columns, instead of assuming a fixed count of
+   blocks. This lets a section grow (e.g. a new FY added every year) without
+   any HTML/JS changes. */
+function getSideBySideBlocksAuto(rows,hdrRowIdx,stride){
+  stride=stride||3;
+  var hdr=rows[hdrRowIdx]||[];
+  var offsets=[];
+  for(var c=0;c<hdr.length;c+=stride){
+    if(norm(hdr[c])!=='')offsets.push(c);
+  }
+  return getSideBySideBlocks(rows,hdrRowIdx,offsets);
+}
+
 function getSideBySideBlocks(rows,hdrRowIdx,offsets){
   var blocks=offsets.map(function(off){
     return{off:off,key0:norm(rows[hdrRowIdx][off]),key1:norm(rows[hdrRowIdx][off+1]),data:[]};
@@ -590,6 +597,23 @@ function setChartHeight(canvasId,itemCount,pxPerItem){
   if(!c||!c.parentElement)return;
   var px=Math.max(220,itemCount*(pxPerItem||22));
   c.parentElement.style.height=px+'px';
+}
+
+/* Build (or rebuild) the N mini-chart columns for a "one chart per FY" grid,
+   so the grid always matches however many blocks the sheet actually has —
+   3 today, 4 next year, etc — instead of a hardcoded set of 3 <canvas>es. */
+function buildMiniChartGrid(gridId,idPrefix,count){
+  var grid=document.getElementById(gridId);
+  if(!grid)return;
+  var html='';
+  for(var i=0;i<count;i++){
+    html+='<div class="mini-chart-col">'
+      +'<div class="mini-chart-title" id="'+idPrefix+'-title-'+i+'">FY</div>'
+      +'<div class="ch-wrap tall"><canvas id="'+idPrefix+'-chart-'+i+'"></canvas></div>'
+      +'</div>';
+  }
+  grid.innerHTML=html;
+  grid.style.gridTemplateColumns='repeat('+Math.max(count,1)+',1fr)';
 }
 
 function gridCol(){return isDark?'#1E3048':'#EDF0F5';}
@@ -663,12 +687,16 @@ function doOps(wb){
     set('ok4',top['Client']||'--');
     set('ok4s',num(top['Upcoming'])+' upcoming projects');
 
+    /* Client count grows as new accounts land — size the chart to the row
+       count so bars never get squeezed thin, instead of a fixed-height card. */
+    var cdSorted=cd.slice().sort(function(a,b){return(num(b['Delivered'])+num(b['Upcoming']))-(num(a['Delivered'])+num(a['Upcoming']));});
+    setChartHeight('ops-clients',cdSorted.length,26);
     mk('ops-clients',{type:'bar',
       data:{
-        labels:cd.map(function(r){return norm(r['Client']);}),
+        labels:cdSorted.map(function(r){return norm(r['Client']);}),
         datasets:[
-          {label:'Delivered',data:cd.map(function(r){return num(r['Delivered']);}),backgroundColor:NV,borderRadius:4},
-          {label:'Upcoming',data:cd.map(function(r){return num(r['Upcoming']);}),backgroundColor:GD,borderRadius:4}
+          {label:'Delivered',data:cdSorted.map(function(r){return num(r['Delivered']);}),backgroundColor:NV,borderRadius:4},
+          {label:'Upcoming',data:cdSorted.map(function(r){return num(r['Upcoming']);}),backgroundColor:GD,borderRadius:4}
         ]
       },
       options:Object.assign({},bOpts(false,false),{indexAxis:'y',plugins:{legend:{position:'top'},datalabels:dlH()}})});
@@ -731,8 +759,9 @@ function doOps(wb){
 
   var cdpySec=findSection(rows,'Consultant Days - Previous Years');
   if(cdpySec>=0){
-    var cdpyBlocks=getSideBySideBlocks(rows,cdpySec+1,[0,3,6]);
-    var cdpyPalette=[TL,GD,NV];
+    var cdpyBlocks=getSideBySideBlocksAuto(rows,cdpySec+1,3);
+    buildMiniChartGrid('ops-prevyears-grid','ops-prevyears',cdpyBlocks.length);
+    var cdpyPalette=[TL,GD,NV,PU,GN,RD];
     var cdpySortedBlocks=cdpyBlocks.map(function(b){return b.data.slice().sort(function(a,c){return c.value-a.value;});});
     var cdpyMax=0;
     cdpySortedBlocks.forEach(function(arr){arr.forEach(function(d){if(d.value>cdpyMax)cdpyMax=d.value;});});
@@ -742,6 +771,7 @@ function doOps(wb){
       var titleEl=document.getElementById('ops-prevyears-title-'+idx);
       if(titleEl)titleEl.textContent=fyLabel;
       var sorted=cdpySortedBlocks[idx];
+      setChartHeight('ops-prevyears-chart-'+idx,sorted.length,24);
       var opts=Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}});
       opts.scales=Object.assign({},opts.scales,{x:Object.assign({},opts.scales.x,{min:0,max:cdpyAxisMax})});
       mk('ops-prevyears-chart-'+idx,{type:'bar',
@@ -756,11 +786,15 @@ function doOps(wb){
   var csSec=findSection(rows,'Client Status 20');
   if(csSec>=0){
     var csTitleRow=rows[csSec];
-    var offsets=[0,3,6];
+    var offsets=[];
+    for(var cc=0;cc<csTitleRow.length;cc+=3){
+      if(norm(csTitleRow[cc])!=='')offsets.push(cc);
+    }
     var csBlocks=offsets.map(function(off){
       var raw=norm(csTitleRow[off]);
       return{off:off,label:(raw.replace(/Client Status/i,'').trim())||raw||('Block '+off),data:[]};
     });
+    buildMiniChartGrid('ops-clientstatus-grid','ops-clientstatus',csBlocks.length);
     for(var i=csSec+2;i<rows.length;i++){
       var r=rows[i]||[];
       var any=false;
@@ -770,7 +804,7 @@ function doOps(wb){
       });
       if(!any)break;
     }
-    var csPalette=[NV,TL,GD];
+    var csPalette=[NV,TL,GD,PU,GN,RD];
     var csSortedBlocks=csBlocks.map(function(b){return b.data.slice().sort(function(a,c){return c.projects-a.projects;});});
     var csMax=0;
     csSortedBlocks.forEach(function(arr){arr.forEach(function(d){if(d.projects>csMax)csMax=d.projects;});});
@@ -779,6 +813,7 @@ function doOps(wb){
       var titleEl=document.getElementById('ops-clientstatus-title-'+idx);
       if(titleEl)titleEl.textContent=b.label||('FY '+(idx+1));
       var sorted=csSortedBlocks[idx];
+      setChartHeight('ops-clientstatus-chart-'+idx,sorted.length,24);
       var opts=Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH()}});
       opts.scales=Object.assign({},opts.scales,{x:Object.assign({},opts.scales.x,{min:0,max:csAxisMax})});
       mk('ops-clientstatus-chart-'+idx,{type:'bar',
@@ -1524,11 +1559,15 @@ function doSal(wb){
     var valKey=pHdrs[2]||'Approx. Value (Rs.)';
     var labelKey=pHdrs[0]||'Client';
 
+    var ppSorted=pp.slice().sort(function(a,b){
+      return num(b[valKey]||(b.__raw?b.__raw[2]:0))-num(a[valKey]||(a.__raw?a.__raw[2]:0));
+    });
+    setChartHeight('sal-pipe',ppSorted.length,28);
     mk('sal-pipe',{type:'bar',
       data:{
-        labels:pp.map(function(r){return norm(r[labelKey]||(r.__raw?r.__raw[0]:''));}),
+        labels:ppSorted.map(function(r){return norm(r[labelKey]||(r.__raw?r.__raw[0]:''));}),
         datasets:[{label:'Approx. Value (Rs.)',
-          data:pp.map(function(r){return num(r[valKey]||(r.__raw?r.__raw[2]:0));}),
+          data:ppSorted.map(function(r){return num(r[valKey]||(r.__raw?r.__raw[2]:0));}),
           backgroundColor:[TL,NV,GD,GN,PU,RD],borderRadius:4}]
       },
       options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlInrH()}})});
