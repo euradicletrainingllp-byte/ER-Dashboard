@@ -194,17 +194,16 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 <!-- FINANCE -->
 <div class="page" id="page-fin">
   <div class="pg-hdr"><h2>Finance</h2><p>Revenue, invoices &amp; outstanding collections</p></div>
-  <div class="kg g4">
-    <div class="kpi gd"><div class="lb">No. of Invoices</div><div class="vl" id="fk3">--</div><div class="sb">Total invoiced to date</div></div>
-    <div class="kpi tl"><div class="lb">FY 26-27 Revenue YTD</div><div class="vl" id="fk1">--</div><div class="sb" id="fk1s">Apr + May + Jun combined</div></div>
-    <div class="kpi gn"><div class="lb">Total FY 26-27 Target</div><div class="vl" id="fk5">--</div><div class="sb">Yearly revenue target</div></div>
-    <div class="kpi gn"><div class="lb">Amount Collected</div><div class="vl" id="fk7">--</div><div class="sb">Payments received</div><span class="tg up">Collected</span></div>
+  <div class="kg g3">
+    <div class="kpi gd"><div class="lb">No. of Invoices Raised</div><div class="vl" id="fk1">--</div><div class="sb">Total invoices raised to date</div></div>
+    <div class="kpi tl"><div class="lb">Total Revenue</div><div class="vl" id="fk2">--</div><div class="sb" id="fk2s">Invoiced revenue this FY</div></div>
+    <div class="kpi gn"><div class="lb">Collection</div><div class="vl" id="fk3">--</div><div class="sb">Payments received</div><span class="tg up">Collected</span></div>
   </div>
   <div class="kg g4">
-    <div class="kpi rd"><div class="lb">Outstanding Payments Due</div><div class="vl" id="fk2">--</div><div class="sb" id="fk2s">Pending collection</div></div>
-    <div class="kpi pu"><div class="lb">To be Raised</div><div class="vl" id="fk4">--</div><div class="sb">Pending billing</div><span class="tg warn">Pending</span></div>
-    <div class="kpi rd"><div class="lb">Total Amount Due in the Market</div><div class="vl" id="fk6">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
-    <div class="kpi nv"><div class="lb" id="fk8-label">Invoiced Revenue</div><div class="vl" id="fk8">--</div><div class="sb">As entered in the summary sheet</div></div>
+    <div class="kpi rd"><div class="lb">Total Due in Market</div><div class="vl" id="fk4">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
+    <div class="kpi nv"><div class="lb">Raised within Timeline &ndash; Yet to Receive</div><div class="vl" id="fk5">--</div><div class="sb" id="fk5s">Invoiced, not yet due</div><span class="tg info">Within credit period</span></div>
+    <div class="kpi rd"><div class="lb">Raised within Timeline &ndash; Overdue</div><div class="vl" id="fk6">--</div><div class="sb" id="fk6s">Past due date, pending collection</div><span class="tg bad">Overdue</span></div>
+    <div class="kpi pu"><div class="lb">To be Raised</div><div class="vl" id="fk7">--</div><div class="sb" id="fk7s">Pending billing</div><span class="tg warn">Pending</span></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">Monthly revenue per financial year (FY total shown with label)</div><div class="ch-wrap"><canvas id="fin-rev"></canvas></div></div>
@@ -231,7 +230,7 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     </div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Average Billing Days per Month</h3><div class="cs">Monthly billing distribution by financial year (FY total shown with label)</div><div class="ch-wrap"><canvas id="fin-billing"></canvas></div></div>
+    <div class="card"><h3>No. of Billing Days per Month</h3><div class="cs">Monthly billing distribution by financial year (FY total shown with label)</div><div class="ch-wrap"><canvas id="fin-billing"></canvas></div></div>
     <div class="card"><h3>Average Revenue per Engaged Day</h3><div class="cs">Revenue efficiency by financial year (Rs. Lakhs per engaged day)</div>
       <table class="mt" id="fin-avgbillday-tbl"><thead><tr><th>Financial Year</th><th class="nr">Total Revenue (Rs. L)</th><th class="nr">Engaged Days</th><th class="nr">Avg / Day (Rs. L)</th><th>Notes</th></tr></thead><tbody></tbody></table>
     </div>
@@ -451,15 +450,15 @@ function mk(id,cfg){
   if(c)CH[id]=new Chart(c.getContext('2d'),cfg);
 }
 
-function norm(v){return String(v==null?'':v).replace(/ /g,' ').trim();}
+function norm(v){return String(v==null?'':v).replace(/\u00a0/g,' ').trim();}
 function num(v){
-  var s=String(v).replace(/[₹,\n\r\s ]/g,'');
+  var s=String(v).replace(/[₹,\n\r\s\u00a0]/g,'');
   var n=parseFloat(s);
   return isNaN(n)?0:n;
 }
 function numOrNull(v){
   if(v===''||v===null||v===undefined)return null;
-  var s=String(v).replace(/[₹,\n\r\s ]/g,'');
+  var s=String(v).replace(/[₹,\n\r\s\u00a0]/g,'');
   if(s==='')return null;
   var n=parseFloat(s);
   return isNaN(n)?null:n;
@@ -467,7 +466,7 @@ function numOrNull(v){
 /* Strict numeric test: "24 Days" or "N/A" are NOT numbers (parseFloat would accept "24 Days"). */
 function isNumCell(v){
   if(typeof v==='number')return true;
-  var s=String(v==null?'':v).replace(/[₹,\n\r\s ]/g,'');
+  var s=String(v==null?'':v).replace(/[₹,\n\r\s\u00a0]/g,'');
   return s!==''&&/^-?\d+(\.\d+)?$/.test(s);
 }
 function fmtNum(v){
@@ -496,6 +495,8 @@ function fmtInr(v){
   return'Rs.'+Math.round(v);
 }
 function fmtL(v){return'Rs.'+parseFloat(v).toFixed(2)+'L';}
+/* Amount that may be entered either in Lakhs (small number) or in full Rupees (large number). */
+function fmtAmt(v){return Math.abs(v)>=100000?fmtInr(v):fmtL(v);}
 
 function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
 function setHTML(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
@@ -980,6 +981,12 @@ function doFin(wb){
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',blankrows:true});
   var colors=[TL,GD,NV,PU,GN,RD,'#3B82F6','#0EA5A4','#F97316','#64748B','#A855F7','#84CC16'];
 
+  // Values gathered across sections, used by the top KPI boxes at the end
+  var finYtd=null,finYtdMonths='';
+  var outstandingSum=0,overdueSum=null;
+  var tbiTotalAll=null;
+  var S={};
+
   var revHi=findHdr(rows,'April Revenue');
   if(revHi<0)revHi=findHdr(rows,'Revenue (L)');
   if(revHi>=0){
@@ -990,10 +997,9 @@ function doFin(wb){
       var tIdx=totalColOf(rows[revHi]);
       var ytd=tIdx>=0?num(curRev.__raw[tIdx]):0;
       if(ytd===0)ytd=mcols.reduce(function(s,m){return s+num(curRev.__raw[m.i]);},0);
-      set('fk1',fmtL(ytd));
-      var months=mcols.filter(function(m){return num(curRev.__raw[m.i])>0;})
-        .map(function(m){return m.h.replace(/Revenue\s*\(L\)/i,'').trim();});
-      set('fk1s',(months.join(' + ')||'No months yet')+' combined');
+      finYtd=ytd;
+      finYtdMonths=mcols.filter(function(m){return num(curRev.__raw[m.i])>0;})
+        .map(function(m){return m.h.replace(/Revenue\s*\(L\)/i,'').trim();}).join(' + ');
     }
   }
 
@@ -1005,7 +1011,6 @@ function doFin(wb){
   // ── Payments Due — all columns from the sheet (Total Outstanding, Due Dates, Credit Period, Amount Due, Past Due Date…)
   var dueTitle1=findTitleRow(rows,'Payments Due');
   var dueHi=findHdr(rows,'Amount Due',dueTitle1>=0?dueTitle1:0);
-  var outstandingSum=0;
   if(dueHi>=0){
     var dHdr=rows[dueHi].map(norm);
     var dueRaw=[];
@@ -1021,6 +1026,7 @@ function doFin(wb){
     var amtIdx=findIdx('amount due');
     var amtSum=amtIdx>=0?dueRaw.reduce(function(s,r){return s+num(r[amtIdx]);},0):0;
     outstandingSum=outIdx>=0?dueRaw.reduce(function(s,r){return s+num(r[outIdx]);},0):amtSum;
+    if(amtIdx>=0&&outIdx>=0)overdueSum=amtSum;
     var pastDue=dueRaw.filter(function(r){return amtIdx>=0&&num(r[amtIdx])>0;}).length;
     set('fin-due-cs','Total outstanding: Rs.'+outstandingSum.toFixed(2)+'L across '+dueRaw.length+' clients'
       +(amtIdx>=0&&outIdx>=0?' · Amount due now: Rs.'+amtSum.toFixed(2)+'L ('+pastDue+' clients)':'')+' · values in Rs. Lakhs');
@@ -1074,6 +1080,7 @@ function doFin(wb){
         return first!==''&&first.toLowerCase().indexOf('total')<0;
       });
       var tbiTotal=tbiData.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
+      tbiTotalAll=tbiTotal;
       set('fin-tobeinv-cs','Pending billing: Rs.'+tbiTotal.toFixed(2)+'L across '+tbiData.length+' program(s)');
       if(tbiBody){
         tbiBody.innerHTML=tbiData.map(function(r){
@@ -1123,7 +1130,7 @@ function doFin(wb){
   var billHi=billSecRow>=0?findHdr(rows,'Financial Year',billSecRow+1):-1;
   if(billHi>=0)fyMonthChart('fin-billing',rows,billHi,colors,function(t){return fmtNum(t)+' days';});
 
-  // ── Invoice & Payment Summary — every field shown in a table, key ones as KPIs
+  // ── Invoice & Payment Summary — every field shown in a table; fields feed the top KPI boxes
   var summSecRow=findTitleRow(rows,'Invoice & Payment Summary');
   if(summSecRow<0)summSecRow=findSection(rows,'Invoice &');
   var summHi=summSecRow>=0?summSecRow+1:findHdr(rows,'To be Invoiced');
@@ -1137,29 +1144,54 @@ function doFin(wb){
       }
       return null;
     };
-    var fInv=pick(['no. of invoice','no. of invoiced']);
-    var fTbi=pick(['to be invoiced']);
-    var fOut=pick(['outstanding']);
-    var fMkt=pick(['dues in market','due in market']);
-    var fCol=pick(['collected']);
-    var fRev=pick(['invoiced revenue']);
-    var fTgt=pick(['targeted revenue','target']);
-    if(fInv)set('fk3',fmtNum(num(fInv.v)));
-    if(fTbi)set('fk4',fmtL(num(fTbi.v)));
-    if(fMkt)set('fk6',fmtL(num(fMkt.v)));
-    if(fCol)set('fk7',fmtL(num(fCol.v)));
-    if(fRev){set('fk8-label',fRev.h);set('fk8',fmtNum(num(fRev.v)));}
-    var outVal=fOut&&num(fOut.v)>0?num(fOut.v):outstandingSum;
-    set('fk2',fmtL(outVal));
-    if(fTgt){
-      var tv=num(fTgt.v);
-      set('fk5',/\(cr\)/i.test(fTgt.h)?'Rs.'+tv.toFixed(2)+'Cr':fmtL(tv));
-    }
+    S.inv=pick(['no. of invoice','no. of invoiced','invoices raised','no of invoice']);
+    S.rev=pick(['total revenue','invoiced revenue']);
+    S.col=pick(['collected','collection']);
+    S.mkt=pick(['dues in market','due in market']);
+    S.yet=pick(['yet to receive','not yet due']);
+    S.ovd=pick(['overdue','past due']);
+    S.tbi=pick(['to be invoiced','to be raised']);
+    S.out=pick(['outstanding']);
     // Table: header → value pairs
     var pairs=[];
     sHdr.forEach(function(h,i){if(h!==''||norm(sVal[i])!=='')pairs.push([h||('Column '+colLetter(i)),sVal[i]]);});
     renderGenericTable('fin-summ-tbl',['Field','Value'],pairs);
   }
+
+  // ── Top KPI boxes: summary fields first, falling back to the detailed tables
+  var kv=function(f){return f&&norm(f.v)!==''?num(f.v):null;};
+  var vInv=kv(S.inv),vRev=kv(S.rev),vCol=kv(S.col),vMkt=kv(S.mkt),
+      vYet=kv(S.yet),vOvd=kv(S.ovd),vTbi=kv(S.tbi),vOut=kv(S.out);
+
+  // 1. No. of Invoices Raised
+  set('fk1',vInv!==null?fmtNum(vInv):'--');
+
+  // 2. Total Revenue
+  if(vRev!==null){set('fk2',fmtAmt(vRev));set('fk2s',S.rev.h);}
+  else if(finYtd!==null){set('fk2',fmtL(finYtd));set('fk2s',(finYtdMonths||'Current FY')+' revenue combined');}
+  else set('fk2','--');
+
+  // 3. Collection
+  set('fk3',vCol!==null?fmtAmt(vCol):'--');
+
+  // 4. Total Due in Market
+  var mkt=vMkt!==null?vMkt:(vOut!==null&&vOut>0?vOut:(outstandingSum>0?outstandingSum:null));
+  set('fk4',mkt!==null?fmtAmt(mkt):'--');
+
+  // 5. Raised within Timeline – Yet to Receive (not yet past due date)
+  if(vYet!==null){set('fk5',fmtAmt(vYet));set('fk5s','Invoiced, not yet due');}
+  else if(overdueSum!==null){set('fk5',fmtL(Math.max(0,outstandingSum-overdueSum)));set('fk5s','Outstanding minus overdue (Payments Due table)');}
+  else set('fk5','--');
+
+  // 6. Raised within Timeline – Overdue (past due date)
+  if(vOvd!==null){set('fk6',fmtAmt(vOvd));set('fk6s','Past due date, pending collection');}
+  else if(overdueSum!==null){set('fk6',fmtL(overdueSum));set('fk6s','Amount Due column (Payments Due table)');}
+  else set('fk6','--');
+
+  // 7. To be Raised
+  if(vTbi!==null){set('fk7',fmtAmt(vTbi));set('fk7s','Pending billing');}
+  else if(tbiTotalAll!==null){set('fk7',fmtL(tbiTotalAll));set('fk7s','From the To be Invoiced table');}
+  else set('fk7','--');
 
   var abpdSec=findSection(rows,'Avg. Billing per Day');
   if(abpdSec>=0){
