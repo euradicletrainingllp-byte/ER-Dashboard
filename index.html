@@ -200,10 +200,10 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="kpi gn"><div class="lb">Collection</div><div class="vl" id="fk3">--</div><div class="sb">Payments received</div><span class="tg up">Collected</span></div>
   </div>
   <div class="kg g4">
-    <div class="kpi rd"><div class="lb">Total Due in Market</div><div class="vl" id="fk4">--</div><div class="sb">All outstanding market dues</div><span class="tg bad">Watch</span></div>
+    <div class="kpi pu"><div class="lb">To be Raised</div><div class="vl" id="fk7">--</div><div class="sb" id="fk7s">Pending billing</div><span class="tg warn">Pending</span></div>
     <div class="kpi nv"><div class="lb">Raised within Timeline &ndash; Yet to Receive</div><div class="vl" id="fk5">--</div><div class="sb" id="fk5s">Invoiced, not yet due</div><span class="tg info">Within credit period</span></div>
     <div class="kpi rd"><div class="lb">Raised within Timeline &ndash; Overdue</div><div class="vl" id="fk6">--</div><div class="sb" id="fk6s">Past due date, pending collection</div><span class="tg bad">Overdue</span></div>
-    <div class="kpi pu"><div class="lb">To be Raised</div><div class="vl" id="fk7">--</div><div class="sb" id="fk7s">Pending billing</div><span class="tg warn">Pending</span></div>
+    <div class="kpi rd"><div class="lb">Total Due in Market</div><div class="vl" id="fk4">--</div><div class="sb" id="fk4s">All outstanding market dues</div><span class="tg bad">Watch</span></div>
   </div>
   <div class="cg c11">
     <div class="card"><h3>Revenue by FY (Rs. Lakhs)</h3><div class="cs">Monthly revenue per financial year (FY total shown with label)</div><div class="ch-wrap"><canvas id="fin-rev"></canvas></div></div>
@@ -475,6 +475,27 @@ function fmtNum(v){
 }
 function colLetter(i){var s='';i++;while(i>0){var m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
 function esc(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+/* Finds a sheet even if its tab name has different capitals or extra spaces ("Finance " / "FINANCE"). */
+function getSheet(wb,name){
+  if(wb.Sheets[name])return wb.Sheets[name];
+  var t=name.toLowerCase().replace(/\s+/g,'');
+  for(var i=0;i<wb.SheetNames.length;i++){
+    if(wb.SheetNames[i].toLowerCase().replace(/\s+/g,'')===t)return wb.Sheets[wb.SheetNames[i]];
+  }
+  return null;
+}
+/* Value of the first column whose header contains any of the given words (case/space-insensitive).
+   Lets headers be renamed or re-worded ("Amount Due (L)" / "Amount Due (Rs. L)") without breaking. */
+function fcol(obj,subs){
+  var keys=Object.keys(obj);
+  for(var k=0;k<subs.length;k++){
+    var s=subs[k].toLowerCase();
+    for(var i=0;i<keys.length;i++){
+      if(keys[i]!=='__raw'&&keys[i].toLowerCase().replace(/\s+/g,' ').indexOf(s)>=0)return obj[keys[i]];
+    }
+  }
+  return'';
+}
 
 function dlColor(){return isDark?'#B8C8DC':'#374151';}
 function dlNum(){return{display:true,anchor:'end',align:'end',formatter:function(v){return v>0?v:'';},font:{size:11,weight:'600'},color:dlColor(),padding:2};}
@@ -729,7 +750,7 @@ function dOpts(){
 }
 
 function doOps(wb){
-  var ws=wb.Sheets['Operations'];
+  var ws=getSheet(wb,'Operations');
   if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',blankrows:true});
 
@@ -962,7 +983,7 @@ function fyMonthChart(canvasId,rows,hi,colors,totFmt){
   mk(canvasId,{type:'bar',
     data:{
       labels:data.map(function(r){
-        var t=tIdx>=0&&norm(r.__raw[tIdx])!==''?num(r.__raw[tIdx]):mcols.reduce(function(s,m){return s+num(r.__raw[m.i]);},0);
+        var t=mcols.reduce(function(s,m){return s+num(r.__raw[m.i]);},0);
         return[norm(r.__raw[0]),'Total: '+totFmt(t)];
       }),
       datasets:mcols.map(function(mc,i){return{
@@ -976,7 +997,7 @@ function fyMonthChart(canvasId,rows,hi,colors,totFmt){
 }
 
 function doFin(wb){
-  var ws=wb.Sheets['Finance'];
+  var ws=getSheet(wb,'Finance');
   if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',blankrows:true});
   var colors=[TL,GD,NV,PU,GN,RD,'#3B82F6','#0EA5A4','#F97316','#64748B','#A855F7','#84CC16'];
@@ -989,14 +1010,13 @@ function doFin(wb){
 
   var revHi=findHdr(rows,'April Revenue');
   if(revHi<0)revHi=findHdr(rows,'Revenue (L)');
+  if(revHi<0){var revT=findSection(rows,'Revenue Summary');if(revT>=0)revHi=findHdr(rows,'Financial Year',revT+1);}
   if(revHi>=0){
     var rd=fyMonthChart('fin-rev',rows,revHi,colors,function(t){return fmtNum(t)+'L';});
     var curRev=rd.length>0?rd[rd.length-1]:null;
     if(curRev){
       var mcols=monthColsOf(rows[revHi]);
-      var tIdx=totalColOf(rows[revHi]);
-      var ytd=tIdx>=0?num(curRev.__raw[tIdx]):0;
-      if(ytd===0)ytd=mcols.reduce(function(s,m){return s+num(curRev.__raw[m.i]);},0);
+      var ytd=mcols.reduce(function(s,m){return s+num(curRev.__raw[m.i]);},0);
       finYtd=ytd;
       finYtdMonths=mcols.filter(function(m){return num(curRev.__raw[m.i])>0;})
         .map(function(m){return m.h.replace(/Revenue\s*\(L\)/i,'').trim();}).join(' + ');
@@ -1022,8 +1042,8 @@ function doFin(wb){
       dueRaw.push(dr);
     }
     var findIdx=function(sub){for(var i=0;i<dHdr.length;i++){if(dHdr[i].toLowerCase().indexOf(sub)>=0)return i;}return -1;};
-    var outIdx=findIdx('outs');
-    var amtIdx=findIdx('amount due');
+    var outIdx=findIdx('outstanding');if(outIdx<0)outIdx=findIdx('outsatanding');if(outIdx<0)outIdx=findIdx('outs');
+    var amtIdx=findIdx('amount due');if(amtIdx<0)amtIdx=findIdx('overdue');
     var amtSum=amtIdx>=0?dueRaw.reduce(function(s,r){return s+num(r[amtIdx]);},0):0;
     outstandingSum=outIdx>=0?dueRaw.reduce(function(s,r){return s+num(r[outIdx]);},0):amtSum;
     if(amtIdx>=0&&outIdx>=0)overdueSum=amtSum;
@@ -1041,18 +1061,18 @@ function doFin(wb){
     if(ddHi>=0){
       var ddDetail=getSection(rows,ddHi);
       ddDetail=ddDetail.filter(function(r){
-        var first=norm(r['Client / Description']!==undefined?r['Client / Description']:(r.__raw?r.__raw[0]:''));
+        var first=norm(r.__raw?r.__raw[0]:'');
         return first!==''&&first.toLowerCase().indexOf('total')<0;
       });
-      var detailTotal=ddDetail.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
+      var detailTotal=ddDetail.reduce(function(s,r){return s+num(fcol(r,['amount due']));},0);
       set('fin-due-detail-cs','Invoice-level dues: Rs.'+detailTotal.toFixed(2)+'L across '+ddDetail.length+' line items');
       if(detailBody){
         detailBody.innerHTML=ddDetail.map(function(r){
           return'<tr>'
-            +'<td>'+esc(norm(r['Client / Description']))+'</td>'
-            +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
-            +'<td>'+esc(norm(r['Due Dates']))+'</td>'
-            +'<td>'+esc(norm(r['Type']))+'</td>'
+            +'<td>'+esc(norm(r.__raw[0]))+'</td>'
+            +'<td class="nr" style="white-space:nowrap;min-width:130px">'+num(fcol(r,['amount due'])).toFixed(2)+'</td>'
+            +'<td>'+esc(norm(fcol(r,['due date'])))+'</td>'
+            +'<td>'+esc(norm(fcol(r,['type'])))+'</td>'
             +'</tr>';
         }).join('');
         detailBody.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
@@ -1076,17 +1096,17 @@ function doFin(wb){
       var reasonKeyF=tbiHdrs.filter(function(h){return h.toLowerCase().indexOf('reason')>=0;})[0]||'Reason';
       var tbiData=getSection(rows,tbiHi);
       tbiData=tbiData.filter(function(r){
-        var first=norm(r['Client']!==undefined?r['Client']:(r.__raw?r.__raw[0]:''));
+        var first=norm(r.__raw?r.__raw[0]:'');
         return first!==''&&first.toLowerCase().indexOf('total')<0;
       });
-      var tbiTotal=tbiData.reduce(function(s,r){return s+num(r['Amount Due (L)']);},0);
+      var tbiTotal=tbiData.reduce(function(s,r){return s+num(fcol(r,['amount']));},0);
       tbiTotalAll=tbiTotal;
       set('fin-tobeinv-cs','Pending billing: Rs.'+tbiTotal.toFixed(2)+'L across '+tbiData.length+' program(s)');
       if(tbiBody){
         tbiBody.innerHTML=tbiData.map(function(r){
           return'<tr>'
-            +'<td style="font-weight:600">'+esc(norm(r['Client']))+'</td>'
-            +'<td class="nr" style="white-space:nowrap">'+num(r['Amount Due (L)']).toFixed(2)+'</td>'
+            +'<td style="font-weight:600">'+esc(norm(r.__raw[0]))+'</td>'
+            +'<td class="nr" style="white-space:nowrap">'+num(fcol(r,['amount'])).toFixed(2)+'</td>'
             +'<td>'+esc(norm(r[progKeyF]))+'</td>'
             +'<td style="white-space:nowrap">'+esc(norm(r[datesKeyF]))+'</td>'
             +'<td style="font-size:10px;color:var(--text-secondary)">'+esc(norm(r[reasonKeyF]))+'</td>'
@@ -1104,20 +1124,20 @@ function doFin(wb){
   if(creditHi>=0){
     var crData=getSection(rows,creditHi);
     crData=crData.filter(function(r){
-      return norm(r['Credit Note'])!==''&&norm(r['Credit Note']).toLowerCase().indexOf('total')<0;
+      var f=norm(r.__raw[0]);return f!==''&&f.toLowerCase().indexOf('total')<0;
     });
     var crtb=document.querySelector('#fin-credit-tbl tbody');
     if(crtb){
       crtb.innerHTML=crData.map(function(r){
         return'<tr>'
-          +'<td>'+esc(norm(r['Credit Note']))+'</td>'
-          +'<td class="nr">'+num(r['Count'])+'</td>'
-          +'<td class="nr">'+fmtL(num(r['Value (L)']))+'</td>'
-          +'<td>'+esc(norm(r['Notes']))+'</td>'
+          +'<td>'+esc(norm(r.__raw[0]))+'</td>'
+          +'<td class="nr">'+num(fcol(r,['count']))+'</td>'
+          +'<td class="nr">'+fmtL(num(fcol(r,['value'])))+'</td>'
+          +'<td>'+esc(norm(fcol(r,['note','date'])))+'</td>'
           +'</tr>';
       }).join('');
-      var crCount=crData.reduce(function(s,r){return s+num(r['Count']);},0);
-      var crValue=crData.reduce(function(s,r){return s+num(r['Value (L)']);},0);
+      var crCount=crData.reduce(function(s,r){return s+num(fcol(r,['count']));},0);
+      var crValue=crData.reduce(function(s,r){return s+num(fcol(r,['value']));},0);
       crtb.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
         +'<td>Total</td>'
         +'<td class="nr">'+crCount+'</td>'
@@ -1126,7 +1146,8 @@ function doFin(wb){
     }
   }
 
-  var billSecRow=findSection(rows,'Average Billing Days');
+  var billSecRow=findTitleRow(rows,'billing days');
+  if(billSecRow<0)billSecRow=findSection(rows,'Billing Days');
   var billHi=billSecRow>=0?findHdr(rows,'Financial Year',billSecRow+1):-1;
   if(billHi>=0)fyMonthChart('fin-billing',rows,billHi,colors,function(t){return fmtNum(t)+' days';});
 
@@ -1146,12 +1167,13 @@ function doFin(wb){
     };
     S.inv=pick(['no. of invoice','no. of invoiced','invoices raised','no of invoice']);
     S.rev=pick(['total revenue','invoiced revenue']);
-    S.col=pick(['collected','collection']);
-    S.mkt=pick(['dues in market','due in market']);
+    S.col=pick(['collection','collected']);
+    S.mkt=pick(['due in market','dues in market','total due']);
     S.yet=pick(['yet to receive','not yet due']);
     S.ovd=pick(['overdue','past due']);
-    S.tbi=pick(['to be invoiced','to be raised']);
+    S.tbi=pick(['to be raised','to be invoiced']);
     S.out=pick(['outstanding']);
+    if(S.mkt&&S.out&&S.mkt.i===S.out.i)S.out=null;
     // Table: header → value pairs
     var pairs=[];
     sHdr.forEach(function(h,i){if(h!==''||norm(sVal[i])!=='')pairs.push([h||('Column '+colLetter(i)),sVal[i]]);});
@@ -1159,7 +1181,7 @@ function doFin(wb){
   }
 
   // ── Top KPI boxes: summary fields first, falling back to the detailed tables
-  var kv=function(f){return f&&norm(f.v)!==''?num(f.v):null;};
+  var kv=function(f){return f&&isNumCell(f.v)?num(f.v):null;};
   var vInv=kv(S.inv),vRev=kv(S.rev),vCol=kv(S.col),vMkt=kv(S.mkt),
       vYet=kv(S.yet),vOvd=kv(S.ovd),vTbi=kv(S.tbi),vOut=kv(S.out);
 
@@ -1167,7 +1189,7 @@ function doFin(wb){
   set('fk1',vInv!==null?fmtNum(vInv):'--');
 
   // 2. Total Revenue
-  if(vRev!==null){set('fk2',fmtAmt(vRev));set('fk2s',S.rev.h);}
+  if(vRev!==null){set('fk2',fmtAmt(vRev));set('fk2s','Invoiced revenue this FY');}
   else if(finYtd!==null){set('fk2',fmtL(finYtd));set('fk2s',(finYtdMonths||'Current FY')+' revenue combined');}
   else set('fk2','--');
 
@@ -1201,7 +1223,8 @@ function doFin(wb){
       var r=rows[i]||[];
       var fy=norm(r[0]);
       if(fy==='')break;
-      rowsOut.push({fy:fy,rev:num(r[1]),days:num(r[2]),avg:num(r[3]),note:firstNonEmptyFrom(r,4)});
+      var rv=num(r[1]),dy=num(r[2]);
+      rowsOut.push({fy:fy,rev:rv,days:dy,avg:isNumCell(r[3])?num(r[3]):(dy>0?rv/dy:0),note:firstNonEmptyFrom(r,4)});
     }
     var abTb=document.querySelector('#fin-avgbillday-tbl tbody');
     if(abTb)abTb.innerHTML=rowsOut.map(function(r){
@@ -1274,7 +1297,7 @@ function findSideBlock(rows,hi,endRow,minCol){
 }
 
 function doSol(wb){
-  var ws=wb.Sheets['Solutioning'];
+  var ws=getSheet(wb,'Solutioning');
   if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',blankrows:true});
 
@@ -1464,7 +1487,7 @@ function renderSalPropPair(){
 }
 
 function doSal(wb){
-  var ws=wb.Sheets['Sales'];
+  var ws=getSheet(wb,'Sales');
   if(!ws)return;
   var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',blankrows:true});
 
@@ -1856,7 +1879,8 @@ var lastHash=null;
 function dataHash(wb){
   var h='';
   ['Operations','Finance','Solutioning','Sales'].forEach(function(s){
-    if(wb.Sheets[s])h+=JSON.stringify(XLSX.utils.sheet_to_json(wb.Sheets[s],{header:1,defval:'',blankrows:true}));
+    var w=getSheet(wb,s);
+    if(w)h+=s+JSON.stringify(XLSX.utils.sheet_to_json(w,{header:1,defval:'',blankrows:true}));
   });
   return h;
 }
