@@ -114,6 +114,19 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 .sub-h{font-size:11px;font-weight:700;color:var(--heading);margin:14px 0 6px}
 .sub-h:first-child{margin-top:0}
 .hidden{display:none!important}
+.tap-note{font-size:11px;color:var(--text-secondary);background:var(--card-bg);border:1px dashed var(--border);border-radius:8px;padding:7px 12px;margin-bottom:12px}
+.tap-hint{color:#00808C;font-weight:600}
+canvas.tappable{cursor:pointer}
+.dt-modal{position:fixed;inset:0;z-index:500;background:rgba(13,27,53,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.dt-box{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:min(980px,100%);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.dt-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 18px 10px;border-bottom:1px solid var(--border)}
+.dt-head h3{font-size:14px;font-weight:800;color:var(--heading)}
+.dt-head .cs{font-size:10px;color:var(--text-secondary);margin-top:2px}
+.dt-close{background:var(--tbl-header-bg);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;width:30px;height:30px;font-size:14px;cursor:pointer;flex-shrink:0}
+.dt-close:hover{border-color:#00808C;color:#00808C}
+.dt-body{overflow:auto;padding:10px 18px 16px}
+.mt tr.dt-hl td{background:rgba(0,128,140,.14)!important;font-weight:700}
+.mt tr.dt-tot td{font-weight:700;border-top:2px solid var(--border)}
 @media(max-width:800px){.g4,.g3,.g5{grid-template-columns:1fr 1fr}.c11,.c21{grid-template-columns:1fr}.page{padding:12px 10px 24px}.ch-wrap{height:200px}.ch-wrap.sm{height:160px}.ch-wrap.xs{height:130px}.ch-wrap.tall{height:260px}.mini-chart-grid{grid-template-columns:1fr}.cv-pair{grid-template-columns:1fr}}
 </style>
 </head>
@@ -244,7 +257,7 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
 
 <!-- SOLUTIONING -->
 <div class="page" id="page-sol">
-  <div class="pg-hdr"><h2>Solutioning</h2><p>Proposals, industry traction &amp; engagement mix &mdash; count and value shown side by side</p></div>
+  <div class="pg-hdr"><h2>Solutioning</h2><p>Proposals, development categories &amp; engagement mix &mdash; count and value shown side by side</p></div>
   <div class="kg g4">
     <div class="kpi tl"><div class="lb">FY 26-27 Total Proposals</div><div class="vl" id="sk1">--</div><div class="sb">Submitted this financial year</div></div>
     <div class="kpi gn"><div class="lb">Journey Engagements</div><div class="vl" id="sk2">--</div><div class="sb" id="sk2s">of total FY 26-27</div><span class="tg up">Demand shift</span></div>
@@ -259,26 +272,6 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
         <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap"><canvas id="sol-dev-value"></canvas></div></div>
       </div>
     </div>
-  </div>
-  <div class="cg c1">
-    <div class="card">
-      <h3>Industry Traction</h3><div class="cs">Opportunities by sector &mdash; FY 2025-26 vs FY 2026-27 &mdash; Count and Value</div>
-      <div class="cv-pair">
-        <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap-scroll" style="max-height:400px"><div class="ch-wrap-inner"><canvas id="sol-ind-count"></canvas></div></div></div>
-        <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap-scroll" style="max-height:400px"><div class="ch-wrap-inner"><canvas id="sol-ind-value"></canvas></div></div></div>
-      </div>
-    </div>
-  </div>
-  <div class="cg c1 hidden" id="sol-ind-extra-wrap">
-    <div class="card"><h3>Industry Breakdown &mdash; Side Table</h3><div class="cs" id="sol-ind-extra-cs">Additional block found beside the Industry table in the sheet</div>
-      <div class="cv-pair">
-        <div class="cv-col"><div class="ch-wrap"><canvas id="sol-ind-extra-chart"></canvas></div></div>
-        <div class="cv-col"><div class="mt-scroll"><table class="mt" id="sol-ind-extra-tbl"></table></div></div>
-      </div>
-    </div>
-  </div>
-  <div class="cg c1">
-    <div class="card"><h3>Monthly Proposal Trend</h3><div class="cs">New proposals submitted per month &mdash; FY 2025-26 (bars) vs FY 2026-27 (line)</div><div class="ch-wrap"><canvas id="sol-trend"></canvas></div></div>
   </div>
   <div class="cg c1">
     <div class="card">
@@ -336,28 +329,10 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="kpi nv"><div class="lb" id="slk4-label">Q1 Target Achieved</div><div class="vl" id="slk4">--</div><div class="sb" id="slk4s">of quarterly target</div></div>
     <div class="kpi pu"><div class="lb">Total Unique Clients</div><div class="vl" id="slk5">--</div><div class="sb">Since inception, till date</div><span class="tg info">All-time</span></div>
   </div>
-  <div class="cg c1">
-    <div class="card"><h3>Proposal Status &mdash; FY 2026-27</h3><div class="cs">Month-wise proposal breakdown with client names</div>
-      <div class="tbl-x"><table class="mt" id="sal-prop-tbl">
-        <thead><tr>
-          <th>Month</th>
-          <th class="nr">No. of Proposals</th>
-          <th class="nr">Won (Count)</th>
-          <th class="nr">Lost (Count)</th>
-          <th class="nr">In Process (Count)</th>
-          <th class="nr">Won Value (Rs.)</th>
-          <th class="nr">Lost Value (Rs.)</th>
-          <th class="nr">In Process Value (Rs.)</th>
-          <th>Won Clients</th>
-          <th>In Process Clients</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table></div>
-    </div>
-  </div>
+  <div class="tap-note">&#128073; Tap any graph to see its table values &mdash; the tapped month / quarter / client is highlighted</div>
   <div class="cg c1">
     <div class="card">
-      <h3>Monthly Proposal Status &mdash; FY 2026-27</h3><div class="cs">Won vs Lost vs In-Process, stacked per month &mdash; Count and Value</div>
+      <h3>Monthly Proposal Status &mdash; FY 2026-27</h3><div class="cs">Won vs Lost vs In-Process, stacked per month &mdash; Count and Value &middot; <span class="tap-hint">tap for month-wise table with client names</span></div>
       <div class="cv-pair">
         <div class="cv-col"><div class="cv-col-title">📊 Count</div><div class="ch-wrap"><canvas id="sal-monthly-prop-count"></canvas></div></div>
         <div class="cv-col"><div class="cv-col-title">₹ Value</div><div class="ch-wrap"><canvas id="sal-monthly-prop-value"></canvas></div></div>
@@ -365,30 +340,18 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     </div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value</div><div class="ch-wrap"><canvas id="sal-funnel"></canvas></div></div>
-    <div class="card"><h3>Quarterly Revenue Comparison</h3><div class="cs">Q1&ndash;Q4 across financial years</div><div class="ch-wrap"><canvas id="sal-qrev"></canvas></div></div>
+    <div class="card"><h3>Proposal Funnel (YTD)</h3><div class="cs">Won vs Lost vs In-Process by value &middot; <span class="tap-hint">tap for table</span></div><div class="ch-wrap"><canvas id="sal-funnel"></canvas></div></div>
+    <div class="card"><h3>Quarterly Revenue Comparison</h3><div class="cs">Q1&ndash;Q4 across financial years &middot; <span class="tap-hint">tap for table</span></div><div class="ch-wrap"><canvas id="sal-qrev"></canvas></div></div>
   </div>
   <div class="cg c11">
-    <div class="card"><h3>Monthly Revenue &mdash; FY 2026-27</h3><div class="cs">Revenue realized per month</div><div class="ch-wrap"><canvas id="sal-monthly"></canvas></div></div>
-    <div class="card"><h3>Order Book &mdash; Active Programs</h3><div class="cs" id="sal-ord-cs">Confirmed orders: booked vs delivered vs confirmed vs balance</div>
-      <div class="mt-scroll"><table class="mt" id="sal-ord-tbl"><thead><tr><th>Client</th><th>Program</th><th class="nr">Booked</th><th class="nr">Delivered</th><th class="nr">Confirmed by Dates</th><th class="nr">Balance</th></tr></thead><tbody></tbody></table></div>
+    <div class="card"><h3>Monthly Revenue &mdash; FY 2026-27</h3><div class="cs">Revenue realized per month &middot; <span class="tap-hint">tap for revenue &amp; key clients</span></div><div class="ch-wrap"><canvas id="sal-monthly"></canvas></div></div>
+    <div class="card"><h3>Order Book &mdash; Active Programs</h3><div class="cs" id="sal-ord-cs">Confirmed orders: booked vs delivered / confirmed vs balance</div>
+      <div class="mt-scroll"><table class="mt" id="sal-ord-tbl"><thead><tr><th>Client</th><th>Program</th><th class="nr">Order Booked</th><th class="nr">Delivered / Confirmed</th><th class="nr">Balance</th></tr></thead><tbody></tbody></table></div>
     </div>
   </div>
-  <div class="cg c21">
-    <div class="card"><h3>Expected Major Pipeline</h3><div class="cs">High-value deals expected to close</div><div class="ch-wrap"><canvas id="sal-pipe"></canvas></div>
-      <table class="mt" id="sal-pipe-tbl" style="margin-top:12px"><thead><tr><th>Client</th><th>Particulars</th><th class="nr">Approx. Value</th></tr></thead><tbody></tbody></table>
-    </div>
-    <div class="card"><h3>Quarterly Targets vs Achieved</h3><div class="cs">FY 2026-27 quarter-by-quarter tracking</div><div class="ch-wrap"><canvas id="sal-targets"></canvas></div></div>
-  </div>
-  <div class="cg c1">
-    <div class="card"><h3>FY 2026-27 — Quarterly Targets</h3><div class="cs">Target vs achieved revenue by quarter</div>
-      <table class="mt" id="sal-target-tbl"><thead><tr><th>Quarter</th><th class="nr">Target (Rs.)</th><th class="nr">Achieved (Rs.)</th><th class="nr">% Achieved</th></tr></thead><tbody></tbody></table>
-    </div>
-  </div>
-  <div class="cg c1">
-    <div class="card"><h3>Monthly Revenue Key Clients</h3><div class="cs">Clients driving revenue each month</div>
-      <table class="mt" id="sal-monthly-clients-tbl"><thead><tr><th>Month</th><th class="nr">Revenue</th><th>Key Clients</th></tr></thead><tbody></tbody></table>
-    </div>
+  <div class="cg c11">
+    <div class="card"><h3>Expected Major Pipeline</h3><div class="cs">High-value deals expected to close &middot; <span class="tap-hint">tap for particulars</span></div><div class="ch-wrap"><canvas id="sal-pipe"></canvas></div></div>
+    <div class="card"><h3>Quarterly Targets vs Achieved</h3><div class="cs">FY 2026-27 quarter-by-quarter tracking &middot; <span class="tap-hint">tap for table</span></div><div class="ch-wrap"><canvas id="sal-targets"></canvas></div></div>
   </div>
   <div class="cg c1">
     <div class="card"><h3>Client Engagement by Financial Year</h3><div class="cs">New vs total clients engaged each financial year, since inception</div>
@@ -400,6 +363,13 @@ body.dark .tg.bad{background:rgba(224,82,82,.15);color:#F87171}
     <div class="card"><h3>Additional Sales Summaries</h3><div class="cs">Other summary blocks found in the Sales sheet</div>
       <div id="sal-extra"></div>
     </div>
+  </div>
+</div>
+
+<div class="dt-modal hidden" id="dt-modal" onclick="if(event.target===this)closeDT()">
+  <div class="dt-box" role="dialog" aria-modal="true" aria-labelledby="dt-title">
+    <div class="dt-head"><div><h3 id="dt-title">Table</h3><div class="cs" id="dt-sub"></div></div><button class="dt-close" onclick="closeDT()" title="Close">&#10005;</button></div>
+    <div class="dt-body"><table class="mt" id="dt-tbl"></table></div>
   </div>
 </div>
 
@@ -416,15 +386,22 @@ function toggleTheme(){
   Chart.defaults.color=textCol;
   Object.values(CH).forEach(function(c){
     if(!c)return;
-    if(c.options.scales){
-      if(c.options.scales.x){c.options.scales.x.grid=c.options.scales.x.grid||{};c.options.scales.x.grid.color=gridColV;if(c.options.scales.x.ticks)c.options.scales.x.ticks.color=textCol;}
-      if(c.options.scales.y){c.options.scales.y.grid=c.options.scales.y.grid||{};c.options.scales.y.grid.color=gridColV;if(c.options.scales.y.ticks)c.options.scales.y.ticks.color=textCol;}
-    }
-    if(c.options.plugins&&c.options.plugins.legend&&c.options.plugins.legend.labels)c.options.plugins.legend.labels.color=textCol;
-    if(c.options.plugins&&c.options.plugins.datalabels&&c.options.plugins.datalabels.color!=='#fff'){
-      c.options.plugins.datalabels.color=dlCol;
-    }
-    c.update();
+    try{
+      var o=c.config.options||{};
+      var radial=c.config.type==='doughnut'||c.config.type==='pie';
+      if(!radial&&o.scales){
+        ['x','y'].forEach(function(a){
+          var sc=o.scales[a];if(!sc)return;
+          sc.grid=sc.grid||{};sc.grid.color=gridColV;
+          sc.ticks=sc.ticks||{};sc.ticks.color=textCol;
+        });
+      }
+      if(o.plugins&&o.plugins.legend){o.plugins.legend.labels=o.plugins.legend.labels||{};o.plugins.legend.labels.color=textCol;}
+      if(o.plugins&&o.plugins.datalabels&&o.plugins.datalabels.color!=='#fff'&&typeof o.plugins.datalabels.color!=='function'){
+        o.plugins.datalabels.color=dlCol;
+      }
+      c.update();
+    }catch(e){console.warn('Theme update skipped for a chart:',e);}
   });
 }
 
@@ -449,6 +426,39 @@ function mk(id,cfg){
   var c=document.getElementById(id);
   if(c)CH[id]=new Chart(c.getContext('2d'),cfg);
 }
+
+/* ── Tap-to-view table: a chart carries its own table; tapping the chart opens it in a popup
+   with the tapped month / quarter / client row highlighted.
+   spec = {title, sub, headers:[[label,isNumeric],..], rows:[[cellHtml,..],..], total:[cellHtml,..]|null} */
+var TAP={};
+function tapTable(id,spec){
+  TAP[id]=spec;
+  var ch=CH[id];
+  if(!ch)return;
+  ch.canvas.classList.add('tappable');
+  var onTap=function(evt,els,chart){
+    var hit=chart.getElementsAtEventForMode(evt,'nearest',{intersect:true},false);
+    if(!hit.length&&chart.config.type==='bar')hit=chart.getElementsAtEventForMode(evt,'index',{intersect:false,axis:chart.options.indexAxis==='y'?'y':'x'},false);
+    openDT(TAP[id],hit.length?hit[0].index:null);
+  };
+  ch.config.options.onClick=onTap; // raw config, so it survives theme re-renders
+  ch.update('none');
+}
+function openDT(spec,hlIdx){
+  if(!spec)return;
+  set('dt-title',spec.title||'Table');
+  set('dt-sub',spec.sub||'');
+  var th='<thead><tr>'+spec.headers.map(function(h){return'<th'+(h[1]?' class="nr"':'')+'>'+esc(h[0])+'</th>';}).join('')+'</tr></thead>';
+  var td=function(cells,i){return cells.map(function(c,k){return'<td'+(spec.headers[k]&&spec.headers[k][1]?' class="nr" style="white-space:nowrap"':'')+'>'+(c==null?'':c)+'</td>';}).join('');};
+  var body=spec.rows.map(function(r,i){return'<tr'+(i===hlIdx?' class="dt-hl"':'')+'>'+td(r,i)+'</tr>';}).join('');
+  if(spec.total)body+='<tr class="dt-tot">'+td(spec.total,-1)+'</tr>';
+  setHTML('dt-tbl',th+'<tbody>'+body+'</tbody>');
+  show('dt-modal',true);
+  var hl=document.querySelector('#dt-tbl tr.dt-hl');
+  if(hl)hl.scrollIntoView({block:'nearest'});
+}
+function closeDT(){show('dt-modal',false);}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDT();});
 
 function norm(v){return String(v==null?'':v).replace(/\u00a0/g,' ').trim();}
 function num(v){
@@ -824,6 +834,13 @@ function doOps(wb){
   var trainerHi=findHdr(rows,'Trainer');
   if(trainerHi>=0){
     var td=getSection(rows,trainerHi);
+    // The previous-years block sits directly below with no blank row in between: stop at its
+    // repeated "Trainer" header so earlier FYs don't leak into the FY 2026-27 table.
+    // A merged title row (e.g. "ER PMO Team" spanning A–H) also ends the block.
+    var mergedTitle={};
+    (ws['!merges']||[]).forEach(function(m){if(m.s.c===0&&m.e.c>m.s.c&&m.s.r===m.e.r)mergedTitle[m.s.r]=true;});
+    var stopAt=td.findIndex(function(r,k){return norm(r.__raw[0]).toLowerCase()==='trainer'||mergedTitle[trainerHi+1+k];});
+    if(stopAt>=0)td=td.slice(0,stopAt);
     td=td.filter(function(r){return norm(r['Trainer'])!==''&&norm(r['Trainer']).toLowerCase().indexOf('total')<0;});
     td.sort(function(a,b){
       return(num(b['Days Delivered'])+num(b['Days Upcoming']))-(num(a['Days Delivered'])+num(a['Days Upcoming']));
@@ -901,9 +918,19 @@ function doOps(wb){
     }
   }
 
+  // Previous-years block: located by its title if present, otherwise by the side-by-side
+  // "Trainer | FY 20xx" header row (the title row is no longer in the sheet).
+  var cdpyHdr=-1;
   var cdpySec=findSection(rows,'Consultant Days - Previous Years');
-  if(cdpySec>=0){
-    var cdpyBlocks=getSideBySideBlocksAuto(rows,cdpySec+1,3);
+  if(cdpySec>=0)cdpyHdr=cdpySec+1;
+  else{
+    for(var pi=0;pi<rows.length;pi++){
+      var prow=rows[pi]||[];
+      if(norm(prow[0]).toLowerCase()==='trainer'&&prow.some(function(c,k){return k>0&&/fy\s*\d{4}/i.test(norm(c));})){cdpyHdr=pi;break;}
+    }
+  }
+  if(cdpyHdr>=0){
+    var cdpyBlocks=getSideBySideBlocksAuto(rows,cdpyHdr,3);
     buildMiniChartGrid('ops-prevyears-grid','ops-prevyears',cdpyBlocks.length);
     var cdpyPalette=[TL,GD,NV,PU,GN,RD];
     var cdpySortedBlocks=cdpyBlocks.map(function(b){return b.data.slice().sort(function(a,c){return c.value-a.value;});});
@@ -1275,27 +1302,6 @@ function renderSolPair(key,baseId,horiz,truncLabel){
   });
 }
 
-/* Detects an extra Label/Count/Value block placed to the right of a section
-   (e.g. columns M–O beside the Industry table) that has no header of its own. */
-function findSideBlock(rows,hi,endRow,minCol){
-  var startCol=-1,startRow=-1;
-  for(var i=hi;i<Math.max(endRow,hi+1)&&i<rows.length;i++){
-    var r=rows[i]||[];
-    for(var c=minCol;c<r.length;c++){
-      if(norm(r[c])!==''&&(startCol<0||c<startCol)){startCol=c;if(startRow<0)startRow=i;}
-    }
-  }
-  if(startCol<0)return null;
-  for(var j=hi;j<rows.length;j++){if(norm((rows[j]||[])[startCol])!==''){startRow=j;break;}}
-  var out=[];
-  for(var k=startRow;k<rows.length;k++){
-    var rr=rows[k]||[];
-    if(norm(rr[startCol])==='')break;
-    out.push([rr[startCol],rr[startCol+1],rr[startCol+2]]);
-  }
-  return{col:startCol,row:startRow,data:out};
-}
-
 function doSol(wb){
   var ws=getSheet(wb,'Solutioning');
   if(!ws)return;
@@ -1342,30 +1348,7 @@ function doSol(wb){
     var topInd=SOL_DATA.ind.rows.slice().sort(function(a,b){return b.curCount-a.curCount;})[0]||{label:'--',curCount:0};
     set('sk3',topInd.label||'--');
     set('sk3s',topInd.curCount+' opportunities this FY');
-    renderSolPair('ind','sol-ind',true,0);
-
-    // Side table beside the Industry section (no header in sheet)
-    var side=findSideBlock(rows,indHi,SOL_DATA.ind.endRow,6);
-    show('sol-ind-extra-wrap',!!(side&&side.data.length));
-    if(side&&side.data.length){
-      var hdrCells=[norm(rows[indHi][side.col]),norm(rows[indHi][side.col+1]),norm(rows[indHi][side.col+2])];
-      var hasOwnHdr=side.row===indHi;
-      var body=hasOwnHdr?side.data.slice(1):side.data;
-      var hdrs=hasOwnHdr?hdrCells:['Industry','Count','Value (Rs.)'];
-      var items=body.filter(function(r){return norm(r[0]).toLowerCase().indexOf('total')<0;});
-      var totRow=body.filter(function(r){return norm(r[0]).toLowerCase().indexOf('total')>=0;})[0];
-      set('sol-ind-extra-cs','Block in columns '+colLetter(side.col)+'–'+colLetter(side.col+2)+' beside the Industry table'
-        +(hasOwnHdr?'':' (no header in the sheet)')
-        +(totRow?' · '+norm(totRow[0])+': '+fmtNum(num(totRow[1]))+' / '+fmtInr(num(totRow[2])):''));
-      renderGenericTable('sol-ind-extra-tbl',hdrs,body,{fmt:{2:fmtInr}});
-      items.sort(function(a,b){return num(b[1])-num(a[1]);});
-      mk('sol-ind-extra-chart',{type:'bar',
-        data:{labels:items.map(function(r){return norm(r[0]);}),
-          datasets:[{label:hdrs[1]||'Count',data:items.map(function(r){return num(r[1]);}),backgroundColor:PU,borderRadius:3}]},
-        options:Object.assign({},bOpts(false,true),{indexAxis:'y',plugins:{legend:{display:false},datalabels:dlH(),
-          tooltip:{callbacks:{afterLabel:function(ctx){return'Value: '+fmtInr(num(items[ctx.dataIndex][2]));}}}}})});
-      setChartHeight('sol-ind-extra-chart',items.length,26);
-    }
+    // Industry graphs removed from the Solutioning page; data still feeds the Top Industry KPI.
   }
 
   // ── Type of Engagement (count + value per FY) + KPI sk2 (Journey share)
@@ -1413,54 +1396,7 @@ function doSol(wb){
     SOL_DATA.tos=parseFYCountValue(rows,tosHi);
     renderSolPair('tos','sol-tos',false,24);
   }
-
-  // ── Monthly proposal trend
-  var mthSec=findTitleRow(rows,'Monthly Trend');
-  var mthHi=findHdr(rows,'Month',mthSec>=0?mthSec:0);
-  if(mthHi>=0){
-    var mthData=getSection(rows,mthHi);
-    mthData=mthData.filter(function(r){return norm(r['Month'])!=='';});
-    var mthHdrs=rows[mthHi].map(norm);
-    var curMthCol=lastFYCol(mthHdrs);
-    var prevMthCol=prevFYCol(mthHdrs);
-
-    var prevSeries=mthData.map(function(r){return num(r[prevMthCol]);});
-    var curSeries=mthData.map(function(r){return numOrNull(r[curMthCol]);});
-    var sumArr=function(a){return a.reduce(function(s,v){return s+(v||0);},0);};
-
-    var mthDatasets=[];
-    if(prevMthCol){
-      mthDatasets.push({type:'bar',label:prevMthCol+' (total '+sumArr(prevSeries)+')',
-        data:prevSeries,
-        backgroundColor:'rgba(27,42,74,0.55)',borderColor:NV,borderWidth:1,borderRadius:3,
-        order:4,datalabels:{display:false}});
-    }
-    mthDatasets.push({type:'bar',label:(curMthCol||'Current FY')+' (total '+sumArr(curSeries)+')',
-      data:curSeries,
-      backgroundColor:'rgba(0,128,140,0.55)',borderColor:TL,borderWidth:1,borderRadius:3,
-      order:3,datalabels:{display:false}});
-    if(prevMthCol){
-      mthDatasets.push({type:'line',label:prevMthCol+' trend',
-        data:prevSeries,
-        borderColor:NV,borderWidth:2.5,borderDash:[5,4],
-        fill:false,tension:0.35,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:NV,
-        spanGaps:false,order:2,
-        datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'start',align:'bottom',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:NV,padding:2}});
-    }
-    mthDatasets.push({type:'line',label:(curMthCol||'Current FY')+' trend',
-      data:curSeries,
-      borderColor:TL,borderWidth:2.5,
-      fill:false,tension:0.35,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:TL,
-      spanGaps:false,order:1,
-      datalabels:{display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;},anchor:'end',align:'top',formatter:function(v){return v>0?v:'';},font:{size:9,weight:'700'},color:TL,padding:2}});
-
-    mk('sol-trend',{type:'bar',
-      data:{labels:mthData.map(function(r){return norm(r['Month']);}),datasets:mthDatasets},
-      options:{responsive:true,maintainAspectRatio:false,
-        layout:{padding:{top:14}},
-        plugins:{legend:{position:'top'},datalabels:{display:false}},
-        scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,grid:{color:gridCol()},ticks:{font:{size:10}}}}}});
-  }
+  // Monthly Proposal Trend graph removed from the Solutioning page.
 }
 
 /* ============================== SALES =============================== */
@@ -1557,33 +1493,33 @@ function doSal(wb){
         }});
     }
 
-    var ptb=document.querySelector('#sal-prop-tbl tbody');
-    if(ptb){
-      ptb.innerHTML=pd.map(function(r){
-        return'<tr>'
-          +'<td style="font-weight:600">'+esc(norm(r['Month']))+'</td>'
-          +'<td class="nr">'+num(r['No. of Proposals'])+'</td>'
-          +'<td class="nr" style="color:#2DBD7E">'+num(r['Won (Count)'])+'</td>'
-          +'<td class="nr" style="color:#E05252">'+num(r['Lost (Count)'])+'</td>'
-          +'<td class="nr" style="color:#E8A020">'+num(r['In Process (Count)'])+'</td>'
-          +'<td class="nr">'+fmtInr(num(r['Won Value (Rs.)']))+'</td>'
-          +'<td class="nr">'+fmtInr(num(r['Lost Value (Rs.)']))+'</td>'
-          +'<td class="nr">'+fmtInr(num(r['In Process Value (Rs.)']))+'</td>'
-          +'<td style="font-size:10px">'+esc(norm(r['Won Clients']))+'</td>'
-          +'<td style="font-size:10px">'+esc(norm(r['In Process Clients']))+'</td>'
-          +'</tr>';
-      }).join('');
-      ptb.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)">'
-        +'<td>Total</td>'
-        +'<td class="nr">'+totalProps+'</td>'
-        +'<td class="nr" style="color:#2DBD7E">'+totalWonCount+'</td>'
-        +'<td class="nr" style="color:#E05252">'+totalLostCount+'</td>'
-        +'<td class="nr" style="color:#E8A020">'+totalIPCount+'</td>'
-        +'<td class="nr">'+fmtInr(totalWonVal)+'</td>'
-        +'<td class="nr">'+fmtInr(totalLostVal)+'</td>'
-        +'<td class="nr">'+fmtInr(totalIPVal)+'</td>'
-        +'<td></td><td></td></tr>';
-    }
+    // Tap tables (replace the former on-page Proposal Status table)
+    var clr=function(c,v){return'<span style="color:'+c+'">'+v+'</span>';};
+    var propSpec={
+      title:'Proposal Status — FY 2026-27',
+      sub:'Month-wise proposal breakdown with client names',
+      headers:[['Month'],['No. of Proposals',1],['Won (Count)',1],['Lost (Count)',1],['In Process (Count)',1],
+        ['Won Value (Rs.)',1],['Lost Value (Rs.)',1],['In Process Value (Rs.)',1],['Won Clients'],['In Process Clients']],
+      rows:pd.map(function(r){return[
+        '<b>'+esc(norm(r['Month']))+'</b>',num(r['No. of Proposals']),
+        clr(GN,num(r['Won (Count)'])),clr(RD,num(r['Lost (Count)'])),clr(GD,num(r['In Process (Count)'])),
+        fmtInr(num(r['Won Value (Rs.)'])),fmtInr(num(r['Lost Value (Rs.)'])),fmtInr(num(r['In Process Value (Rs.)'])),
+        '<span style="font-size:10px">'+esc(norm(r['Won Clients']))+'</span>','<span style="font-size:10px">'+esc(norm(r['In Process Clients']))+'</span>'];}),
+      total:['Total',totalProps,clr(GN,totalWonCount),clr(RD,totalLostCount),clr(GD,totalIPCount),
+        fmtInr(totalWonVal),fmtInr(totalLostVal),fmtInr(totalIPVal),'','']
+    };
+    tapTable('sal-monthly-prop-count',propSpec);
+    tapTable('sal-monthly-prop-value',propSpec);
+    var fnTot=totalWonVal+totalLostVal+totalIPVal;
+    var pctV=function(v){return fnTot>0?(v/fnTot*100).toFixed(1)+'%':'0.0%';};
+    tapTable('sal-funnel',{
+      title:'Proposal Funnel (YTD)',sub:'Won vs Lost vs In-Process — count and value',
+      headers:[['Status'],['Count',1],['Value (Rs.)',1],['Share of Value',1]],
+      rows:[[clr(GN,'<b>Won</b>'),totalWonCount,fmtInr(totalWonVal),pctV(totalWonVal)],
+        [clr(RD,'<b>Lost</b>'),totalLostCount,fmtInr(totalLostVal),pctV(totalLostVal)],
+        [clr(GD,'<b>In Process</b>'),totalIPCount,fmtInr(totalIPVal),pctV(totalIPVal)]],
+      total:['Total',totalWonCount+totalLostCount+totalIPCount,fmtInr(fnTot),fnTot>0?'100%':'0%']
+    });
   }
 
   // ── Order Book
@@ -1591,19 +1527,30 @@ function doSal(wb){
   var ordHi=findHdr(rows,'Order Booked',ordSec>=0?ordSec:0);
   if(ordHi<0)ordHi=findHdr(rows,'Confirmed');
   if(ordHi>=0){
-    if(ordSec>=0){
-      var sub=[];
-      for(var si=ordSec+1;si<ordHi;si++){var t=firstNonEmptyFrom(rows[si],0);if(t)sub.push(t);}
-      if(sub.length)set('sal-ord-cs','Confirmed orders ('+sub.join(', ')+'): booked vs delivered vs confirmed vs balance');
+    // Caption: section title (e.g. "FY - 27") is the single-cell row just above the header
+    var ordTitle='';
+    for(var ot=ordHi-1;ot>=Math.max(0,ordHi-3);ot--){
+      if(neCount(rows[ot])===1){ordTitle=firstNonEmptyFrom(rows[ot],0);break;}
+      if(neCount(rows[ot])>1)break;
     }
     var ohdr=rows[ordHi].map(function(h){return norm(h).toLowerCase();});
     var findCol=function(sub){for(var i=0;i<ohdr.length;i++){if(ohdr[i].indexOf(sub)>=0)return i;}return -1;};
     var cClient=findCol('client');
     var cProg=findCol('topic');if(cProg<0)cProg=findCol('program');
     var cBook=findCol('order booked');if(cBook<0)cBook=findCol('booked');
+    // Sheet now holds one combined "Projects Delivered / Confirmed" column; older files had two.
     var cDeliv=findCol('delivered');
     var cConf=findCol('confirmed');
+    var combined=cDeliv>=0&&cDeliv===cConf;
     var cBal=findCol('balance');
+    var delivHdr=combined?'Delivered / Confirmed':'Delivered';
+    var hdrHtml='<tr><th>Client</th><th>Program</th><th class="nr">Order Booked</th><th class="nr">'+delivHdr+'</th>'
+      +(combined||cConf<0?'':'<th class="nr">Confirmed by Dates</th>')+'<th class="nr">Balance</th></tr>';
+    var thd=document.querySelector('#sal-ord-tbl thead');
+    if(thd)thd.innerHTML=hdrHtml;
+    var showConf=!combined&&cConf>=0;
+    var nCols=showConf?6:5;
+    set('sal-ord-cs','Confirmed orders'+(ordTitle?' ('+ordTitle+')':'')+': booked vs '+delivHdr.toLowerCase()+(showConf?' vs confirmed':'')+' vs balance');
 
     var otb=document.querySelector('#sal-ord-tbl tbody');
     var ohtml='';
@@ -1615,8 +1562,9 @@ function doSal(wb){
       var prog=norm(cProg>=0?r[cProg]:'');
       var progLc=prog.toLowerCase();
       if(client===''){
-        if(progLc.indexOf('carry forward')>=0){carryFwd=num(cConf>=0?r[cConf]:0);continue;}
-        if(progLc.indexOf('total confirmed')>=0){totConfDates=num(cConf>=0?r[cConf]:0);continue;}
+        var cfCol=cConf>=0?cConf:cDeliv;
+        if(progLc.indexOf('carry forward')>=0){carryFwd=num(cfCol>=0?r[cfCol]:0);continue;}
+        if(progLc.indexOf('total confirmed')>=0){totConfDates=num(cfCol>=0?r[cfCol]:0);continue;}
         if(progLc.indexOf('total')>=0)continue;
         if(prog==='')break;
         continue;
@@ -1624,7 +1572,7 @@ function doSal(wb){
       if(client.toLowerCase().indexOf('total')>=0)continue;
       var bkv=num(cBook>=0?r[cBook]:0);
       var dlv=num(cDeliv>=0?r[cDeliv]:0);
-      var cfv=num(cConf>=0?r[cConf]:0);
+      var cfv=showConf?num(r[cConf]):0;
       var bal=num(cBal>=0?r[cBal]:0);
       tBook+=bkv;tDeliv+=dlv;tConf+=cfv;tBal+=bal;
       ohtml+='<tr>'
@@ -1632,7 +1580,7 @@ function doSal(wb){
         +'<td style="font-size:10px;opacity:.75">'+esc(prog)+'</td>'
         +'<td class="nr">'+fmtInr(bkv)+'</td>'
         +'<td class="nr">'+fmtInr(dlv)+'</td>'
-        +'<td class="nr">'+fmtInr(cfv)+'</td>'
+        +(showConf?'<td class="nr">'+fmtInr(cfv)+'</td>':'')
         +'<td class="nr" style="color:'+(bal>500000?'#E8A020':'var(--heading)')+'">'+fmtInr(bal)+'</td>'
         +'</tr>';
     }
@@ -1640,10 +1588,10 @@ function doSal(wb){
       +'<td colspan="2">Total</td>'
       +'<td class="nr">'+fmtInr(tBook)+'</td>'
       +'<td class="nr">'+fmtInr(tDeliv)+'</td>'
-      +'<td class="nr">'+fmtInr(tConf)+'</td>'
+      +(showConf?'<td class="nr">'+fmtInr(tConf)+'</td>':'')
       +'<td class="nr">'+fmtInr(tBal)+'</td></tr>';
-    if(carryFwd!==null)ohtml+='<tr style="color:var(--text-secondary)"><td colspan="4">Carry Forward</td><td class="nr" colspan="2">'+fmtInr(carryFwd)+'</td></tr>';
-    if(totConfDates!==null)ohtml+='<tr style="font-weight:600;color:#00808C"><td colspan="4">Total Confirmed With Dates</td><td class="nr" colspan="2">'+fmtInr(totConfDates)+'</td></tr>';
+    if(carryFwd!==null)ohtml+='<tr style="color:var(--text-secondary)"><td colspan="'+(nCols-2)+'">Carry Forward</td><td class="nr" colspan="2">'+fmtInr(carryFwd)+'</td></tr>';
+    if(totConfDates!==null)ohtml+='<tr style="font-weight:600;color:#00808C"><td colspan="'+(nCols-2)+'">Total Confirmed With Dates</td><td class="nr" colspan="2">'+fmtInr(totConfDates)+'</td></tr>';
     if(otb)otb.innerHTML=ohtml;
   }
 
@@ -1672,6 +1620,12 @@ function doSal(wb){
             borderRadius:3
           };})
       },options:Object.assign({},bOpts(false,false),{layout:{padding:{top:44}},plugins:{legend:{position:'top'},datalabels:Object.assign(dlInr(),{rotation:-90,align:'end',anchor:'end',font:{size:9,weight:'600'}})}})});
+    tapTable('sal-qrev',{
+      title:'Quarterly Revenue Comparison',sub:'Revenue by quarter across financial years (Rs.)',
+      headers:[['Quarter']].concat(fyCols.map(function(fc){return[fc,1];})),
+      rows:qd.map(function(r){return['<b>'+esc(norm(r.__raw[0]))+'</b>'].concat(fyCols.map(function(fc){return fmtInr(num(r[fc]));}));}),
+      total:['Total'].concat(fyCols.map(function(fc){return fmtInr(qd.reduce(function(s,r){return s+num(r[fc]);},0));}))
+    });
   }
 
   var mrevSecRow=findSection(rows,'Monthly Revenue');
@@ -1687,14 +1641,13 @@ function doSal(wb){
       },options:Object.assign({},bOpts(false,false),{layout:{padding:{top:16}},plugins:{legend:{position:'top'},datalabels:dlInr()}})});
 
     var mrTotal=mrd.reduce(function(s,r){return s+num(r['Revenue (Rs.)']);},0);
-    var mctb=document.querySelector('#sal-monthly-clients-tbl tbody');
-    if(mctb)mctb.innerHTML=mrd.map(function(r){
-      return'<tr>'
-        +'<td style="font-weight:600">'+esc(norm(r['Month']))+'</td>'
-        +'<td class="nr">'+fmtInr(num(r['Revenue (Rs.)']))+'</td>'
-        +'<td style="font-size:10px">'+esc(norm(r['Key Clients']))+'</td>'
-        +'</tr>';
-    }).join('')+'<tr style="font-weight:700;border-top:2px solid var(--border)"><td>Total</td><td class="nr">'+fmtInr(mrTotal)+'</td><td></td></tr>';
+    tapTable('sal-monthly',{
+      title:'Monthly Revenue — FY 2026-27',sub:'Revenue per month and the key clients driving it',
+      headers:[['Month'],['Revenue (Rs.)',1],['Key Clients']],
+      rows:mrd.map(function(r){return['<b>'+esc(norm(r['Month']))+'</b>',fmtInr(num(r['Revenue (Rs.)'])),
+        '<span style="font-size:10px">'+esc(norm(fcol(r,['key client','client'])))+'</span>'];}),
+      total:['Total',fmtInr(mrTotal),'']
+    });
   }
 
   var tgtSecRow=findSection(rows,'Quarterly Targets');
@@ -1748,25 +1701,20 @@ function doSal(wb){
       },options:Object.assign({},bOpts(false,false),{layout:{padding:{top:16}},plugins:{legend:{position:'top'},datalabels:dlInr()}})});
 
     var sumT=0,sumA=0;
-    var ttb=document.querySelector('#sal-target-tbl tbody');
-    if(ttb){
-      ttb.innerHTML=td.map(function(r){
-        var qLabel=norm(r[tgtKey]);
-        var isLive=qLabel.toLowerCase()===curQLabel.toLowerCase();
-        var tar=num(r[tarKey]);
-        var ach=num(r[achKey]);
-        sumT+=tar;sumA+=ach;
-        return'<tr'+(isLive?' style="background:rgba(0,128,140,0.06)"':'')+'>'
-          +'<td style="font-weight:600">'+esc(qLabel)+(isLive?' <span style="font-size:9px;color:#00808C;font-weight:700">(current)</span>':'')+'</td>'
-          +'<td class="nr">'+fmtInr(tar)+'</td>'
-          +'<td class="nr">'+fmtInr(ach)+'</td>'
-          +'<td class="nr">'+pctOf(r).toFixed(2)+'%</td>'
-          +'</tr>';
-      }).join('');
-      ttb.innerHTML+='<tr style="font-weight:700;border-top:2px solid var(--border)"><td>Total (YTD)</td>'
-        +'<td class="nr">'+fmtInr(sumT)+'</td><td class="nr">'+fmtInr(sumA)+'</td>'
-        +'<td class="nr">'+(sumT>0?(sumA/sumT*100).toFixed(2):'0.00')+'%</td></tr>';
-    }
+    var tgtRows=td.map(function(r){
+      var qLabel=norm(r[tgtKey]);
+      var isLive=qLabel.toLowerCase()===curQLabel.toLowerCase();
+      var tar=num(r[tarKey]),ach=num(r[achKey]);
+      sumT+=tar;sumA+=ach;
+      return['<b>'+esc(qLabel)+'</b>'+(isLive?' <span style="font-size:9px;color:#00808C;font-weight:700">(current)</span>':''),
+        fmtInr(tar),fmtInr(ach),pctOf(r).toFixed(2)+'%'];
+    });
+    tapTable('sal-targets',{
+      title:'FY 2026-27 — Quarterly Targets',sub:'Target vs achieved revenue by quarter',
+      headers:[['Quarter'],['Target (Rs.)',1],['Achieved (Rs.)',1],['% Achieved',1]],
+      rows:tgtRows,
+      total:['Total (YTD)',fmtInr(sumT),fmtInr(sumA),(sumT>0?(sumA/sumT*100).toFixed(2):'0.00')+'%']
+    });
   }
 
   var pipeHi=findHdr(rows,'Approx. Value');
@@ -1792,12 +1740,13 @@ function doSal(wb){
       },
       options:Object.assign({},bOpts(false,true),{indexAxis:'y',layout:{padding:{right:50}},plugins:{legend:{display:false},datalabels:dlInrH()}})});
     var ppTot=ppSorted.reduce(function(s,r){return s+num(r.__raw[valIdx]);},0);
-    var pptb=document.querySelector('#sal-pipe-tbl tbody');
-    if(pptb)pptb.innerHTML=ppSorted.map(function(r){
-      return'<tr><td style="font-weight:600">'+esc(norm(r.__raw[0]))+'</td>'
-        +'<td style="font-size:10px">'+esc(partIdx>=0?norm(r.__raw[partIdx]):'')+'</td>'
-        +'<td class="nr">'+fmtInr(num(r.__raw[valIdx]))+'</td></tr>';
-    }).join('')+'<tr style="font-weight:700;border-top:2px solid var(--border)"><td>Total</td><td></td><td class="nr">'+fmtInr(ppTot)+'</td></tr>';
+    tapTable('sal-pipe',{
+      title:'Expected Major Projects — In Pipeline',sub:'High-value deals expected to close · total '+fmtInr(ppTot),
+      headers:[['Client'],['Particulars'],['Approx. Value (Rs.)',1]],
+      rows:ppSorted.map(function(r){return['<b>'+esc(norm(r.__raw[0]))+'</b>',
+        '<span style="font-size:10px">'+esc(partIdx>=0?norm(r.__raw[partIdx]):'')+'</span>',fmtInr(num(r.__raw[valIdx]))];}),
+      total:['Total','',fmtInr(ppTot)]
+    });
   }
 
   var clHdrIdx=-1;
